@@ -12,5 +12,14 @@ in {
   home.homeDirectory = lib.mkForce homeDir;
   home.stateVersion = "24.05";
 
-  home.packages = [ ];
+  nixpkgs.config.allowUnfree = true;
+
+  home.packages = with pkgs; [
+    git
+    ripgrep
+    fzf
+    lsd
+    lazygit
+    neovim
+  ];
 }
