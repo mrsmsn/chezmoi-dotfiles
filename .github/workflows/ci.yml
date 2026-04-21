@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash syntax check
+        run: bash -n install.sh
+      - name: shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: .
+          # .tmpl files under home/ are chezmoi templates, not pure shell.
+          # nix/ contains Nix expressions, not shell.
+          ignore_paths: home nix
+
+  flake-check:
+    name: nix flake check (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: nix flake check
+        working-directory: nix
+        env:
+          USER: runner
+        run: nix flake check --impure --no-build
+
+  build-configs:
+    name: build ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: darwinConfigurations.default
+            attr: darwinConfigurations.default.system
+          - os: ubuntu-latest
+            label: homeConfigurations.linux
+            attr: homeConfigurations.linux.activationPackage
+          - os: ubuntu-latest
+            label: homeConfigurations.wsl
+            attr: homeConfigurations.wsl.activationPackage
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: nix build
+        working-directory: nix
+        env:
+          USER: runner
+        run: nix build --impure --no-link --print-build-logs ".#${{ matrix.attr }}"
+
+  template-variants:
+    name: .chezmoi.toml.tmpl variant detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Install chezmoi
+        run: nix profile install nixpkgs#chezmoi
+      - name: Assert template produces expected variant for each simulated env
+        run: |
+          set -euo pipefail
+
+          check() {
+            local os="$1" osrelease="$2" expected="$3" result
+            result=$(sed \
+              -e "s|\.chezmoi\.kernel\.osrelease|\"${osrelease}\"|g" \
+              -e "s|\.chezmoi\.os|\"${os}\"|g" \
+              home/.chezmoi.toml.tmpl | chezmoi execute-template)
+            echo "--- os=${os} osrelease=${osrelease} ---"
+            echo "${result}"
+            if ! echo "${result}" | grep -q "variant = \"${expected}\""; then
+              echo "FAIL: expected variant=\"${expected}\"" >&2
+              exit 1
+            fi
+          }
+
+          check darwin "irrelevant"                         darwin
+          check linux  "6.5.0-1014-azure"                   linux
+          check linux  "5.15.0-microsoft-standard-WSL2"     wsl
+
+  bootstrap-linux:
+    name: End-to-end bootstrap on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run install.sh against the local checkout
+        run: ./install.sh "file://${GITHUB_WORKSPACE}"
+      - name: Persist Nix paths for subsequent steps
+        run: |
+          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.nix-profile/bin" >> "$GITHUB_PATH"
+      - name: Verify variant is "linux"
+        run: |
+          variant=$(chezmoi data | jq -r .variant)
+          echo "variant=${variant}"
+          test "${variant}" = "linux"
+      - name: Second apply is idempotent
+        run: |
+          chezmoi apply
+          status=$(chezmoi status)
+          if [[ -n "${status}" ]]; then
+            echo "Dirty after second apply:" >&2
+            echo "${status}" >&2
+            exit 1
+          fi
+
+  bootstrap-macos:
+    name: End-to-end bootstrap on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run install.sh against the local checkout
+        run: ./install.sh "file://${GITHUB_WORKSPACE}"
+      - name: Persist Nix + nix-darwin paths for subsequent steps
+        run: |
+          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.nix-profile/bin" >> "$GITHUB_PATH"
+          echo "/run/current-system/sw/bin" >> "$GITHUB_PATH"
+      - name: Verify variant is "darwin"
+        run: |
+          variant=$(chezmoi data | jq -r .variant)
+          echo "variant=${variant}"
+          test "${variant}" = "darwin"
+      - name: nix-darwin activation succeeded
+        run: |
+          command -v darwin-rebuild
+          darwin-rebuild --list-generations 2>/dev/null \
+            || /run/current-system/sw/bin/darwin-rebuild --list-generations
+      - name: Second apply is idempotent
+        run: |
+          chezmoi apply
+          status=$(chezmoi status)
+          if [[ -n "${status}" ]]; then
+            echo "Dirty after second apply:" >&2
+            echo "${status}" >&2
+            exit 1
+          fi
