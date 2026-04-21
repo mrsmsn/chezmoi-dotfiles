@@ -27,12 +27,11 @@ jobs:
           ignore_paths: home nix
 
   flake-check:
-    name: nix flake check (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    # macOS runner is intentionally omitted here; see issue for re-enabling
+    # macOS CI. darwinConfigurations is still evaluated on ubuntu so eval-
+    # time errors in the darwin module are still caught.
+    name: nix flake check
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
@@ -43,21 +42,18 @@ jobs:
         run: nix flake check --impure --no-build
 
   build-configs:
+    # darwinConfigurations.default is intentionally not built here (requires
+    # macOS runner). See the issue for re-enabling macOS CI.
     name: build ${{ matrix.label }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            label: darwinConfigurations.default
-            attr: darwinConfigurations.default.system
-          - os: ubuntu-latest
-            label: homeConfigurations.linux
+          - label: homeConfigurations.linux
             attr: homeConfigurations.linux.activationPackage
-          - os: ubuntu-latest
-            label: homeConfigurations.wsl
+          - label: homeConfigurations.wsl
             attr: homeConfigurations.wsl.activationPackage
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
@@ -103,6 +99,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run install.sh against the local checkout
+        # GITHUB_TOKEN is forwarded so install.sh can write it into
+        # /etc/nix/nix.conf, which the nix-daemon reads when fetching
+        # flake inputs.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./install.sh "file://${GITHUB_WORKSPACE}"
       - name: Persist Nix paths for subsequent steps
         run: |
@@ -113,38 +114,6 @@ jobs:
           variant=$(chezmoi data | jq -r .variant)
           echo "variant=${variant}"
           test "${variant}" = "linux"
-      - name: Second apply is idempotent
-        run: |
-          chezmoi apply
-          status=$(chezmoi status)
-          if [[ -n "${status}" ]]; then
-            echo "Dirty after second apply:" >&2
-            echo "${status}" >&2
-            exit 1
-          fi
-
-  bootstrap-macos:
-    name: End-to-end bootstrap on macOS
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run install.sh against the local checkout
-        run: ./install.sh "file://${GITHUB_WORKSPACE}"
-      - name: Persist Nix + nix-darwin paths for subsequent steps
-        run: |
-          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.nix-profile/bin" >> "$GITHUB_PATH"
-          echo "/run/current-system/sw/bin" >> "$GITHUB_PATH"
-      - name: Verify variant is "darwin"
-        run: |
-          variant=$(chezmoi data | jq -r .variant)
-          echo "variant=${variant}"
-          test "${variant}" = "darwin"
-      - name: nix-darwin activation succeeded
-        run: |
-          command -v darwin-rebuild
-          darwin-rebuild --list-generations 2>/dev/null \
-            || /run/current-system/sw/bin/darwin-rebuild --list-generations
       - name: Second apply is idempotent
         run: |
           chezmoi apply
