@@ -128,6 +128,18 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Rename pre-existing /etc files to .before-nix-darwin
+        # nix-darwin aborts activation if /etc/zshrc etc. exist with unknown
+        # SHA256. The macos-latest runner ships with Homebrew-touched versions
+        # of these, so rename them out of the way the same way nix-darwin's
+        # own error message instructs real users to do.
+        run: |
+          for f in /etc/zshrc /etc/zshenv /etc/zprofile \
+                   /etc/bashrc /etc/bash.bashrc /etc/profile; do
+            if [[ -e "$f" && ! -L "$f" ]]; then
+              sudo mv -f "$f" "${f}.before-nix-darwin"
+            fi
+          done
       - name: Run install.sh against the local checkout
         run: ./install.sh "file://${GITHUB_WORKSPACE}"
       - name: Persist Nix + nix-darwin paths for subsequent steps
