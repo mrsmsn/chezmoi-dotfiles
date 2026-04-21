@@ -15,11 +15,16 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
-    git
-    ripgrep
+    bat
     fzf
-    lsd
+    ghq
+    git
+    go
     lazygit
+    lsd
     neovim
+    ripgrep
+    starship
+    tmux
   ];
 }
