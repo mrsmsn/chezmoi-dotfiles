@@ -11,6 +11,10 @@ export FZF_CTRL_T_OPTS='--preview "bat  --color=always --style=header,grid --lin
 export FZF_TMUX_OPTS='-p80%,60%'
 
 
+## 補完
+autoload -Uz compinit && compinit
+
+
 ## エイリアス
 alias ll='lsd -al --group-directories-first'
 alias l='lsd -a1 --group-directories-first'
