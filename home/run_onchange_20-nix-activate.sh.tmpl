@@ -13,10 +13,18 @@ fi
 
 case "{{ .variant }}" in
     darwin)
+        # nix-darwin's system activation (`switch`) must be invoked as root.
+        # Pass HOME and USER through sudo so that ~/.config/nix/nix.conf
+        # (for access-tokens) stays readable and `builtins.getEnv "USER"` in
+        # flake.nix still resolves to the login user, not root.
         if command -v darwin-rebuild >/dev/null 2>&1; then
-            darwin-rebuild switch --flake "${FLAKE}#default" --impure
+            sudo env HOME="$HOME" USER="$USER" \
+                "$(command -v darwin-rebuild)" \
+                switch --flake "${FLAKE}#default" --impure
         else
-            nix run nix-darwin -- switch --flake "${FLAKE}#default" --impure
+            sudo env HOME="$HOME" USER="$USER" \
+                /nix/var/nix/profiles/default/bin/nix \
+                run nix-darwin -- switch --flake "${FLAKE}#default" --impure
         fi
         ;;
     linux|wsl)
