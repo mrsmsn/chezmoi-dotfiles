@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FLAKE="{{ .chezmoi.sourceDir }}/../nix"
+
+if [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
+    # shellcheck disable=SC1091
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+elif [[ -e "${HOME}/.nix-profile/etc/profile.d/nix.sh" ]]; then
+    # shellcheck disable=SC1091
+    . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
+fi
+
+case "{{ .variant }}" in
+    darwin)
+        if command -v darwin-rebuild >/dev/null 2>&1; then
+            darwin-rebuild switch --flake "${FLAKE}#default" --impure
+        else
+            nix run nix-darwin -- switch --flake "${FLAKE}#default" --impure
+        fi
+        ;;
+    linux|wsl)
+        nix run home-manager/master -- switch -b backup --flake "${FLAKE}#{{ .variant }}" --impure
+        ;;
+    *)
+        echo "Unknown variant: {{ .variant }}" >&2
+        exit 1
+        ;;
+esac

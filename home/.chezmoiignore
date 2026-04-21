@@ -1,0 +1,5 @@
+# Per-OS ignore rules can be added here using chezmoi template syntax.
+# Example:
+# {{ if ne .variant "darwin" }}
+# dot_some_macos_only_file
+# {{ end }}

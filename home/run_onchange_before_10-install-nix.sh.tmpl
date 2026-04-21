@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v nix >/dev/null 2>&1; then
+    echo "==> Installing Nix (Determinate Systems installer)"
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
+        | sh -s -- install --no-confirm
+fi
+
+NIX_CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nix"
+NIX_CONF="${NIX_CONF_DIR}/nix.conf"
+mkdir -p "${NIX_CONF_DIR}"
+if ! { [[ -f "${NIX_CONF}" ]] && grep -q '^experimental-features' "${NIX_CONF}"; }; then
+    echo "experimental-features = nix-command flakes" >> "${NIX_CONF}"
+fi

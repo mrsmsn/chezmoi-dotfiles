@@ -1,0 +1,13 @@
+{{- $variant := "linux" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $variant = "darwin" -}}
+{{- else if eq .chezmoi.os "linux" -}}
+{{-   if contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
+{{-     $variant = "wsl" -}}
+{{-   end -}}
+{{- end -}}
+
+[data]
+    os = "{{ .chezmoi.os }}"
+    variant = "{{ $variant }}"
+    is_wsl = {{ eq $variant "wsl" }}
