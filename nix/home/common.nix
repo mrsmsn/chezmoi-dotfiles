@@ -16,6 +16,7 @@ in {
 
   home.packages = with pkgs; [
     bat
+    fd
     fzf
     ghq
     git
@@ -26,5 +27,6 @@ in {
     ripgrep
     starship
     tmux
+    yazi
   ];
 }
