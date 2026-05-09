@@ -67,12 +67,16 @@ chezmoi-dotfiles/
 │   └── run_onchange_20-nix-activate.sh.tmpl
 └── nix/                        # Nix flake (chezmoi の管理外)
     ├── flake.nix
-    ├── darwin/configuration.nix
-    └── home/
-        ├── common.nix          # 全OS共通
-        ├── darwin.nix          # macOS ユーザパッケージ
-        ├── linux.nix           # Ubuntu/WSL 共通
-        └── wsl.nix             # WSL 固有
+    ├── darwin/
+    │   ├── configuration.nix   # macOS システム設定
+    │   ├── homebrew.nix        # Homebrew Cask (GUI アプリ) を宣言
+    │   └── fonts.nix           # システムフォント
+    ├── home/
+    │   ├── common.nix          # 全OS共通
+    │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
+    │   ├── linux.nix           # Ubuntu/WSL 共通
+    │   └── wsl.nix             # WSL 固有
+    └── pkgs/                   # nixpkgs に無いカスタムパッケージ
 ```
 
 ## 運用ルール
@@ -82,7 +86,20 @@ chezmoi-dotfiles/
 | dotfile を追加 | `home/` 配下に `dot_<name>` もしくは `dot_<name>.tmpl` |
 | ユーザパッケージを追加 | `nix/home/<variant>.nix` の `home.packages` |
 | 全OSで使うパッケージ | `nix/home/common.nix` の `home.packages` |
+| macOS GUI アプリ (.app) を追加 | `nix/darwin/homebrew.nix` の `homebrew.casks` |
+| macOS システムフォントを追加 | `nix/darwin/fonts.nix` の `fonts.packages` |
+| VSCode 拡張を追加 | `nix/home/darwin.nix` の `programs.vscode.profiles.default.extensions` |
 | macOS システム設定 | `nix/darwin/configuration.nix` |
+
+### macOS GUI アプリの方針
+
+GUI アプリ (.app) は原則 **Homebrew Cask** で管理する (`nix/darwin/homebrew.nix`)。Spotlight / Dock / Login Items 連携や Sparkle による自前 auto-update が素直に動くため。CLI のみのツールやフォントは nixpkgs 側で扱う。VSCode 拡張は `nix-vscode-extensions` (Marketplace ミラー) 経由で home-manager の `programs.vscode` で宣言する。
+
+初回インストール後に手動承認が必要なもの:
+
+- **Karabiner-Elements**: 「設定 > プライバシーとセキュリティ」で DriverKit 拡張を許可。
+- **Google 日本語入力**: 「設定 > キーボード > 入力ソース」で追加。
+- **Scroll Reverser / Raycast**: アクセシビリティ権限を許可。
 
 ### variant とテンプレート分岐
 

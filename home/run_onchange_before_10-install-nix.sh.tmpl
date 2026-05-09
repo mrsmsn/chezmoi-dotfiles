@@ -7,3 +7,14 @@ mkdir -p "${NIX_CONF_DIR}"
 if ! { [[ -f "${NIX_CONF}" ]] && grep -q '^experimental-features' "${NIX_CONF}"; }; then
     echo "experimental-features = nix-command flakes" >> "${NIX_CONF}"
 fi
+
+{{ if eq .variant "darwin" -}}
+# nix-darwin の homebrew モジュール (`homebrew.enable = true`) は brew 本体の
+# 存在を前提にする。未インストールならここで入れておく。
+if ! command -v brew >/dev/null 2>&1 \
+    && ! [[ -x /opt/homebrew/bin/brew ]] \
+    && ! [[ -x /usr/local/bin/brew ]]; then
+    NONINTERACTIVE=1 /bin/bash -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+{{- end }}

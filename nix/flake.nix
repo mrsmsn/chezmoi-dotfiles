@@ -18,9 +18,14 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-vscode-extensions = {
+      url = "github:nix-community/nix-vscode-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, llm-agents, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, llm-agents, nix-vscode-extensions, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -50,10 +55,14 @@
         modules = [
           ./darwin/configuration.nix
           { nixpkgs.pkgs = pkgsFor.${system}; }
+          # nix-darwin の system activation は root で走るが、homebrew 等の
+          # オプションは特定ユーザー向けに作用する。primaryUser を明示する。
+          { system.primaryUser = username; }
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit nix-vscode-extensions; };
             home-manager.users.${username} = {
               imports = [ ./home/common.nix ./home/darwin.nix ];
             };

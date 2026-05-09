@@ -1,6 +1,11 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./homebrew.nix
+    ./fonts.nix
+  ];
+
   # Determinate Systems' nix-installer manages Nix via its own daemon
   # (determinate-nixd). nix-darwin refuses to activate when it detects
   # that daemon unless we opt out of its built-in Nix management here.
