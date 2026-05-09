@@ -16,7 +16,7 @@ in {
 
   home.packages = with pkgs; [
     apm
-    awscli
+    awscli2
     bat
     fd
     fzf
