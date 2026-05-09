@@ -82,5 +82,15 @@
           extraModule = { imports = [ ./home/linux.nix ./home/wsl.nix ]; };
         };
       };
+
+      # Re-export the pinned home-manager so the activation script can run
+      # `nix run .#home-manager` instead of `nix run home-manager/master`.
+      # The latter resolves a flake reference at runtime, which hits the
+      # GitHub API and trips the anonymous rate limit on shared CI runners
+      # even when access-tokens are configured (the daemon doesn't reload
+      # /etc/nix/nix.conf mid-session).
+      packages = builtins.mapAttrs
+        (system: _: { home-manager = home-manager.packages.${system}.default; })
+        pkgsFor;
     };
 }
