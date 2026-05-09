@@ -19,14 +19,15 @@
     let
       username = builtins.getEnv "USER";
 
-      jpcalOverlay = final: prev: {
+      customPackagesOverlay = final: prev: {
         jpcal = final.callPackage ./pkgs/jpcal.nix { };
+        apm   = final.callPackage ./pkgs/apm.nix { };
       };
 
       mkPkgs = system: import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [ jpcalOverlay ];
+        overlays = [ customPackagesOverlay ];
       };
 
       pkgsFor = {
