@@ -19,8 +19,23 @@
     let
       username = builtins.getEnv "USER";
 
+      jpcalOverlay = final: prev: {
+        jpcal = final.callPackage ./pkgs/jpcal.nix { };
+      };
+
+      mkPkgs = system: import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [ jpcalOverlay ];
+      };
+
+      pkgsFor = {
+        "aarch64-darwin" = mkPkgs "aarch64-darwin";
+        "x86_64-linux"   = mkPkgs "x86_64-linux";
+      };
+
       mkHome = { system, extraModule }: home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = pkgsFor.${system};
         modules = [ ./home/common.nix extraModule ];
       };
 
@@ -28,6 +43,7 @@
         inherit system;
         modules = [
           ./darwin/configuration.nix
+          { nixpkgs.pkgs = pkgsFor.${system}; }
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;

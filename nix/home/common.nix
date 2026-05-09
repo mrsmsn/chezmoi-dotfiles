@@ -23,6 +23,7 @@ in {
     ghq
     git
     go
+    jpcal
     lazygit
     lsd
     neovim
