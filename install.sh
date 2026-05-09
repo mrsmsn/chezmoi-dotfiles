@@ -10,9 +10,9 @@ case "${OS}" in
 esac
 
 if ! command -v nix >/dev/null 2>&1; then
-    echo "==> Installing Nix (Determinate Systems installer)"
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
-        | sh -s -- install --no-confirm
+    echo "==> Installing Nix (NixOS official installer)"
+    curl --proto '=https' --tlsv1.2 -sSf -L https://artifacts.nixos.org/nix-installer \
+        | sh -s -- install --no-confirm --enable-flakes
 fi
 
 if [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
