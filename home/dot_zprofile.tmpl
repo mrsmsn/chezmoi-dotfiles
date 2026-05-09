@@ -1,0 +1,11 @@
+{{ if eq .variant "darwin" -}}
+# Homebrew CLI (`/opt/homebrew/bin/brew` on Apple Silicon, `/usr/local/bin/brew`
+# on Intel) を対話シェルの PATH/MANPATH/INFOPATH に追加する。
+# brew 本体は run_onchange_before_10-install-nix.sh.tmpl の darwin 分岐で
+# 自動インストールされる。
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{- end }}
