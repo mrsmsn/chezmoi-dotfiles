@@ -11,10 +11,14 @@ fi
 {{ if eq .variant "darwin" -}}
 # nix-darwin の homebrew モジュール (`homebrew.enable = true`) は brew 本体の
 # 存在を前提にする。未インストールならここで入れておく。
+# NONINTERACTIVE は付けない: 付けると Homebrew インストーラが `sudo -n` で
+# 即チェックし、パスワードキャッシュが無いと "Need sudo access" で落ちる。
+# `chezmoi apply` は対話 TTY から走る前提なので、ここで sudo プロンプトを
+# 出させる方が確実。
 if ! command -v brew >/dev/null 2>&1 \
     && ! [[ -x /opt/homebrew/bin/brew ]] \
     && ! [[ -x /usr/local/bin/brew ]]; then
-    NONINTERACTIVE=1 /bin/bash -c \
+    /bin/bash -c \
         "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 {{- end }}
