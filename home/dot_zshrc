@@ -1,9 +1,11 @@
 export XDG_CONFIG_HOME=$HOME/.config
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
+export GPG_TTY=$(tty)
 export FZF_DEFAULT_OPTS="--reverse --border"
 export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
 export FZF_CTRL_T_OPTS='--preview "bat  --color=always --style=header,grid --line-range :100 {}"'
+source $HOME/.local/bin/env
 ## FIXME:何故か下記の環境変数を設定してもfzf-tmux側にデフォルトのオプションとして渡されないので解決する
 ##       現状は各コマンドを呼ぶ際に"fzf-tmux -p -w80%"と冗長になっているが"fzf-tmux"だけでいい感じにするように直したい
 # export FZF_TMUX=1
