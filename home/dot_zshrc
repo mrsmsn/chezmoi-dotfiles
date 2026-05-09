@@ -8,6 +8,7 @@ export FZF_CTRL_T_OPTS='--preview "bat  --color=always --style=header,grid --lin
 ##       現状は各コマンドを呼ぶ際に"fzf-tmux -p -w80%"と冗長になっているが"fzf-tmux"だけでいい感じにするように直したい
 # export FZF_TMUX=1
 export FZF_TMUX_OPTS='-p80%,60%'
+export EDITOR=nvim
 
 
 ## 補完
