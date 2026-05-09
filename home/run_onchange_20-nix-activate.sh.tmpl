@@ -29,7 +29,10 @@ case "{{ .variant }}" in
         fi
         ;;
     linux|wsl)
-        nix run home-manager/master -- switch -b backup --flake "${FLAKE}#{{ .variant }}" --impure
+        # Use the home-manager pinned in our own flake so we don't hit the
+        # GitHub API to resolve `home-manager/master` on every run.
+        nix run "${FLAKE}#home-manager" -- \
+            switch -b backup --flake "${FLAKE}#{{ .variant }}" --impure
         ;;
     *)
         echo "Unknown variant: {{ .variant }}" >&2
