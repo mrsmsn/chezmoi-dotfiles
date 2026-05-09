@@ -10,10 +10,8 @@ export FZF_CTRL_T_OPTS='--preview "bat  --color=always --style=header,grid --lin
 export FZF_TMUX_OPTS='-p80%,60%'
 export EDITOR=nvim
 
-
 ## 補完
 autoload -Uz compinit && compinit
-
 
 ## エイリアス
 alias ll='lsd -al --group-directories-first'
@@ -24,6 +22,8 @@ alias cal='jpcal'
 alias fk='fzf-kill'
 alias vim='nvim'
 alias vi='nvim'
+alias docker=podman
+alias chrome='open -a google\ chrome'
 # リポジトリページをブラウザで開くエイリアス
 alias gb='open $(git config --get remote.origin.url | sed -e "s|git@github.com:|https://github.com/|" -e "s|\.git$||")'
 
@@ -49,6 +49,39 @@ function select-history() {
 }
 zle -N select-history
 bindkey '^r' select-history
+
+### GithubにRepositoryを作成して開くやつ
+function gh-create-and-cd() {
+  local repo_name=$1
+  if [[ -z "$repo_name" ]]; then
+    echo "Usage: ghrc <repo_name> [options]"
+    return 1
+  fi
+  shift
+
+  local opts=("$@")
+  if [[ ${#opts[@]} -eq 0 ]]; then
+    opts=("--private")
+  fi
+
+  local repo_url
+  repo_url=$(gh repo create "$repo_name" "${opts[@]}" --confirm)
+
+  if [[ $? -ne 0 ]]; then
+    return 1
+  fi
+
+  local target=${repo_url:-$repo_name}
+  ghq get "$target" || return 1
+
+  local repo_path
+  repo_path=$(ghq list --full-path "$repo_name" | head -n 1)
+
+  if [[ -n "$repo_path" ]]; then
+    cd "$repo_path"
+  fi
+}
+alias ghcc='gh-create-and-cd'
 
 ### killするプロセスを選択
 function fzf-kill() {
