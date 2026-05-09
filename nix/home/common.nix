@@ -15,15 +15,19 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
+    awscli
     bat
     fd
     fzf
+    gh
     ghq
     git
     go
     lazygit
     lsd
     neovim
+    podman
+    podman-compose
     ripgrep
     starship
     tmux
