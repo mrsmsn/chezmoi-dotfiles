@@ -6,13 +6,14 @@
     ./fonts.nix
   ];
 
-  # Determinate Systems' nix-installer manages Nix via its own daemon
-  # (determinate-nixd). nix-darwin refuses to activate when it detects
-  # that daemon unless we opt out of its built-in Nix management here.
-  # This also means other `nix.*` options (e.g. nix.settings.*) will be
-  # no-ops — Determinate Nix handles those settings itself, and flakes
-  # are enabled by default.
-  nix.enable = false;
+  # NixOS 公式 installer は vanilla nix-daemon を入れるため、Determinate
+  # 時代の `nix.enable = false` 回避策はもう不要。`/etc/nix/nix.conf` は
+  # nix-darwin にここで宣言的に管理させる。`install.sh` の `--enable-flakes`
+  # も同じ値を書くが、`darwin-rebuild switch` のたびにここが上書きする
+  # ので最終的な真実の源はこのモジュール。
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+  };
 
   system.stateVersion = 4;
 
