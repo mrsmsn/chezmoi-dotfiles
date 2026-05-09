@@ -13,20 +13,26 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, llm-agents, ... }:
     let
       username = builtins.getEnv "USER";
 
-      jpcalOverlay = final: prev: {
+      customPackagesOverlay = final: prev: {
         jpcal = final.callPackage ./pkgs/jpcal.nix { };
+        apm   = llm-agents.packages.${final.system}.apm;
       };
 
       mkPkgs = system: import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [ jpcalOverlay ];
+        overlays = [ customPackagesOverlay ];
       };
 
       pkgsFor = {
