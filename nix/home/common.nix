@@ -15,6 +15,7 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
+    apm
     awscli
     bat
     fd
