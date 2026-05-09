@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# nix-tree-hash: {{ output "git" "-C" (joinPath .chezmoi.sourceDir "..") "rev-parse" "HEAD:nix" | trim }}
 set -euo pipefail
 
 FLAKE="{{ .chezmoi.sourceDir }}/../nix"
