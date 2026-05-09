@@ -12,8 +12,6 @@ in {
   home.homeDirectory = lib.mkForce homeDir;
   home.stateVersion = "24.05";
 
-  nixpkgs.config.allowUnfree = true;
-
   home.packages = with pkgs; [
     apm
     awscli2
