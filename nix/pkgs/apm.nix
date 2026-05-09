@@ -2,6 +2,7 @@
 , stdenv
 , fetchurl
 , autoPatchelfHook
+, openssl
 }:
 
 let
@@ -32,6 +33,11 @@ stdenv.mkDerivation {
   sourceRoot = source.dir;
 
   nativeBuildInputs = lib.optional stdenv.isLinux autoPatchelfHook;
+
+  # The Linux PyInstaller bundle ships most shared libs in _internal/ but
+  # omits OpenSSL — _ssl and _hashlib expect libssl.so.3 / libcrypto.so.3
+  # from the system. Provide them here so autoPatchelfHook can resolve.
+  buildInputs = lib.optionals stdenv.isLinux [ openssl ];
 
   dontStrip = true;
 
