@@ -17,29 +17,6 @@ curl -fsSL https://raw.githubusercontent.com/mrsmsn/chezmoi-dotfiles/main/instal
 
 macOS は初回 `darwin-rebuild` 実行時に sudo プロンプトが出る場合がある。
 
-### macOS 初回活性化時のよくあるエラー
-
-初回 `darwin-rebuild switch` が次のメッセージで停止することがある:
-
-```
-error: Unexpected files in /etc, aborting activation
-The following files have unrecognized content and would be overwritten:
-  /etc/zshrc
-  /etc/bashrc
-Please rename these files by adding .before-nix-darwin to the end.
-```
-
-これは Homebrew や Apple デフォルトが書いた `/etc/*` と nix-darwin の管理ファイルが衝突したケース。エラーメッセージ通り拡張子 `.before-nix-darwin` に手動でリネームしてから再実行する:
-
-```bash
-for f in /etc/zshrc /etc/zshenv /etc/zprofile /etc/bashrc /etc/bash.bashrc /etc/profile; do
-  [[ -e "$f" && ! -L "$f" ]] && sudo mv -f "$f" "${f}.before-nix-darwin"
-done
-chezmoi apply
-```
-
-1回凌げば以降は衝突しない。
-
 ## 更新 (既存環境)
 
 ```bash
