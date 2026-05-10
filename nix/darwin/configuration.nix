@@ -22,5 +22,10 @@
 
   system.stateVersion = 4;
 
+  system.defaults.NSGlobalDomain = {
+    KeyRepeat = 1;
+    InitialKeyRepeat = 15;
+  };
+
   programs.zsh.enable = true;
 }
