@@ -30,8 +30,9 @@
       username = builtins.getEnv "USER";
 
       customPackagesOverlay = final: prev: {
-        jpcal = final.callPackage ./pkgs/jpcal.nix { };
-        apm   = llm-agents.packages.${final.system}.apm;
+        jpcal       = final.callPackage ./pkgs/jpcal.nix { };
+        apm         = llm-agents.packages.${final.system}.apm;
+        claude-code = llm-agents.packages.${final.system}.claude-code;
       };
 
       mkPkgs = system: import nixpkgs {

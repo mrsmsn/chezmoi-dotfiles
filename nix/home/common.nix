@@ -16,6 +16,7 @@ in {
     apm
     awscli2
     bat
+    claude-code
     direnv
     fd
     fzf
