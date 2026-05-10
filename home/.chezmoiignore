@@ -3,3 +3,7 @@
 # {{ if ne .variant "darwin" }}
 # dot_some_macos_only_file
 # {{ end }}
+
+{{- if ne .variant "darwin" }}
+private_Library
+{{- end }}

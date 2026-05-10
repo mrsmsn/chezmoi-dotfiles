@@ -68,6 +68,7 @@ chezmoi-dotfiles/
 | macOS GUI アプリ (.app) を追加 | `nix/darwin/homebrew.nix` の `homebrew.casks` |
 | macOS システムフォントを追加 | `nix/darwin/fonts.nix` の `fonts.packages` |
 | VSCode 拡張を追加 | `nix/home/darwin.nix` の `programs.vscode.profiles.default.extensions` |
+| VSCode のユーザ設定を編集 | `home/private_Library/private_Application Support/private_Code/User/{settings,keybindings}.json` (macOS) |
 | macOS システム設定 | `nix/darwin/configuration.nix` |
 
 ### macOS GUI アプリの方針
