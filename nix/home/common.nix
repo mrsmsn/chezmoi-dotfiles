@@ -16,6 +16,7 @@ in {
     apm
     awscli2
     bat
+    direnv
     fd
     fzf
     gh
