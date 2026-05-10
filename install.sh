@@ -9,6 +9,13 @@ case "${OS}" in
     *) echo "Unsupported OS: ${OS}" >&2; exit 1 ;;
 esac
 
+if [[ "${OS}" == "Darwin" ]] && ! xcode-select -p >/dev/null 2>&1; then
+    echo "==> Installing Xcode Command Line Tools"
+    echo "    GUI ダイアログから 'インストール' を選択して完了を待ってください"
+    xcode-select --install || true
+    until xcode-select -p >/dev/null 2>&1; do sleep 5; done
+fi
+
 if ! command -v nix >/dev/null 2>&1; then
     echo "==> Installing Nix (NixOS official installer)"
     curl --proto '=https' --tlsv1.2 -sSf -L https://artifacts.nixos.org/nix-installer \
