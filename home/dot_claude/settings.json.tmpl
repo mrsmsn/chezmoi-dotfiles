@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(brew install:*)",
+      "Bash(brew uninstall:*)",
+      "Bash(npm install -g:*)",
+      "Bash(pip install:*)",
+      "Bash(gem install:*)",
+      "Bash(cargo install:*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME\"/.claude/hooks/notify-waiting.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME\"/.claude/hooks/notify-complete.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "language": "ja",
+  "theme": "dark-daltonized",
+  "skipAutoPermissionPrompt": true
+}
