@@ -34,5 +34,6 @@ in {
     starship
     tmux
     yazi
+    zoxide
   ];
 }
