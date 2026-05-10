@@ -24,6 +24,7 @@ in {
     git
     go
     jpcal
+    just
     lazygit
     lsd
     neovim
