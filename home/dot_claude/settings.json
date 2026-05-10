@@ -32,7 +32,11 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true
+  },
   "language": "ja",
   "theme": "dark-daltonized",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "remoteControlAtStartup": true
 }
