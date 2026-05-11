@@ -58,6 +58,7 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 | `raycast` | ランチャー / ワークフロー |
 | `scroll-reverser` | スクロール方向の反転 |
 | `slack` | チャット |
+| `tailscale` | WireGuard ベースの VPN クライアント (メニューバー常駐 / システム拡張) |
 | `visual-studio-code` | エディタ本体 (拡張は home-manager で管理) |
 | `wezterm` | GPU アクセラレーション対応ターミナル |
 

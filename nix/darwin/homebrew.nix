@@ -28,6 +28,7 @@
       "raycast"
       "scroll-reverser"
       "slack"
+      "tailscale"
       "visual-studio-code"
       "wezterm"
     ];
