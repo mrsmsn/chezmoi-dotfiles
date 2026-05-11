@@ -51,11 +51,5 @@
     };
   };
 
-  # CustomUserPreferences は再ログインまで反映されない事例があるので
-  # activateSettings -u で即時リロードする。
-  system.activationScripts.postUserActivation.text = ''
-    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-  '';
-
   programs.zsh.enable = true;
 }
