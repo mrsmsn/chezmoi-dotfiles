@@ -27,5 +27,35 @@
     InitialKeyRepeat = 15;
   };
 
+  # AppleSymbolicHotKeys: macOS 標準ショートカットの無効化。
+  # 60: 前の入力ソースを選択         (Ctrl+Space)
+  # 61: 入力メニューの次のソースを選択 (Ctrl+Opt+Space)
+  # 65: Finder 検索ウィンドウを表示  (Cmd+Opt+Space)
+  # Raycastのショートカットキーと競合しないように無効化する。`enabled = false`
+  # 単独だと「キー未定義」と区別できず効かない macOS バージョンがあるので
+  # 元の value (parameters / type) も書き戻す。
+  system.defaults.CustomUserPreferences."com.apple.symbolichotkeys" = {
+    AppleSymbolicHotKeys = {
+      "60" = {
+        enabled = false;
+        value = { parameters = [ 32 49 0 ]; type = "standard"; };
+      };
+      "61" = {
+        enabled = false;
+        value = { parameters = [ 32 49 0 ]; type = "standard"; };
+      };
+      "65" = {
+        enabled = false;
+        value = { parameters = [ 65535 49 1572864 ]; type = "standard"; };
+      };
+    };
+  };
+
+  # CustomUserPreferences は再ログインまで反映されない事例があるので
+  # activateSettings -u で即時リロードする。
+  system.activationScripts.postUserActivation.text = ''
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  '';
+
   programs.zsh.enable = true;
 }
