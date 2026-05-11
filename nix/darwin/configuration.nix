@@ -22,6 +22,9 @@
 
   system.stateVersion = 4;
 
+  # 起動音 (boot chime) を無効化。内部的に nvram StartupMute=%01 を設定。
+  system.startup.chime = false;
+
   system.defaults.NSGlobalDomain = {
     KeyRepeat = 1;
     InitialKeyRepeat = 15;
