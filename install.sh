@@ -30,6 +30,24 @@ elif [[ -e "${HOME}/.nix-profile/etc/profile.d/nix.sh" ]]; then
     . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
 fi
 
+# Nix の内蔵 curl は NIX_SSL_CERT_FILE が指す CA バンドルで TLS を検証する。
+# nix-daemon.sh がこれを export しないビルドや、Linux 流の
+# /etc/ssl/certs/ca-certificates.crt をハードコードで参照する構成だと、
+# 新規インストール直後の macOS で flake-registry.json の取得が
+# "Problem with the SSL CA cert (path? access rights?) (77)" で落ちる。
+# 既存値が無効なら有効そうな候補に差し替える。
+if [[ -z "${NIX_SSL_CERT_FILE:-}" || ! -f "${NIX_SSL_CERT_FILE}" ]]; then
+    for candidate in \
+        /etc/ssl/cert.pem \
+        /etc/ssl/certs/ca-certificates.crt \
+        /nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt; do
+        if [[ -f "${candidate}" ]]; then
+            export NIX_SSL_CERT_FILE="${candidate}"
+            break
+        fi
+    done
+fi
+
 # When a GITHUB_TOKEN is provided (CI), write it to /etc/nix/nix.conf so
 # the nix-daemon — which performs flake fetches and doesn't read user-
 # level ~/.config/nix/nix.conf — authenticates against the GitHub API.
