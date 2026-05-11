@@ -39,9 +39,13 @@ chezmoi-dotfiles/
 ├── .chezmoiroot                # chezmoi ソースディレクトリを ./home に限定
 ├── home/                       # chezmoi 管理対象
 │   ├── .chezmoi.toml.tmpl      # OS/WSL 自動判定して variant を確定
-│   ├── .chezmoiignore
+│   ├── .chezmoiignore          # 非 darwin では private_Library を無視
+│   ├── dot_gitignore_global    # ~/.gitignore_global
 │   ├── dot_zprofile.tmpl       # ログイン時の PATH (macOS は brew shellenv)
 │   ├── dot_zshrc               # 対話 zsh の設定
+│   ├── dot_claude/             # Claude Code 設定 (CLAUDE.md / settings.json / hooks)
+│   ├── private_dot_config/     # ~/.config (aerospace, borders, ghostty, git, karabiner, starship, tmux, vim)
+│   ├── private_Library/        # macOS の ~/Library (VSCode ユーザ設定など)
 │   ├── run_onchange_before_10-install-nix.sh.tmpl
 │   └── run_onchange_20-nix-activate.sh.tmpl
 └── nix/                        # Nix flake (chezmoi の管理外)

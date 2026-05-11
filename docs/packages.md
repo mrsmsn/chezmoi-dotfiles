@@ -13,6 +13,8 @@ macOS / Linux / WSL すべての環境にインストールされるパッケー
 | `apm` | LLM エージェント関連ツール (`numtide/llm-agents.nix` flake から取得) |
 | `awscli2` | AWS CLI v2 |
 | `bat` | シンタックスハイライト付き `cat` |
+| `claude-code` | Anthropic 公式 Claude Code CLI (`numtide/llm-agents.nix` flake から取得) |
+| `direnv` | ディレクトリ単位の環境変数自動ロード |
 | `fd` | 高速な `find` 代替 |
 | `fzf` | あいまい検索 (fuzzy finder) |
 | `gh` | GitHub 公式 CLI |
@@ -20,6 +22,7 @@ macOS / Linux / WSL すべての環境にインストールされるパッケー
 | `git` | バージョン管理 |
 | `go` | Go 言語ツールチェーン |
 | `jpcal` | 日本の祝日対応カレンダー (カスタムパッケージ) |
+| `just` | コマンドランナー (`justfile`) |
 | `lazygit` | Git の TUI クライアント |
 | `lsd` | アイコン付きの `ls` 代替 |
 | `neovim` | エディタ |
@@ -29,6 +32,7 @@ macOS / Linux / WSL すべての環境にインストールされるパッケー
 | `starship` | クロスシェルプロンプト |
 | `tmux` | 端末マルチプレクサ |
 | `yazi` | TUI ファイルマネージャ |
+| `zoxide` | 履歴ベースで賢くジャンプする `cd` 代替 |
 
 ## macOS 固有 (`nix/home/darwin.nix`)
 
@@ -81,7 +85,9 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 
 ## Linux 固有 (`nix/home/linux.nix`)
 
-現在固有パッケージは未定義 (空)。
+| パッケージ | 用途 |
+| --- | --- |
+| `espeak-ng` | テキスト音声合成エンジン (TTS) |
 
 ## WSL 固有 (`nix/home/wsl.nix`)
 
@@ -95,6 +101,7 @@ nixpkgs に存在しない、または独自にビルドしているパッケー
 | --- | --- | --- |
 | `jpcal` | `nix/pkgs/jpcal.nix` | [y-yagi/jpcal](https://github.com/y-yagi/jpcal) を `buildGoModule` でビルド。日本の祝日付きカレンダー |
 | `apm` | overlay 経由 | `numtide/llm-agents.nix` flake の `packages.<system>.apm` を再公開 |
+| `claude-code` | overlay 経由 | `numtide/llm-agents.nix` flake の `packages.<system>.claude-code` を再公開 |
 
 ## Flake 入力 (`nix/flake.nix`)
 
