@@ -30,6 +30,15 @@
     InitialKeyRepeat = 15;
   };
 
+  # Dock: Raycast でアプリ起動するのでピン留め不要。Dock 自体も自動で隠す。
+  system.defaults.dock = {
+    autohide = true;
+    autohide-delay = 0.0;
+    autohide-time-modifier = 0.5;
+    show-recents = false;
+    persistent-apps = [ ];
+  };
+
   # AppleSymbolicHotKeys: macOS 標準ショートカットの無効化。
   # 60: 前の入力ソースを選択         (Ctrl+Space)
   # 61: 入力メニューの次のソースを選択 (Ctrl+Opt+Space)
