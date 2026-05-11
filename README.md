@@ -84,6 +84,7 @@ GUI アプリ (.app) は原則 **Homebrew Cask** で管理する (`nix/darwin/ho
 - **Karabiner-Elements**: 「設定 > プライバシーとセキュリティ」で DriverKit 拡張を許可。
 - **Google 日本語入力**: 「設定 > キーボード > 入力ソース」で追加。
 - **Scroll Reverser / Raycast**: アクセシビリティ権限を許可。
+- **Tailscale**: 初回起動時に System Extension の許可とアカウントログインが必要。
 
 対話シェルから `brew` コマンドを叩けるよう、`home/dot_zprofile.tmpl` でログイン時に `eval "$(/opt/homebrew/bin/brew shellenv)"` を実行している (Apple Silicon: `/opt/homebrew`、Intel: `/usr/local` の両方に対応)。
 
