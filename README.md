@@ -74,6 +74,13 @@ chezmoi-dotfiles/
 | VSCode 拡張を追加 | `nix/home/darwin.nix` の `programs.vscode.profiles.default.extensions` |
 | VSCode のユーザ設定を編集 | `home/private_Library/private_Application Support/private_Code/User/{settings,keybindings}.json` (macOS) |
 | macOS システム設定 | `nix/darwin/configuration.nix` |
+| macOS キーボードショートカット (AppleSymbolicHotKeys 等) | `nix/darwin/configuration.nix` の `system.defaults.CustomUserPreferences` |
+
+### nix-darwin と chezmoi の役割分担
+
+- **nix-darwin** (`nix/darwin/`): macOS のシステム設定 (`system.defaults.*`, `system.defaults.CustomUserPreferences.*`)、Homebrew、フォント。`defaults write` で操作する設定は原則すべてここに宣言する。
+- **chezmoi** (`home/`): `$HOME` 配下に置く dotfile (zshrc, .config/*, Library/Application Support/* など)。ユーザーが直接編集するテキスト/JSON/plist 設定が対象。
+- 判断に迷ったら: 「macOS のシステム DB (cfprefsd) が読む値か」→ nix-darwin、「ユーザー HOME 配下のファイルか」→ chezmoi。
 
 ### macOS GUI アプリの方針
 
