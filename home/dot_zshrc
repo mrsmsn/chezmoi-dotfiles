@@ -166,3 +166,6 @@ tmux_automatically_attach_session
 
 ## prompt
 eval "$(starship init zsh)"
+
+## direnv (starship の後でなければ precmd フック順序が崩れる)
+eval "$(direnv hook zsh)"
