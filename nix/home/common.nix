@@ -25,6 +25,7 @@ in {
     git
     go
     jpcal
+    jq
     just
     lazygit
     lsd
