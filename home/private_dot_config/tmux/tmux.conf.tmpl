@@ -39,8 +39,12 @@ bind p paste-buffer
 
 #ステータスバーをボトムに配置する
 set -g status-position bottom
-# status line の背景色を指定する。
+# status line の背景色を指定する。機種ごとに切り替え。
+{{- if eq .machine "mac-mini-m4" }}
+set -g status-bg "colour36"
+{{- else }}
 set -g status-bg "colour60"
+{{- end }}
 # status line の文字色を指定する。
 set -g status-fg "colour255"
 #フォーカスしているペインの設定
@@ -59,14 +63,14 @@ set -g status-right '#H:[#P] '
 
 # Wi-Fi、バッテリー残量、現在時刻
 # 最左に表示
-# set-option -g status-left '#(get_ssid) #(battery -c tmux) [%Y-%m-%d(%a) %H:%M] '
+# set -g status-left '#(get_ssid) #(battery -c tmux) [%Y-%m-%d(%a) %H:%M] '
 set -g status-left ' [%Y-%m-%d(%a) %H:%M] '
 
 # ステータスバーを１秒毎に描画し直す
 set -g status-interval 1
 
 #PCのステータスバーの追加
-#set-option -g status-right '#(wifi) #(battery --tmux) [%Y-%m-%d(%a) %H:%M]'
+#set -g status-right '#(wifi) #(battery --tmux) [%Y-%m-%d(%a) %H:%M]'
 
 # Vi キーバインド
 set-window-option -g mode-keys vi
