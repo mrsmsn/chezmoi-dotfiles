@@ -31,7 +31,7 @@ autoload -Uz compinit && compinit
 alias ll='lsd -al --group-directories-first'
 alias l='lsd -a1 --group-directories-first'
 alias lg='lazygit'
-alias cal='jpcal'
+alias cal='jpcal -3'
 alias fk='fzf-kill'
 alias vim='nvim'
 alias vi='nvim'
@@ -40,6 +40,7 @@ alias chrome='open -a google\ chrome'
 # リポジトリページをブラウザで開くエイリアス
 alias gb='open $(git config --get remote.origin.url | sed -e "s|git@github.com:|https://github.com/|" -e "s|\.git$||")'
 alias ghcc='gh-create-and-cd'
+alias cmu='chezmoi update'
 
 ## ソース一覧に飛ぶやつ
 ### ghq.root を複数設定している場合に対応するため -p を使用。
