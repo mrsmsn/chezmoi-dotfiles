@@ -119,6 +119,42 @@ jobs:
           check linux  "6.5.0-1014-azure"                   linux  ""
           check linux  "5.15.0-microsoft-standard-WSL2"     wsl    ""
 
+  template-shellcheck:
+    name: shellcheck rendered shell templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - name: Install chezmoi and shellcheck
+        run: nix profile install nixpkgs#chezmoi nixpkgs#shellcheck
+      - name: Render and shellcheck each variant
+        # run_onchange_*.sh.tmpl は `{{ output "git" ... }}` や
+        # `{{ .chezmoi.sourceDir }}` を使うので単発レンダリングが面倒。
+        # 代わりに bootstrap-linux ジョブが E2E で動かしてカバーしている。
+        # ここでは branch 別の入れ替えが多くて目視確認しづらいテンプレに絞る。
+        run: |
+          set -euo pipefail
+          templates=(
+            home/dot_zprofile.tmpl
+            home/dot_claude/hooks/executable_notify-complete.sh.tmpl
+            home/dot_claude/hooks/executable_notify-waiting.sh.tmpl
+          )
+          for variant in darwin linux wsl; do
+            for tmpl in "${templates[@]}"; do
+              echo "=== variant=${variant} ${tmpl} ==="
+              rendered=$(sed "s|\.variant|\"${variant}\"|g" "$tmpl" | chezmoi execute-template)
+              if [[ -z "${rendered//[[:space:]]/}" ]]; then
+                echo "(empty after rendering — skip)"
+                continue
+              fi
+              echo "${rendered}" | shellcheck -s bash -
+            done
+          done
+
   bootstrap-linux:
     name: End-to-end bootstrap on Linux
     runs-on: ubuntu-latest
