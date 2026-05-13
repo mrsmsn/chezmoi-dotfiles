@@ -15,31 +15,38 @@ export FZF_CTRL_T_OPTS='--preview "bat --color=always --style=header,grid --line
 export FZF_TMUX_OPTS='-p80%,60%'
 
 ## history
-export HISTFILE=$HOME/.zsh_history
+export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=1000
 export SAVEHIST=100000
 setopt hist_ignore_dups
 setopt EXTENDED_HISTORY
 
 ## uv 等が生成する env があれば読み込む
-[[ -f $HOME/.local/bin/env ]] && source $HOME/.local/bin/env
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
 
 ## 補完
 autoload -Uz compinit && compinit
 
 ## エイリアス
+# ls
 alias ll='lsd -al --group-directories-first'
 alias l='lsd -a1 --group-directories-first'
-alias lg='lazygit'
-alias cal='jpcal -3'
-alias fk='fzf-kill'
+
+# editor
 alias vim='nvim'
 alias vi='nvim'
-alias docker=podman
-alias chrome='open -a google\ chrome'
+
+# GitHub
 # リポジトリページをブラウザで開くエイリアス
 alias gb='open $(git config --get remote.origin.url | sed -e "s|git@github.com:|https://github.com/|" -e "s|\.git$||")'
 alias ghcc='gh-create-and-cd'
+
+# tools
+alias lg='lazygit'
+alias cal='jpcal -3'
+alias fk='fzf-kill'
+alias docker='podman'
+alias chrome='open -a google\ chrome'
 alias cmu='chezmoi update'
 
 ## ソース一覧に飛ぶやつ
@@ -107,6 +114,7 @@ function fzf-kill() {
 }
 
 ## tmuxを自動で起動する奴
+# 以下の is_* ヘルパは tmux_automatically_attach_session 専用
 function is_exists()                       { type "$1" >/dev/null 2>&1; }
 function is_osx()                          { [[ $OSTYPE == darwin* ]]; }
 function is_tmux_running()                 { [[ -n "$TMUX" ]]; }
@@ -157,7 +165,7 @@ function tmux_automatically_attach_session() {
     if is_osx && is_exists 'reattach-to-user-namespace'; then
         # macOS では default-command を user-namespace 経由にする
         local tmux_config
-        tmux_config=$(cat $HOME/.tmux.conf <(echo 'set-option -g default-command "reattach-to-user-namespace -l $SHELL"'))
+        tmux_config=$(cat "$HOME/.tmux.conf" <(echo 'set-option -g default-command "reattach-to-user-namespace -l $SHELL"'))
         tmux -f <(echo "$tmux_config") new-session && echo "$(tmux -V) created new session supported OS X"
     else
         tmux new-session && echo "tmux created new session"
