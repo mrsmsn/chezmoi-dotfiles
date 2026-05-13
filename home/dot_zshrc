@@ -1,17 +1,10 @@
 export XDG_CONFIG_HOME=$HOME/.config
 source "$XDG_CONFIG_HOME/zsh/env.zsh"
 
-## 補完
-autoload -Uz compinit && compinit
-
 source "$XDG_CONFIG_HOME/zsh/aliases.zsh"
 
 source "$XDG_CONFIG_HOME/zsh/functions.zsh"
 
 source "$XDG_CONFIG_HOME/zsh/tmux.zsh"
 
-## prompt
-eval "$(starship init zsh)"
-
-## direnv (starship の後でなければ precmd フック順序が崩れる)
-eval "$(direnv hook zsh)"
+source "$XDG_CONFIG_HOME/zsh/init.zsh"
