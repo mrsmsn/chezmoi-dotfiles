@@ -38,5 +38,6 @@
   "language": "ja",
   "theme": "dark-daltonized",
   "skipAutoPermissionPrompt": true,
+  "agentPushNotifEnabled": true,
   "remoteControlAtStartup": true
 }
