@@ -21,7 +21,10 @@ jobs:
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - name: zsh syntax check
-        run: zsh -n home/dot_zshrc
+        run: |
+          for f in home/dot_zshrc home/private_dot_config/zsh/*.zsh; do
+            zsh -n "$f"
+          done
       - name: shellcheck
         uses: ludeeus/action-shellcheck@master
         with:
