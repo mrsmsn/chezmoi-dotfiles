@@ -21,7 +21,10 @@ jobs:
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - name: zsh syntax check
-        run: zsh -n home/dot_zshrc
+        run: |
+          for f in home/dot_zshrc home/private_dot_config/zsh/*.zsh; do
+            zsh -n "$f"
+          done
       - name: shellcheck
         uses: ludeeus/action-shellcheck@master
         with:
@@ -92,22 +95,65 @@ jobs:
           set -euo pipefail
 
           check() {
-            local os="$1" osrelease="$2" expected="$3" result
+            local os="$1" osrelease="$2" expected_variant="$3" expected_machine="$4" result
             result=$(sed \
               -e "s|\.chezmoi\.kernel\.osrelease|\"${osrelease}\"|g" \
               -e "s|\.chezmoi\.os|\"${os}\"|g" \
               home/.chezmoi.toml.tmpl | chezmoi execute-template)
             echo "--- os=${os} osrelease=${osrelease} ---"
             echo "${result}"
-            if ! echo "${result}" | grep -q "variant = \"${expected}\""; then
-              echo "FAIL: expected variant=\"${expected}\"" >&2
+            if ! echo "${result}" | grep -q "variant = \"${expected_variant}\""; then
+              echo "FAIL: expected variant=\"${expected_variant}\"" >&2
+              exit 1
+            fi
+            if ! echo "${result}" | grep -q "machine = \"${expected_machine}\""; then
+              echo "FAIL: expected machine=\"${expected_machine}\"" >&2
               exit 1
             fi
           }
 
-          check darwin "irrelevant"                         darwin
-          check linux  "6.5.0-1014-azure"                   linux
-          check linux  "5.15.0-microsoft-standard-WSL2"     wsl
+          # Runner is Linux, so `sysctl -n hw.model` fails inside the template
+          # for every case; the sh-wrapped fallback should leave machine="".
+          # Real Mac mini detection is only exercised on the user's hardware.
+          check darwin "irrelevant"                         darwin ""
+          check linux  "6.5.0-1014-azure"                   linux  ""
+          check linux  "5.15.0-microsoft-standard-WSL2"     wsl    ""
+
+  template-shellcheck:
+    name: shellcheck rendered shell templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - name: Install chezmoi and shellcheck
+        run: nix profile install nixpkgs#chezmoi nixpkgs#shellcheck
+      - name: Render and shellcheck each variant
+        # run_onchange_*.sh.tmpl は `{{ output "git" ... }}` や
+        # `{{ .chezmoi.sourceDir }}` を使うので単発レンダリングが面倒。
+        # 代わりに bootstrap-linux ジョブが E2E で動かしてカバーしている。
+        # ここでは branch 別の入れ替えが多くて目視確認しづらいテンプレに絞る。
+        run: |
+          set -euo pipefail
+          templates=(
+            home/dot_zprofile.tmpl
+            home/dot_claude/hooks/executable_notify-complete.sh.tmpl
+            home/dot_claude/hooks/executable_notify-waiting.sh.tmpl
+          )
+          for variant in darwin linux wsl; do
+            for tmpl in "${templates[@]}"; do
+              echo "=== variant=${variant} ${tmpl} ==="
+              rendered=$(sed "s|\.variant|\"${variant}\"|g" "$tmpl" | chezmoi execute-template)
+              if [[ -z "${rendered//[[:space:]]/}" ]]; then
+                echo "(empty after rendering — skip)"
+                continue
+              fi
+              echo "${rendered}" | shellcheck -s bash -
+            done
+          done
 
   bootstrap-linux:
     name: End-to-end bootstrap on Linux
@@ -139,3 +185,12 @@ jobs:
             echo "${status}" >&2
             exit 1
           fi
+      - name: Install zsh
+        # nix/home/linux.nix does not pull in zsh (only nix-darwin enables
+        # programs.zsh.enable). Pull it from apt for the smoke test below.
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Smoke test that zsh sources .zshrc cleanly
+        # zsh -i so that .zshrc (and through it every split module) is sourced.
+        # TMUX is faked so tmux_automatically_attach_session returns early
+        # instead of trying to attach inside a non-TTY CI step.
+        run: TMUX=fake zsh -i -c 'exit 0'
