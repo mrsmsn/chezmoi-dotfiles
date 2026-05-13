@@ -142,3 +142,8 @@ jobs:
             echo "${status}" >&2
             exit 1
           fi
+      - name: Smoke test that zsh sources .zshrc cleanly
+        # zsh -i so that .zshrc (and through it every split module) is sourced.
+        # TMUX is faked so tmux_automatically_attach_session returns early
+        # instead of trying to attach inside a non-TTY CI step.
+        run: TMUX=fake zsh -i -c 'exit 0'
