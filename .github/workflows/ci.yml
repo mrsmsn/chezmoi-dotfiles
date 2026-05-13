@@ -95,22 +95,29 @@ jobs:
           set -euo pipefail
 
           check() {
-            local os="$1" osrelease="$2" expected="$3" result
+            local os="$1" osrelease="$2" expected_variant="$3" expected_machine="$4" result
             result=$(sed \
               -e "s|\.chezmoi\.kernel\.osrelease|\"${osrelease}\"|g" \
               -e "s|\.chezmoi\.os|\"${os}\"|g" \
               home/.chezmoi.toml.tmpl | chezmoi execute-template)
             echo "--- os=${os} osrelease=${osrelease} ---"
             echo "${result}"
-            if ! echo "${result}" | grep -q "variant = \"${expected}\""; then
-              echo "FAIL: expected variant=\"${expected}\"" >&2
+            if ! echo "${result}" | grep -q "variant = \"${expected_variant}\""; then
+              echo "FAIL: expected variant=\"${expected_variant}\"" >&2
+              exit 1
+            fi
+            if ! echo "${result}" | grep -q "machine = \"${expected_machine}\""; then
+              echo "FAIL: expected machine=\"${expected_machine}\"" >&2
               exit 1
             fi
           }
 
-          check darwin "irrelevant"                         darwin
-          check linux  "6.5.0-1014-azure"                   linux
-          check linux  "5.15.0-microsoft-standard-WSL2"     wsl
+          # Runner is Linux, so `sysctl -n hw.model` fails inside the template
+          # for every case; the sh-wrapped fallback should leave machine="".
+          # Real Mac mini detection is only exercised on the user's hardware.
+          check darwin "irrelevant"                         darwin ""
+          check linux  "6.5.0-1014-azure"                   linux  ""
+          check linux  "5.15.0-microsoft-standard-WSL2"     wsl    ""
 
   bootstrap-linux:
     name: End-to-end bootstrap on Linux
