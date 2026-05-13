@@ -7,7 +7,7 @@
 
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $variant = "darwin" -}}
-{{-   $model = output "sysctl" "-n" "hw.model" | trim -}}
+{{-   $model = output "sh" "-c" "sysctl -n hw.model 2>/dev/null || true" | trim -}}
 {{-   if or (eq $model "Mac16,10") (eq $model "Mac16,11") -}}
 {{-     $machine = "mac-mini-m4" -}}
 {{-   end -}}
