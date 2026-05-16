@@ -44,7 +44,7 @@ chezmoi-dotfiles/
 │   ├── dot_zprofile.tmpl       # ログイン時の PATH (macOS は brew shellenv)
 │   ├── dot_zshrc               # 対話 zsh の設定
 │   ├── dot_claude/             # Claude Code 設定 (CLAUDE.md / settings.json / hooks)
-│   ├── private_dot_config/     # ~/.config (aerospace, borders, ghostty, git, karabiner, starship, tmux, vim)
+│   ├── private_dot_config/     # ~/.config (aerospace, borders, ghostty, git, karabiner, nvim, starship, tmux, vim)
 │   ├── private_Library/        # macOS の ~/Library (VSCode ユーザ設定など)
 │   ├── run_onchange_before_10-install-nix.sh.tmpl
 │   └── run_onchange_20-nix-activate.sh.tmpl
@@ -135,6 +135,19 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
 
 git の `[includeIf "gitdir:..."]` は **対象パス配下の git repo の中** にいる時だけ発火する仕様。`cd <work.gitdir_prefix>` しただけの空ディレクトリで `git config -l` を叩いても personal の値のままに見えるが、これは git の挙動どおりで、その下に repo を `git clone` (or `ghq get`) したあとで repo に入って確認すれば work 値になる。
+
+## Neovim (LazyVim)
+
+Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設定は [LazyVim](https://www.lazyvim.org/) の [starter](https://github.com/LazyVim/starter) を `home/private_dot_config/nvim/` に vendor 配置 (公式の `git clone starter` 手順と同じ運用)。
+
+初回 `nvim` 起動時に `lua/config/lazy.lua` が `lazy.nvim` を `~/.local/share/nvim/lazy/lazy.nvim` に clone し、続けて `LazyVim` 本体と依存プラグイン群を一括 install する。**この間 UI が固まったように見えても数十秒〜数分待つ**。完了するとダッシュボード (mini.starter) が表示される。
+
+日常運用:
+
+- `:Lazy` でプラグインマネージャ UI、`:Lazy sync` で手動更新
+- `:checkhealth` で LSP / treesitter / 各種依存の整合性チェック
+- 設定の上書き/追加は `home/private_dot_config/nvim/lua/plugins/*.lua` に新規ファイルを置く (例: `lua/plugins/example.lua` を雛形に)
+- starter 自体の upstream 追従は手動 git merge (年に数回のメジャー変更時のみ)。プラグインの自動最新化は `lazy.nvim` が `checker.enabled = true` で担うので無関係
 
 ## スコープ外
 
