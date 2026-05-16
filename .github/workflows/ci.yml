@@ -96,10 +96,11 @@ jobs:
 
           check() {
             local os="$1" osrelease="$2" expected_variant="$3" expected_machine="$4" result
+            # --init を付けて promptStringOnce を有効化 (default "" を使う)。
             result=$(sed \
               -e "s|\.chezmoi\.kernel\.osrelease|\"${osrelease}\"|g" \
               -e "s|\.chezmoi\.os|\"${os}\"|g" \
-              home/.chezmoi.toml.tmpl | chezmoi execute-template)
+              home/.chezmoi.toml.tmpl | chezmoi execute-template --init)
             echo "--- os=${os} osrelease=${osrelease} ---"
             echo "${result}"
             if ! echo "${result}" | grep -q "variant = \"${expected_variant}\""; then
@@ -132,19 +133,18 @@ jobs:
       - name: Install chezmoi and shellcheck
         run: nix profile install nixpkgs#chezmoi nixpkgs#shellcheck
       - name: Render and shellcheck each variant
-        # run_onchange_*.sh.tmpl は `{{ output "git" ... }}` や
-        # `{{ .chezmoi.sourceDir }}` を使うので単発レンダリングが面倒。
-        # 代わりに bootstrap-linux ジョブが E2E で動かしてカバーしている。
-        # ここでは branch 別の入れ替えが多くて目視確認しづらいテンプレに絞る。
+        # run_onchange_20-* は `{{ output "git" ... }}` や `{{ .chezmoi.sourceDir }}`
+        # を使うので単発レンダリングが面倒 (E2E は bootstrap-linux ジョブで cover)。
+        # run_onchange_30 は chezmoi data を消費するので別途 test config を渡す。
         run: |
           set -euo pipefail
-          templates=(
+          variant_templates=(
             home/dot_zprofile.tmpl
             home/dot_claude/hooks/executable_notify-complete.sh.tmpl
             home/dot_claude/hooks/executable_notify-waiting.sh.tmpl
           )
           for variant in darwin linux wsl; do
-            for tmpl in "${templates[@]}"; do
+            for tmpl in "${variant_templates[@]}"; do
               echo "=== variant=${variant} ${tmpl} ==="
               rendered=$(sed "s|\.variant|\"${variant}\"|g" "$tmpl" | chezmoi execute-template)
               if [[ -z "${rendered//[[:space:]]/}" ]]; then
@@ -154,6 +154,27 @@ jobs:
               echo "${rendered}" | shellcheck -s bash -
             done
           done
+
+          test_config=$(mktemp --suffix=.toml)
+          cat > "${test_config}" <<'EOF'
+          [data]
+          [data.git]
+              gh_user_default = "test"
+          [data.ghq]
+              root = "~/src"
+          [data.work]
+              gitdir_prefix = "~/src/github.com/TEST/"
+              gh_user = "test-work"
+          EOF
+          data_templates=(
+            home/run_onchange_30-write-envrcs.sh.tmpl
+          )
+          for tmpl in "${data_templates[@]}"; do
+            echo "=== ${tmpl} (work ON test config) ==="
+            rendered=$(chezmoi --config "${test_config}" execute-template < "${tmpl}")
+            echo "${rendered}" | shellcheck -s bash -
+          done
+          rm -f "${test_config}"
 
   bootstrap-linux:
     name: End-to-end bootstrap on Linux

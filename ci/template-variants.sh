@@ -9,10 +9,12 @@ set -euo pipefail
 
 check() {
     local os="$1" osrelease="$2" expected_variant="$3" expected_machine="$4" result
+    # --init を付けて promptStringOnce 等の init-only 関数を有効化する。
+    # prompt 値は default ("") にフォールバックさせる。
     result=$(sed \
         -e "s|\.chezmoi\.kernel\.osrelease|\"${osrelease}\"|g" \
         -e "s|\.chezmoi\.os|\"${os}\"|g" \
-        home/.chezmoi.toml.tmpl | chezmoi execute-template)
+        home/.chezmoi.toml.tmpl | chezmoi execute-template --init)
     echo "--- os=${os} osrelease=${osrelease} ---"
     echo "${result}"
     if ! echo "${result}" | grep -q "variant = \"${expected_variant}\""; then

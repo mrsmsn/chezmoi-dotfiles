@@ -109,9 +109,34 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 {{ end }}
 ```
 
+## 個人/work のセットアップ
+
+初回 `chezmoi apply` で対話プロンプトが出る (回答は `~/.config/chezmoi/chezmoi.toml` に保存)。
+
+| 変数 | 用途 |
+| --- | --- |
+| `git.user_name` | git commit の author 名 |
+| `git.user_email` | git commit の email |
+| `git.gh_user_default` | 普段使う GitHub アカウント名 (gh CLI 用) |
+| `git.ssh_key` | git で使う SSH 鍵のファイル名 (`~/.ssh/` 配下、空ならデフォルト鍵) |
+| `ghq.root` | ghq の clone 先ディレクトリ (デフォルト `~/src`) |
+| `work.gitdir_prefix` | work アカウントに切り替える起点パス (例: `~/src/github.com/<work-org>/`)。空なら work 機能 OFF |
+
+`work.gitdir_prefix` を非空にすると追加で以下が聞かれる:
+
+| 変数 | 用途 |
+| --- | --- |
+| `work.user_name` | work での git commit の author 名 |
+| `work.user_email` | work での git commit の email |
+| `work.ssh_key` | work で使う SSH 鍵のファイル名 (空可) |
+| `work.gh_user` | work で使う GitHub アカウント名 (gh CLI 用) |
+| `work.bitbucket_ssh_rewrite` | Bitbucket の https URL を ssh URL に書き換える (bool) |
+
+apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
+
 ## スコープ外
 
-- シークレット管理
+- シークレット管理 (機微値は `~/.config/chezmoi/chezmoi.toml` で持つ)
 - ホスト別の machine 固有変数
 - Home Manager の `programs.*` による dotfile 生成 (dotfile は chezmoi 管轄)
 - Intel Mac / aarch64 Linux (必要になったら `nix/flake.nix` へ追記)

@@ -1,0 +1,11 @@
+# ~/.config/direnv/direnvrc
+# 各 .envrc から呼ぶ generic ヘルパ関数を定義する。具体ユーザ名は呼び出し側で渡す。
+
+use_gh_user() {
+    local user="$1"
+    if [[ -z "$user" ]]; then
+        log_error "use_gh_user: user 名を指定してください"
+        return 1
+    fi
+    gh auth switch --user "$user" >/dev/null
+}
