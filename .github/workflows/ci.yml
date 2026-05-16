@@ -185,10 +185,6 @@ jobs:
             echo "${status}" >&2
             exit 1
           fi
-      - name: Install zsh
-        # nix/home/linux.nix does not pull in zsh (only nix-darwin enables
-        # programs.zsh.enable). Pull it from apt for the smoke test below.
-        run: sudo apt-get update && sudo apt-get install -y zsh
       - name: Smoke test that zsh sources .zshrc cleanly
         # zsh -i so that .zshrc (and through it every split module) is sourced.
         # TMUX is faked so tmux_automatically_attach_session returns early
