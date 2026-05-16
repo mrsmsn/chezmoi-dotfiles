@@ -33,6 +33,22 @@ case "{{ .variant }}" in
         # GitHub API to resolve `home-manager/master` on every run.
         nix run "${FLAKE}#home-manager" -- \
             switch -b backup --flake "${FLAKE}#{{ .variant }}" --impure
+
+        # Linux/WSL には nix-darwin の `programs.zsh.enable` 相当が無いので
+        # ここで /etc/shells への登録と chsh を行う。home-manager が
+        # ~/.nix-profile/bin/zsh に zsh を配置済みである前提。
+        ZSH_BIN="${HOME}/.nix-profile/bin/zsh"
+        if [[ -x "${ZSH_BIN}" ]]; then
+            if ! grep -qxF "${ZSH_BIN}" /etc/shells 2>/dev/null; then
+                echo "==> Adding ${ZSH_BIN} to /etc/shells"
+                echo "${ZSH_BIN}" | sudo tee -a /etc/shells >/dev/null
+            fi
+            CURRENT_SHELL="$(awk -F: -v u="$USER" '$1==u{print $7}' /etc/passwd)"
+            if [[ "${CURRENT_SHELL}" != "${ZSH_BIN}" ]]; then
+                echo "==> Setting default shell to ${ZSH_BIN}"
+                sudo chsh -s "${ZSH_BIN}" "$USER"
+            fi
+        fi
         ;;
     *)
         echo "Unknown variant: {{ .variant }}" >&2
