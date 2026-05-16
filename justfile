@@ -9,7 +9,11 @@ build:
 
 # Fast subset wired into the Claude Code Stop hook: static checks +
 # pure-bats assertions that don't need chezmoi apply / nix.
-ci-fast: lint template-variants nix-tree-hash local-ci-hook install-unit
+ci-fast: lint template-variants nix-tree-hash local-ci-hook install-unit envrcs
+
+# run_onchange_30-write-envrcs.sh.tmpl の出力契約テスト
+envrcs: build
+    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/envrcs.bats
 
 # install.sh の内部関数のユニットテスト (TTY 判定 / CA cert 候補選択)
 install-unit: build
