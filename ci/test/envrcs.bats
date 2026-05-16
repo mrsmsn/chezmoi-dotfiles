@@ -109,3 +109,27 @@ teardown() {
     rendered=$(render_envrcs "$CFG")
     [[ "$rendered" != *'cat > "${WORK_PREFIX}/.envrc"'* ]]
 }
+
+@test "work-ghq .envrc: ghq.root + work.gh_user set → use_gh_user + GITHUB_APM_PAT under <ghq.root>/github.com/<work.gh_user>/" {
+    # config.tmpl の `[includeIf "gitdir:<ghq.root>/github.com/<work.gh_user>/"]`
+    # と対になる .envrc 生成。direnv 側でも work プロファイルが効くようにする。
+    write_cfg "$CFG" "~/src" "" "" "work-user"
+    rendered=$(render_envrcs "$CFG")
+    [[ "$rendered" == *'cat > "${WORK_GHQ_PREFIX}/.envrc"'* ]]
+    [[ "$rendered" == *'WORK_GHQ_PREFIX='* ]]
+    [[ "$rendered" == *'/github.com/work-user/'* ]]
+    [[ "$rendered" == *'use_gh_user "work-user"'* ]]
+    [[ "$rendered" == *'export GITHUB_APM_PAT='* ]]
+}
+
+@test "work-ghq .envrc: work.gh_user empty → no work-ghq .envrc" {
+    write_cfg "$CFG" "~/src" "" "" ""
+    rendered=$(render_envrcs "$CFG")
+    [[ "$rendered" != *'cat > "${WORK_GHQ_PREFIX}/.envrc"'* ]]
+}
+
+@test "work-ghq .envrc: ghq.root empty → no work-ghq .envrc even with work.gh_user set" {
+    write_cfg "$CFG" "" "" "" "work-user"
+    rendered=$(render_envrcs "$CFG")
+    [[ "$rendered" != *'cat > "${WORK_GHQ_PREFIX}/.envrc"'* ]]
+}
