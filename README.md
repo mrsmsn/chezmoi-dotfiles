@@ -109,9 +109,49 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 {{ end }}
 ```
 
+## 個人/work 情報の管理
+
+repo は public なので、個人の commit author 名・社用メール・所属組織名・work account 名などは **`.tmpl` 上は placeholder にして、実値はマシンごとに `~/.config/chezmoi/chezmoi.toml` に保持** する方針。
+
+### 初回 apply で聞かれる値
+
+`home/.chezmoi.toml.tmpl` の `promptStringOnce` が初回 `chezmoi apply` 時に対話プロンプトを出し、回答を `~/.config/chezmoi/chezmoi.toml` に永続化する (このファイルは chezmoi の runtime config で repo 外)。2 回目以降は再 prompt されない。
+
+| 変数 | 用途 |
+| --- | --- |
+| `git.user_name` | commit author 名 |
+| `git.user_email` | commit email |
+| `git.gh_user_default` | 親 `~/src/.envrc` で `gh auth switch --user` する gh CLI アカウント |
+| `git.ssh_key` | `~/.ssh/<name>` の `<name>`。空可 (空ならデフォルト鍵を使う) |
+| `work.gitdir_prefix` | work プロファイル切替条件。`~/src/github.com/<org>/` のような prefix。空なら work 機能 OFF |
+
+`git.user_name` 等は `.tmpl` 内で `{{ .git.user_name }}` のように参照される。
+
+### work プロファイル分離 (任意)
+
+`work.gitdir_prefix` を入れて `chezmoi apply` すると、`~/.config/git/config` に以下が追加される:
+
+```
+[includeIf "gitdir:<your-prefix>"]
+    path = ~/.config/git/config_work
+```
+
+`~/.config/git/config_work` 自体は **chezmoi 管理外** で手で作る (社用メール・work account 名・bitbucket org URL rewrite 等を入れる場所)。雛形は `home/private_dot_config/git/config_work.example` にあるのでコピーして編集する。
+
+### per-org `.envrc`
+
+`~/src/github.com/<org>/.envrc` のように **パス自体に org 名が出る** ファイルは chezmoi 管理外で手書きする:
+
+```bash
+use_gh_user "<your-work-handle>"
+export GITHUB_APM_PAT="$(gh auth token)"
+```
+
+`use_gh_user` ヘルパは `~/.config/direnv/direnvrc` (chezmoi 管理) で定義済みなので、各 `.envrc` から直接呼べる。
+
 ## スコープ外
 
-- シークレット管理
+- シークレット管理 (機微値は前述の通り `~/.config/chezmoi/chezmoi.toml` と手書きの `config_work` / per-org `.envrc` で持つ)
 - ホスト別の machine 固有変数
 - Home Manager の `programs.*` による dotfile 生成 (dotfile は chezmoi 管轄)
 - Intel Mac / aarch64 Linux (必要になったら `nix/flake.nix` へ追記)

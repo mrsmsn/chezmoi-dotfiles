@@ -1,0 +1,18 @@
+[ghq]
+    root = ~/src
+
+[user]
+    name = {{ .git.user_name | quote }}
+    email = {{ .git.user_email | quote }}
+
+[core]
+    excludesfile = ~/.gitignore_global
+{{- if .git.ssh_key }}
+    sshCommand = "ssh -i ~/.ssh/{{ .git.ssh_key }} -o IdentitiesOnly=yes"
+{{- end }}
+{{ if .work.gitdir_prefix }}
+# Work プロファイル: gitdir が一致したら ~/.config/git/config_work を上書き読み込み。
+# config_work 自体は chezmoi 管理外 (手書き、commit 不可)。雛形は git/config_work.example。
+[includeIf "gitdir:{{ .work.gitdir_prefix }}"]
+    path = ~/.config/git/config_work
+{{- end }}

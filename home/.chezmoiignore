@@ -4,6 +4,9 @@
 # dot_some_macos_only_file
 # {{ end }}
 
+# *.example は手書き見本ファイル (config_work.example 等)。target に展開しない。
+**/*.example
+
 {{- if ne .variant "darwin" }}
 private_Library
 {{- end }}

@@ -17,9 +17,28 @@
 {{-   end -}}
 {{- end -}}
 
+{{- /* 個人/work 値: 初回 apply 時だけ対話で聞かれ、~/.config/chezmoi/chezmoi.toml に永続化される。
+       repo (= source tree) には絶対に出ない。 */ -}}
+{{- /* default は全部空。--no-tty 環境 (CI / bootstrap) でも apply が止まらないようにするため。
+       interactive な初回 apply で空のまま enter すると `name = ""` が target に出るので user は気付ける。 */ -}}
+{{- $userName         := promptStringOnce . "git.user_name"        "Git user.name (例: mrsmsn)" "" -}}
+{{- $userEmail        := promptStringOnce . "git.user_email"       "Git user.email" "" -}}
+{{- $ghUserDefault    := promptStringOnce . "git.gh_user_default"  "親 ~/src/.envrc で使う gh CLI アカウント" "" -}}
+{{- $sshKey           := promptStringOnce . "git.ssh_key"          "~/.ssh/<name> の <name> (空可)" "" -}}
+{{- $workGitdirPrefix := promptStringOnce . "work.gitdir_prefix"   "work プロファイル切替の gitdir prefix (空なら work 機能 OFF)" "" -}}
+
 [data]
     os = "{{ .chezmoi.os }}"
     variant = "{{ $variant }}"
     is_wsl = {{ eq $variant "wsl" }}
     model = "{{ $model }}"
     machine = "{{ $machine }}"
+
+    [data.git]
+        user_name        = "{{ $userName }}"
+        user_email       = "{{ $userEmail }}"
+        gh_user_default  = "{{ $ghUserDefault }}"
+        ssh_key          = "{{ $sshKey }}"
+
+    [data.work]
+        gitdir_prefix = "{{ $workGitdirPrefix }}"
