@@ -109,57 +109,34 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 {{ end }}
 ```
 
-## 個人/work 情報の管理
+## 個人/work のセットアップ
 
-repo は public なので、個人の commit author 名・社用メール・所属組織名・work account 名などは **`.tmpl` 上は placeholder にして、実値はマシンごとに `~/.config/chezmoi/chezmoi.toml` に保持** する方針。
-
-### 初回 apply で聞かれる値
-
-`home/.chezmoi.toml.tmpl` の `promptStringOnce` が初回 `chezmoi apply` 時に対話プロンプトを出し、回答を `~/.config/chezmoi/chezmoi.toml` に永続化する (このファイルは chezmoi の runtime config で repo 外)。2 回目以降は再 prompt されない。
+初回 `chezmoi apply` で対話プロンプトが出る (回答は `~/.config/chezmoi/chezmoi.toml` に保存)。
 
 | 変数 | 用途 |
 | --- | --- |
 | `git.user_name` | commit author 名 |
 | `git.user_email` | commit email |
-| `git.gh_user_default` | 親 `<ghq.root>/.envrc` で `gh auth switch --user` する personal gh CLI アカウント |
-| `git.ssh_key` | `~/.ssh/<name>` の `<name>`。空可 (空ならデフォルト鍵を使う) |
-| `ghq.root` | ghq のルート (デフォルト `~/src`)。`[ghq] root` と親 `.envrc` の出力先に使う |
-| `work.gitdir_prefix` | work プロファイル切替条件。`~/src/github.com/<org>/` のような prefix。**空なら work 機能 OFF、以降の work プロンプトは聞かれない** |
+| `git.gh_user_default` | personal gh CLI アカウント |
+| `git.ssh_key` | `~/.ssh/<name>` の `<name>`。空可 |
+| `ghq.root` | ghq のルート (デフォルト `~/src`) |
+| `work.gitdir_prefix` | work プロファイル切替条件 (例: `~/src/github.com/<org>/`)。空なら work 機能 OFF |
 
-work 機能を ON (`work.gitdir_prefix` 非空) にすると追加で以下が聞かれる:
+`work.gitdir_prefix` を非空にすると追加で以下が聞かれる:
 
 | 変数 | 用途 |
 | --- | --- |
-| `work.user_name` | work プロファイルの commit author 名 |
-| `work.user_email` | work プロファイルの commit email |
-| `work.ssh_key` | work 用 SSH key (`~/.ssh/<name>` の `<name>`、空可) |
-| `work.gh_user` | work 用 gh CLI アカウント (`<prefix>/.envrc` に埋め込まれる) |
-| `work.bitbucket_ssh_rewrite` | Bitbucket HTTPS→SSH の `[url ...]` rewrite を入れるか (bool) |
+| `work.user_name` | work commit author 名 |
+| `work.user_email` | work commit email |
+| `work.ssh_key` | work 用 SSH key 名。空可 |
+| `work.gh_user` | work 用 gh CLI アカウント |
+| `work.bitbucket_ssh_rewrite` | Bitbucket HTTPS→SSH rewrite (bool) |
 
-`git.user_name` 等は `.tmpl` 内で `{{ .git.user_name }}` のように参照される。
-
-### .envrc の生成
-
-`home/run_onchange_30-write-envrcs.sh.tmpl` が apply 時に以下 2 つの `.envrc` を動的に生成する。出力先パスは `ghq.root` / `work.gitdir_prefix` を含むので source tree (= public repo) には現れない:
-
-- `<ghq.root>/.envrc` — `git.gh_user_default` が空でなければ生成。`use_gh_user "<personal>"` と `SRC_HOME` の export
-- `<work.gitdir_prefix>/.envrc` — `work.gh_user` が空でなければ生成。`use_gh_user "<work>"` と `GITHUB_APM_PAT="$(gh auth token)"` の export
-
-生成後、対象ディレクトリで `direnv allow` を 1 回叩けば有効化される (apply 自体は `direnv allow` までは行わない)。
-
-### work プロファイル分離 (任意)
-
-`work.gitdir_prefix` を入れて `chezmoi apply` すると以下が自動的に行われる:
-
-- `~/.config/git/config` に `[includeIf "gitdir:<prefix>"] path = ~/.config/git/config_work` ブロックが入る
-- `~/.config/git/config_work` が prompt 値から生成される (`home/private_dot_config/git/config_work.tmpl` 経由)
-- `<work.gitdir_prefix>/.envrc` が生成される (前節参照)
-
-`work.gitdir_prefix` が空のマシンでは `config_work` も work `.envrc` も生成されない (chezmoiignore および run_onchange の `{{ if }}` ガード)。
+apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
 
 ## スコープ外
 
-- シークレット管理 (機微値は前述の通り `~/.config/chezmoi/chezmoi.toml` と手書きの `config_work` / per-org `.envrc` で持つ)
+- シークレット管理 (機微値は `~/.config/chezmoi/chezmoi.toml` で持つ)
 - ホスト別の machine 固有変数
 - Home Manager の `programs.*` による dotfile 生成 (dotfile は chezmoi 管轄)
 - Intel Mac / aarch64 Linux (必要になったら `nix/flake.nix` へ追記)
