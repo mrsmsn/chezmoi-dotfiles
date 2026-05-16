@@ -66,11 +66,12 @@ if ! command -v chezmoi >/dev/null 2>&1; then
 fi
 
 echo "==> Initializing chezmoi from ${REPO_URL}"
-# 非 TTY 環境 (CI 等) では promptStringOnce が default に fallback せず TTY
-# を開こうとして失敗するので、--promptDefaults を付けて default を使わせる。
-# 対話実行ではそのまま prompt させる。
+# chezmoi の promptStringOnce は prompt 時 /dev/tty を直接開く。`curl | bash`
+# で実行された場合 stdin は pipe (非 TTY) だが /dev/tty は使えるので普通に
+# 対話できる。真に TTY が無い環境 (CI 等) でのみ --promptDefaults で defaults
+# にフォールバックする。
 INIT_FLAGS=()
-if [[ ! -t 0 || ! -t 1 ]]; then
+if ! : < /dev/tty 2>/dev/null; then
     INIT_FLAGS+=(--promptDefaults)
 fi
 chezmoi init --apply "${INIT_FLAGS[@]}" "${REPO_URL}"
