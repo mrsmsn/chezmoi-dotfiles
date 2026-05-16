@@ -18,20 +18,30 @@ load 'helpers/shim'
 HOOK="$PROJECT_ROOT/.claude/hooks/local-ci.sh"
 
 # Each test creates a fresh shim_dir; teardown wipes it.
+# We deliberately do NOT include /usr/bin or /bin in PATH because GH Actions'
+# ubuntu-latest pre-installs podman at /usr/bin/podman, which would let
+# `command -v podman` succeed even when we explicitly want it to fail.
+# Instead we symlink only the binaries the hook itself depends on into the
+# shim dir, then restrict PATH to that dir only.
 setup() {
     SHIM_DIR=$(make_shim_dir)
-    # Minimal PATH that still has jq / cat / printf available, plus our shims.
-    BASE_PATH="/usr/bin:/bin"
+    local bin src
+    for bin in jq cat bash tail; do
+        src=$(PATH=/usr/bin:/bin command -v "$bin")
+        ln -s "$src" "$SHIM_DIR/$bin"
+    done
 }
 
 teardown() {
-    [ -n "${SHIM_DIR:-}" ] && rm -rf "$SHIM_DIR"
+    if [ -n "${SHIM_DIR:-}" ]; then
+        rm -rf "$SHIM_DIR"
+    fi
 }
 
 run_hook() {
     local stdin="$1"
     run env -i HOME="$HOME" \
-        PATH="$SHIM_DIR:$BASE_PATH" \
+        PATH="$SHIM_DIR" \
         CLAUDE_PROJECT_DIR="$PROJECT_ROOT" \
         bash "$HOOK" <<<"$stdin"
 }
