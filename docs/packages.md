@@ -25,7 +25,7 @@ macOS / Linux / WSL すべての環境にインストールされるパッケー
 | `just` | コマンドランナー (`justfile`) |
 | `lazygit` | Git の TUI クライアント |
 | `lsd` | アイコン付きの `ls` 代替 |
-| `neovim` | エディタ |
+| `neovim` | エディタ (設定は LazyVim starter を `home/private_dot_config/nvim/` に vendor。README の「Neovim (LazyVim)」セクション参照) |
 | `podman` | コンテナランタイム |
 | `podman-compose` | Compose 互換のコンテナオーケストレーション |
 | `ripgrep` | 高速な `grep` 代替 |

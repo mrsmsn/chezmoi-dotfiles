@@ -233,3 +233,13 @@ jobs:
         # TMUX is faked so tmux_automatically_attach_session returns early
         # instead of trying to attach inside a non-TTY CI step.
         run: TMUX=fake zsh -i -c 'exit 0'
+      - name: Verify LazyVim bootstraps headlessly
+        # `Lazy! sync` の `!` は同期実行を強制する。初回起動時に
+        # lua/config/lazy.lua が lazy.nvim を clone し、続けて LazyVim
+        # 本体とその依存プラグインを `~/.local/share/nvim/lazy/` に
+        # 展開しきることをアサートする。timeout は plugin clone と
+        # treesitter コンパイルを含めても 10 分で十分余裕がある想定。
+        run: |
+          timeout 600 nvim --headless "+Lazy! sync" +qa
+          test -d "${HOME}/.local/share/nvim/lazy/lazy.nvim"
+          test -d "${HOME}/.local/share/nvim/lazy/LazyVim"
