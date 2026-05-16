@@ -8,5 +8,4 @@ use_gh_user() {
         return 1
     fi
     gh auth switch --user "$user" >/dev/null
-    export GITHUB_TOKEN="$(gh auth token)"
 }

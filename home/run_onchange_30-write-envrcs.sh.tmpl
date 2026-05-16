@@ -8,8 +8,7 @@ set -euo pipefail
 
 # Personal: <ghq.root>/.envrc — ghq tree の defaults。
 {{ if and .ghq.root .git.gh_user_default -}}
-GHQ_ROOT={{ .ghq.root | quote }}
-GHQ_ROOT="${GHQ_ROOT/#\~/$HOME}"
+GHQ_ROOT={{ .ghq.root | replace "~" .chezmoi.homeDir | quote }}
 mkdir -p "${GHQ_ROOT}"
 
 cat > "${GHQ_ROOT}/.envrc" <<EOF
@@ -24,8 +23,7 @@ echo "==> wrote ${GHQ_ROOT}/.envrc"
 
 # Work: <work.gitdir_prefix>/.envrc — work プロファイル上書き。
 {{ if and .work.gitdir_prefix .work.gh_user -}}
-WORK_PREFIX={{ .work.gitdir_prefix | quote }}
-WORK_PREFIX="${WORK_PREFIX/#\~/$HOME}"
+WORK_PREFIX={{ .work.gitdir_prefix | replace "~" .chezmoi.homeDir | quote }}
 mkdir -p "${WORK_PREFIX}"
 
 cat > "${WORK_PREFIX}/.envrc" <<'EOF'
