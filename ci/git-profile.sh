@@ -44,9 +44,13 @@ run_case() {
     local fakehome
     fakehome=$(mktemp -d)
     export HOME="${fakehome}"
+    # GH runner などで XDG_CONFIG_HOME が外部 path に set されてると git も
+    # chezmoi もそちらを優先するので、fakehome 配下に固定する。
+    export XDG_CONFIG_HOME="${fakehome}/.config"
     mkdir -p "${HOME}/.config/git" "${HOME}/.config/chezmoi"
 
-    cat > "${HOME}/.config/chezmoi/chezmoi.toml" <<EOF
+    local cfg="${HOME}/.config/chezmoi/chezmoi.toml"
+    cat > "${cfg}" <<EOF
 [data]
 [data.git]
     user_name = "personal"
@@ -64,8 +68,10 @@ run_case() {
     bitbucket_ssh_rewrite = false
 EOF
 
-    chezmoi execute-template < home/private_dot_config/git/config.tmpl > "${HOME}/.config/git/config"
-    chezmoi execute-template < home/private_dot_config/git/config_work.tmpl > "${HOME}/.config/git/config_work"
+    # --config 明示: GH runner 等で XDG_CONFIG_HOME が別パスに set されてると
+    # HOME 配下の chezmoi.toml が無視されるので、毎回パスを固定する。
+    chezmoi --config "${cfg}" execute-template < home/private_dot_config/git/config.tmpl > "${HOME}/.config/git/config"
+    chezmoi --config "${cfg}" execute-template < home/private_dot_config/git/config_work.tmpl > "${HOME}/.config/git/config_work"
 
     mkdir -p "${HOME}/src/github.com/workorg/myrepo"
     (cd "${HOME}/src/github.com/workorg/myrepo" && git init -q -b main)
