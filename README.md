@@ -115,22 +115,22 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 
 | 変数 | 用途 |
 | --- | --- |
-| `git.user_name` | commit author 名 |
-| `git.user_email` | commit email |
-| `git.gh_user_default` | personal gh CLI アカウント |
-| `git.ssh_key` | `~/.ssh/<name>` の `<name>`。空可 |
-| `ghq.root` | ghq のルート (デフォルト `~/src`) |
-| `work.gitdir_prefix` | work プロファイル切替条件 (例: `~/src/github.com/<org>/`)。空なら work 機能 OFF |
+| `git.user_name` | git commit の author 名 |
+| `git.user_email` | git commit の email |
+| `git.gh_user_default` | 普段使う GitHub アカウント名 (gh CLI 用) |
+| `git.ssh_key` | git で使う SSH 鍵のファイル名 (`~/.ssh/` 配下、空ならデフォルト鍵) |
+| `ghq.root` | ghq の clone 先ディレクトリ (デフォルト `~/src`) |
+| `work.gitdir_prefix` | work アカウントに切り替える起点パス (例: `~/src/github.com/<work-org>/`)。空なら work 機能 OFF |
 
 `work.gitdir_prefix` を非空にすると追加で以下が聞かれる:
 
 | 変数 | 用途 |
 | --- | --- |
-| `work.user_name` | work commit author 名 |
-| `work.user_email` | work commit email |
-| `work.ssh_key` | work 用 SSH key 名。空可 |
-| `work.gh_user` | work 用 gh CLI アカウント |
-| `work.bitbucket_ssh_rewrite` | Bitbucket HTTPS→SSH rewrite (bool) |
+| `work.user_name` | work での git commit の author 名 |
+| `work.user_email` | work での git commit の email |
+| `work.ssh_key` | work で使う SSH 鍵のファイル名 (空可) |
+| `work.gh_user` | work で使う GitHub アカウント名 (gh CLI 用) |
+| `work.bitbucket_ssh_rewrite` | Bitbucket の https URL を ssh URL に書き換える (bool) |
 
 apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
 

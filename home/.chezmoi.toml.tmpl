@@ -21,12 +21,12 @@
        repo (= source tree) には絶対に出ない。 */ -}}
 {{- /* default は全部空。--no-tty 環境 (CI / bootstrap) でも apply が止まらないようにするため。
        interactive な初回 apply で空のまま enter すると `name = ""` が target に出るので user は気付ける。 */ -}}
-{{- $userName         := promptStringOnce . "git.user_name"        "Git user.name (例: mrsmsn)" "" -}}
-{{- $userEmail        := promptStringOnce . "git.user_email"       "Git user.email" "" -}}
-{{- $ghUserDefault    := promptStringOnce . "git.gh_user_default"  "親 envrc で使う personal gh CLI アカウント" "" -}}
-{{- $sshKey           := promptStringOnce . "git.ssh_key"          "~/.ssh/<name> の <name> (空可)" "" -}}
-{{- $ghqRoot          := promptStringOnce . "ghq.root"             "ghq root (例: ~/src or ~/ghq)" "~/src" -}}
-{{- $workGitdirPrefix := promptStringOnce . "work.gitdir_prefix"   "work プロファイル切替の gitdir prefix (空なら work 機能 OFF)" "" -}}
+{{- $userName         := promptStringOnce . "git.user_name"        "git commit の author 名 (例: mrsmsn)" "" -}}
+{{- $userEmail        := promptStringOnce . "git.user_email"       "git commit の email" "" -}}
+{{- $ghUserDefault    := promptStringOnce . "git.gh_user_default"  "普段使う GitHub アカウント名 (gh CLI 用)" "" -}}
+{{- $sshKey           := promptStringOnce . "git.ssh_key"          "git で使う SSH 鍵のファイル名 (~/.ssh/ 配下、空ならデフォルト鍵)" "" -}}
+{{- $ghqRoot          := promptStringOnce . "ghq.root"             "ghq の clone 先ディレクトリ" "~/src" -}}
+{{- $workGitdirPrefix := promptStringOnce . "work.gitdir_prefix"   "work アカウントに切り替える起点パス (例: ~/src/github.com/<work-org>/、空欄なら work 機能 OFF)" "" -}}
 
 {{- /* work プロファイル有効時のみ追加で work 用の値を聞く。
        無効時はこれらは空のまま (chezmoiignore で config_work.tmpl ごと target 外す)。 */ -}}
@@ -36,11 +36,11 @@
 {{- $workGhUser    := "" -}}
 {{- $workBitbucket := false -}}
 {{- if $workGitdirPrefix -}}
-{{-   $workUserName  = promptStringOnce . "work.user_name"             "Work commit author 名 (例: 本名)" "" -}}
-{{-   $workUserEmail = promptStringOnce . "work.user_email"            "Work commit email (例: 社用メール)" "" -}}
-{{-   $workSshKey    = promptStringOnce . "work.ssh_key"               "Work SSH key (~/.ssh/<name> の <name>、空可)" "" -}}
-{{-   $workGhUser    = promptStringOnce . "work.gh_user"               "Work gh CLI アカウント (per-org .envrc に埋め込まれる)" "" -}}
-{{-   $workBitbucket = promptBoolOnce   . "work.bitbucket_ssh_rewrite" "Bitbucket HTTPS→SSH rewrite を有効にする?" false -}}
+{{-   $workUserName  = promptStringOnce . "work.user_name"             "work での git commit の author 名" "" -}}
+{{-   $workUserEmail = promptStringOnce . "work.user_email"            "work での git commit の email" "" -}}
+{{-   $workSshKey    = promptStringOnce . "work.ssh_key"               "work で使う SSH 鍵のファイル名 (~/.ssh/ 配下、空可)" "" -}}
+{{-   $workGhUser    = promptStringOnce . "work.gh_user"               "work で使う GitHub アカウント名 (gh CLI 用)" "" -}}
+{{-   $workBitbucket = promptBoolOnce   . "work.bitbucket_ssh_rewrite" "Bitbucket の https URL を ssh URL に書き換える?" false -}}
 {{- end -}}
 
 [data]
