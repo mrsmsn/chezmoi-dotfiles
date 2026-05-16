@@ -7,8 +7,8 @@ default: ci
 build:
     podman build -t {{image}} -f Containerfile .
 
-# Run all non-bootstrap CI checks (lint + template tests)
-ci: lint template-variants template-shellcheck
+# Run all non-bootstrap CI checks (lint + template tests + git profile)
+ci: lint template-variants template-shellcheck git-profile
 
 # Reproduce the `lint` GH Actions job in a clean Linux container
 lint: build
@@ -21,3 +21,7 @@ template-variants: build
 # Reproduce the `template-shellcheck` job
 template-shellcheck: build
     podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/template-shellcheck.sh
+
+# Reproduce the `git-profile` job (gitdir-based work プロファイル切替の E2E)
+git-profile: build
+    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/git-profile.sh

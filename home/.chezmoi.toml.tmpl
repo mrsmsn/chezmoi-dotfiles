@@ -27,6 +27,11 @@
 {{- $sshKey           := promptStringOnce . "git.ssh_key"          "git で使う SSH 鍵のファイル名 (~/.ssh/ 配下、空ならデフォルト鍵)" "" -}}
 {{- $ghqRoot          := promptStringOnce . "ghq.root"             "ghq の clone 先ディレクトリ" "~/src" -}}
 {{- $workGitdirPrefix := promptStringOnce . "work.gitdir_prefix"   "work アカウントに切り替える起点パス (例: ~/src/github.com/<work-org>/、空欄なら work 機能 OFF)" "" -}}
+{{- /* git の `gitdir:<path>` は末尾 `/` の有無でマッチが変わる (`/` で配下全部マッチ、無しで完全一致のみ)。
+       user が末尾 / を付け忘れがちなのでここで自動補完する。 */ -}}
+{{- if and $workGitdirPrefix (not (hasSuffix "/" $workGitdirPrefix)) -}}
+{{-   $workGitdirPrefix = printf "%s/" $workGitdirPrefix -}}
+{{- end -}}
 
 {{- /* work プロファイル有効時のみ追加で work 用の値を聞く。
        無効時はこれらは空のまま (chezmoiignore で config_work.tmpl ごと target 外す)。 */ -}}

@@ -134,6 +134,8 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 
 apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
 
+git の `[includeIf "gitdir:..."]` は **対象パス配下の git repo の中** にいる時だけ発火する仕様。`cd <work.gitdir_prefix>` しただけの空ディレクトリで `git config -l` を叩いても personal の値のままに見えるが、これは git の挙動どおりで、その下に repo を `git clone` (or `ghq get`) したあとで repo に入って確認すれば work 値になる。
+
 ## スコープ外
 
 - シークレット管理 (機微値は `~/.config/chezmoi/chezmoi.toml` で持つ)

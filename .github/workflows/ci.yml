@@ -176,6 +176,21 @@ jobs:
           done
           rm -f "${test_config}"
 
+  git-profile:
+    name: gitdir-based work プロファイル切替の E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - name: Install chezmoi
+        run: nix profile install nixpkgs#chezmoi
+      - name: Run git-profile E2E
+        run: ./ci/git-profile.sh
+
   bootstrap-linux:
     name: End-to-end bootstrap on Linux
     runs-on: ubuntu-latest
