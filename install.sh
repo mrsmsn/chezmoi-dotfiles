@@ -66,6 +66,13 @@ if ! command -v chezmoi >/dev/null 2>&1; then
 fi
 
 echo "==> Initializing chezmoi from ${REPO_URL}"
-chezmoi init --apply "${REPO_URL}"
+# 非 TTY 環境 (CI 等) では promptStringOnce が default に fallback せず TTY
+# を開こうとして失敗するので、--promptDefaults を付けて default を使わせる。
+# 対話実行ではそのまま prompt させる。
+INIT_FLAGS=()
+if [[ ! -t 0 || ! -t 1 ]]; then
+    INIT_FLAGS+=(--promptDefaults)
+fi
+chezmoi init --apply "${INIT_FLAGS[@]}" "${REPO_URL}"
 
 echo "==> Done. Run \`chezmoi status\` to inspect state."
