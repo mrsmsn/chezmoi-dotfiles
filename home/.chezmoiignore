@@ -4,8 +4,11 @@
 # dot_some_macos_only_file
 # {{ end }}
 
-# *.example は手書き見本ファイル (config_work.example 等)。target に展開しない。
-**/*.example
+{{- /* work プロファイル OFF (.work.gitdir_prefix が空) なら config_work は要らないので ignore する。
+       パターンは target (destination) 相対。 */ -}}
+{{- if not .work.gitdir_prefix }}
+.config/git/config_work
+{{- end }}
 
 {{- if ne .variant "darwin" }}
 private_Library

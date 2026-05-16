@@ -1,7 +1,0 @@
-# ~/src/.envrc — ghq tree の defaults。
-# org 別の override は ~/src/github.com/<org>/.envrc に手書きで置く (chezmoi 管理外)。
-# 中で `use_gh_user "<work-handle>"` と必要なら GITHUB_APM_PAT 等を export する。
-
-use_gh_user "{{ .git.gh_user_default }}"
-export GIT_CONFIG_GLOBAL="$XDG_CONFIG_HOME/git/config"
-export SRC_HOME="$HOME/src"

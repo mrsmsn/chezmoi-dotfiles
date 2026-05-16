@@ -121,33 +121,41 @@ repo は public なので、個人の commit author 名・社用メール・所�
 | --- | --- |
 | `git.user_name` | commit author 名 |
 | `git.user_email` | commit email |
-| `git.gh_user_default` | 親 `~/src/.envrc` で `gh auth switch --user` する gh CLI アカウント |
+| `git.gh_user_default` | 親 `<ghq.root>/.envrc` で `gh auth switch --user` する personal gh CLI アカウント |
 | `git.ssh_key` | `~/.ssh/<name>` の `<name>`。空可 (空ならデフォルト鍵を使う) |
-| `work.gitdir_prefix` | work プロファイル切替条件。`~/src/github.com/<org>/` のような prefix。空なら work 機能 OFF |
+| `ghq.root` | ghq のルート (デフォルト `~/src`)。`[ghq] root` と親 `.envrc` の出力先に使う |
+| `work.gitdir_prefix` | work プロファイル切替条件。`~/src/github.com/<org>/` のような prefix。**空なら work 機能 OFF、以降の work プロンプトは聞かれない** |
+
+work 機能を ON (`work.gitdir_prefix` 非空) にすると追加で以下が聞かれる:
+
+| 変数 | 用途 |
+| --- | --- |
+| `work.user_name` | work プロファイルの commit author 名 |
+| `work.user_email` | work プロファイルの commit email |
+| `work.ssh_key` | work 用 SSH key (`~/.ssh/<name>` の `<name>`、空可) |
+| `work.gh_user` | work 用 gh CLI アカウント (`<prefix>/.envrc` に埋め込まれる) |
+| `work.bitbucket_ssh_rewrite` | Bitbucket HTTPS→SSH の `[url ...]` rewrite を入れるか (bool) |
 
 `git.user_name` 等は `.tmpl` 内で `{{ .git.user_name }}` のように参照される。
 
+### .envrc の生成
+
+`home/run_onchange_30-write-envrcs.sh.tmpl` が apply 時に以下 2 つの `.envrc` を動的に生成する。出力先パスは `ghq.root` / `work.gitdir_prefix` を含むので source tree (= public repo) には現れない:
+
+- `<ghq.root>/.envrc` — `git.gh_user_default` が空でなければ生成。`use_gh_user "<personal>"` と `SRC_HOME` の export
+- `<work.gitdir_prefix>/.envrc` — `work.gh_user` が空でなければ生成。`use_gh_user "<work>"` と `GITHUB_APM_PAT="$(gh auth token)"` の export
+
+生成後、対象ディレクトリで `direnv allow` を 1 回叩けば有効化される (apply 自体は `direnv allow` までは行わない)。
+
 ### work プロファイル分離 (任意)
 
-`work.gitdir_prefix` を入れて `chezmoi apply` すると、`~/.config/git/config` に以下が追加される:
+`work.gitdir_prefix` を入れて `chezmoi apply` すると以下が自動的に行われる:
 
-```
-[includeIf "gitdir:<your-prefix>"]
-    path = ~/.config/git/config_work
-```
+- `~/.config/git/config` に `[includeIf "gitdir:<prefix>"] path = ~/.config/git/config_work` ブロックが入る
+- `~/.config/git/config_work` が prompt 値から生成される (`home/private_dot_config/git/config_work.tmpl` 経由)
+- `<work.gitdir_prefix>/.envrc` が生成される (前節参照)
 
-`~/.config/git/config_work` 自体は **chezmoi 管理外** で手で作る (社用メール・work account 名・bitbucket org URL rewrite 等を入れる場所)。雛形は `home/private_dot_config/git/config_work.example` にあるのでコピーして編集する。
-
-### per-org `.envrc`
-
-`~/src/github.com/<org>/.envrc` のように **パス自体に org 名が出る** ファイルは chezmoi 管理外で手書きする:
-
-```bash
-use_gh_user "<your-work-handle>"
-export GITHUB_APM_PAT="$(gh auth token)"
-```
-
-`use_gh_user` ヘルパは `~/.config/direnv/direnvrc` (chezmoi 管理) で定義済みなので、各 `.envrc` から直接呼べる。
+`work.gitdir_prefix` が空のマシンでは `config_work` も work `.envrc` も生成されない (chezmoiignore および run_onchange の `{{ if }}` ガード)。
 
 ## スコープ外
 

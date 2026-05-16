@@ -1,0 +1,15 @@
+{{- /* work プロファイル ON (.work.gitdir_prefix が非空) のマシンにのみ展開される。
+       OFF のマシンでは home/.chezmoiignore がこのファイル自体を ignore する。 */ -}}
+[user]
+    name = {{ .work.user_name | quote }}
+    email = {{ .work.user_email | quote }}
+{{- if .work.ssh_key }}
+
+[core]
+    sshCommand = "ssh -i ~/.ssh/{{ .work.ssh_key }} -o IdentitiesOnly=yes"
+{{- end }}
+{{- if .work.bitbucket_ssh_rewrite }}
+
+[url "git@bitbucket.org:"]
+    insteadOf = https://bitbucket.org/
+{{- end }}
