@@ -10,6 +10,17 @@
 {{- if .git.ssh_key }}
     sshCommand = "ssh -i ~/.ssh/{{ .git.ssh_key }} -o IdentitiesOnly=yes"
 {{- end }}
+
+# github.com / gist.github.com の credential 解決を gh CLI に丸投げ。
+# osxkeychain 等が先に答えないよう、空 helper で chain を一旦リセット。
+# `gh auth setup-git` は /nix/store/... の絶対パスを書くので Nix 環境で壊れる。
+# ここは PATH 解決の `gh` だけ書いておけば gh のバージョン上げても壊れない。
+[credential "https://github.com"]
+    helper =
+    helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+    helper =
+    helper = !gh auth git-credential
 {{ if .work.gitdir_prefix }}
 # Work プロファイル: gitdir が一致したら ~/.config/git/config_work を上書き読み込み。
 # config_work は git/config_work.tmpl から prompt 値で生成される。
