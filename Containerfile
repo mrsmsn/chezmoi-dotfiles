@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        zsh shellcheck jq curl ca-certificates git sed \
+        zsh shellcheck jq curl ca-certificates git sed bats \
     && rm -rf /var/lib/apt/lists/*
 
 # Install chezmoi via the official one-line installer.
