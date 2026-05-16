@@ -83,15 +83,29 @@ teardown() {
     [[ "$rendered" != *'cat > "${WORK_PREFIX}/.envrc"'* ]]
 }
 
-@test "work .envrc: work.gitdir_prefix + work.gh_user set → use_gh_user with work value" {
+@test "work .envrc: work.gitdir_prefix + work.gh_user set → use_gh_user + GITHUB_APM_PAT" {
     write_cfg "$CFG" "~/src" "me" "~/src/github.com/workorg/" "work-user"
     rendered=$(render_envrcs "$CFG")
     [[ "$rendered" == *'cat > "${WORK_PREFIX}/.envrc"'* ]]
     [[ "$rendered" == *'use_gh_user "work-user"'* ]]
+    [[ "$rendered" == *'export GITHUB_APM_PAT='* ]]
 }
 
-@test "work .envrc: work.gitdir_prefix set, work.gh_user empty → no work .envrc" {
-    write_cfg "$CFG" "~/src" "me" "~/src/github.com/workorg/" ""
+@test "work .envrc: work.gitdir_prefix set, work.gh_user empty → APM_PAT only (regression)" {
+    # 新マシン bootstrap で work.gh_user を空 enter したときに、
+    # work prefix 配下の .envrc 自体が作られない事故の回帰防止。
+    # `use_gh_user "..."` 行は省かれるが `.envrc` 本体は書かれる。
+    # gh_user_default も空にしておかないと personal 側の use_gh_user 行が
+    # render 結果に混ざって干渉する。
+    write_cfg "$CFG" "~/src" "" "~/src/github.com/workorg/" ""
+    rendered=$(render_envrcs "$CFG")
+    [[ "$rendered" == *'cat > "${WORK_PREFIX}/.envrc"'* ]]
+    [[ "$rendered" == *'export GITHUB_APM_PAT='* ]]
+    [[ "$rendered" != *'use_gh_user "'* ]]
+}
+
+@test "work .envrc: work.gitdir_prefix empty → no work .envrc" {
+    write_cfg "$CFG" "~/src" "me" "" ""
     rendered=$(render_envrcs "$CFG")
     [[ "$rendered" != *'cat > "${WORK_PREFIX}/.envrc"'* ]]
 }
