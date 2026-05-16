@@ -27,3 +27,8 @@
 [includeIf "gitdir:{{ .work.gitdir_prefix }}"]
     path = ~/.config/git/config_work
 {{- end }}
+{{- if .work.gh_user }}
+# work GitHub アカウント名義の clone 先 ({{ .ghq.root }}/github.com/{{ .work.gh_user }}/) も work プロファイル扱い。
+[includeIf "gitdir:{{ .ghq.root }}/github.com/{{ .work.gh_user }}/"]
+    path = ~/.config/git/config_work
+{{- end }}

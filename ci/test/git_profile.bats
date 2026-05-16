@@ -79,6 +79,32 @@ EOF
     [ "$actual" = "work@example.com" ]
 }
 
+@test "work git config: repo under ghq_root/github.com/<gh_user>/ resolves to work@example.com" {
+    # gitdir_prefix とは別系統で、ghq の clone 先 (<ghq.root>/github.com/<work.gh_user>/)
+    # 配下も work プロファイル扱いになることの回帰防止。
+    TMPHOME=$(mktemp -d)
+    export HOME="$TMPHOME"
+    export XDG_CONFIG_HOME="$TMPHOME/.config"
+    mkdir -p "$XDG_CONFIG_HOME/git" "$XDG_CONFIG_HOME/chezmoi"
+
+    local cfg="$XDG_CONFIG_HOME/chezmoi/chezmoi.toml"
+    # gitdir_prefix は work-org のままにし、判定が gh_user 側経由で効くことを示す。
+    write_chezmoi_toml "$cfg" "~/src/github.com/workorg/"
+
+    chezmoi --config "$cfg" execute-template \
+        < "$PROJECT_ROOT/home/private_dot_config/git/config.tmpl" \
+        > "$XDG_CONFIG_HOME/git/config"
+    chezmoi --config "$cfg" execute-template \
+        < "$PROJECT_ROOT/home/private_dot_config/git/config_work.tmpl" \
+        > "$XDG_CONFIG_HOME/git/config_work"
+
+    # work.gh_user = "work-user" を write_chezmoi_toml で設定済み。
+    mkdir -p "$HOME/src/github.com/work-user/myrepo"
+    git -C "$HOME/src/github.com/work-user/myrepo" init -q -b main
+    actual=$(git -C "$HOME/src/github.com/work-user/myrepo" config --get user.email)
+    [ "$actual" = "work@example.com" ]
+}
+
 @test "XDG_CONFIG_HOME isolation: fakehome XDG takes precedence over external defaults" {
     # PR #36 で fix した「GH Actions が XDG_CONFIG_HOME=/etc/xdg をセット
     # するから fakehome 配下の chezmoi.toml が無視される」事故の回帰防止。
