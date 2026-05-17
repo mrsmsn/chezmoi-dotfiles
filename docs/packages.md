@@ -89,6 +89,7 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 | パッケージ | 用途 |
 | --- | --- |
 | `espeak-ng` | テキスト音声合成エンジン (TTS) |
+| `gcc` | nvim-treesitter が parser をビルドする際に要求する C コンパイラ。macOS は Xcode CLT が `cc` を提供するので Nix 管理外、Linux/WSL は `build-essential` 任せにせず Nix 側で明示する |
 | `zsh` | デフォルトシェル。macOS は nix-darwin の `programs.zsh.enable` で system 側に入るが、Linux/WSL には相当機能が無いのでここで入れて `run_onchange_20-nix-activate.sh.tmpl` が `chsh` する |
 
 ## WSL 固有 (`nix/home/wsl.nix`)
