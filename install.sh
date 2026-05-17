@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
+# INSTALL_SH_LIB=1 で source されると main を skip し、helper だけ定義する
+# (bats からユニット呼び出しするための gate)。
 set -euo pipefail
 
-# Library guard: when sourced from bats (INSTALL_SH_LIB=1) we only define
-# functions and skip `main`, so individual helpers can be unit-tested
-# without re-running the full bootstrap (which curl|installs Nix etc.).
-
-# Decide chezmoi init flags based on whether a /dev/tty was probed available.
-# Args:
-#   $1 = "1" if /dev/tty can be opened (interactive), anything else otherwise.
-# Stdout: one flag per line (empty when interactive).
 _decide_init_flags() {
     if [ "${1:-0}" = "1" ]; then
         return 0
@@ -16,16 +10,10 @@ _decide_init_flags() {
     printf '%s\n' "--promptDefaults"
 }
 
-# Probe whether /dev/tty is openable from the current process.
-# Returns 0 if usable, 1 otherwise. Side-effect free.
 _probe_tty_available() {
     : < /dev/tty 2>/dev/null
 }
 
-# Pick the right CA bundle for the Nix-bundled curl.
-# Args: positional candidate paths, tried in order.
-# Stdout: the first path that exists (NIX_SSL_CERT_FILE wins if valid).
-# Returns 1 if nothing was selectable.
 _select_nix_ssl_cert_file() {
     if [ -n "${NIX_SSL_CERT_FILE:-}" ] && [ -f "${NIX_SSL_CERT_FILE}" ]; then
         printf '%s\n' "${NIX_SSL_CERT_FILE}"
@@ -44,10 +32,8 @@ _select_nix_ssl_cert_file() {
 main() {
     local repo_url="${1:-https://github.com/mrsmsn/chezmoi-dotfiles.git}"
 
-    # Bats E2E sets INSTALL_SH_DRY=1 to skip all bootstrap side-effects
-    # (Nix install / chezmoi init / sudo writes). The E2E test instead
-    # drives chezmoi directly against a fakehome, which is far cheaper
-    # than a full Nix install and still exercises template rendering.
+    # Bats E2E は INSTALL_SH_DRY=1 で Nix install / chezmoi init / sudo を全部
+    # 飛ばし、代わりに chezmoi を fakehome に対して直接叩く。
     if [ "${INSTALL_SH_DRY:-0}" = "1" ]; then
         echo "==> INSTALL_SH_DRY=1: skipping bootstrap (test mode)"
         return 0
@@ -81,12 +67,9 @@ main() {
         . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
     fi
 
-    # Nix の内蔵 curl は NIX_SSL_CERT_FILE が指す CA バンドルで TLS を検証する。
-    # nix-daemon.sh がこれを export しないビルドや、Linux 流の
-    # /etc/ssl/certs/ca-certificates.crt をハードコードで参照する構成だと、
-    # 新規インストール直後の macOS で flake-registry.json の取得が
-    # "Problem with the SSL CA cert (path? access rights?) (77)" で落ちる。
-    # 既存値が無効なら有効そうな候補に差し替える。
+    # Nix 内蔵 curl は NIX_SSL_CERT_FILE で TLS を検証する。これが未 export か、
+    # Linux 流の /etc/ssl/certs/ca-certificates.crt ハードコードを掴むビルドだと、
+    # 新規 macOS で flake-registry.json 取得が "SSL CA cert (77)" で落ちる。
     local picked
     if picked=$(_select_nix_ssl_cert_file \
             /etc/ssl/cert.pem \
@@ -95,9 +78,8 @@ main() {
         export NIX_SSL_CERT_FILE="${picked}"
     fi
 
-    # When a GITHUB_TOKEN is provided (CI), write it to /etc/nix/nix.conf so
-    # the nix-daemon — which performs flake fetches and doesn't read user-
-    # level ~/.config/nix/nix.conf — authenticates against the GitHub API.
+    # nix-daemon は flake fetch を担当する一方で user-level
+    # ~/.config/nix/nix.conf を読まないので、token は /etc/nix/nix.conf に書く。
     if [[ -n "${GITHUB_TOKEN:-}" ]]; then
         if ! sudo grep -q '^access-tokens' /etc/nix/nix.conf 2>/dev/null; then
             echo "==> Adding GitHub access-tokens to /etc/nix/nix.conf"
@@ -113,10 +95,9 @@ main() {
     fi
 
     echo "==> Initializing chezmoi from ${repo_url}"
-    # chezmoi の promptStringOnce は prompt 時 /dev/tty を直接開く。`curl | bash`
-    # で実行された場合 stdin は pipe (非 TTY) だが /dev/tty は使えるので普通に
-    # 対話できる。真に TTY が無い環境 (CI 等) でのみ --promptDefaults で defaults
-    # にフォールバックする。
+    # chezmoi の promptStringOnce は /dev/tty を直接開くので、`curl | bash` でも
+    # stdin が pipe なまま対話できる。真に TTY 無し (CI 等) のときだけ
+    # --promptDefaults で default 値に fallback。
     local has_tty=0
     _probe_tty_available && has_tty=1
     local -a init_flags=()

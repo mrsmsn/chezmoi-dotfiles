@@ -1,5 +1,5 @@
-{{- /* work プロファイル ON (.work.gitdir_prefix が非空) のマシンにのみ展開される。
-       OFF のマシンでは home/.chezmoiignore がこのファイル自体を ignore する。 */ -}}
+{{- /* work プロファイル OFF (.work.gitdir_prefix 空) のマシンでは
+       home/.chezmoiignore がこのファイル自体を ignore する。 */ -}}
 [user]
     name = {{ .work.user_name | quote }}
     email = {{ .work.user_email | quote }}

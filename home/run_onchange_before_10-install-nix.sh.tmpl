@@ -9,12 +9,9 @@ if ! { [[ -f "${NIX_CONF}" ]] && grep -q '^experimental-features' "${NIX_CONF}";
 fi
 
 {{ if eq .variant "darwin" -}}
-# nix-darwin の homebrew モジュール (`homebrew.enable = true`) は brew 本体の
-# 存在を前提にする。未インストールならここで入れておく。
-# NONINTERACTIVE は付けない: 付けると Homebrew インストーラが `sudo -n` で
-# 即チェックし、パスワードキャッシュが無いと "Need sudo access" で落ちる。
-# `chezmoi apply` は対話 TTY から走る前提なので、ここで sudo プロンプトを
-# 出させる方が確実。
+# NONINTERACTIVE は付けない: 付けると Homebrew installer が `sudo -n` で即チェックし、
+# キャッシュ無し環境で "Need sudo access" で落ちる。chezmoi apply は対話 TTY 前提
+# なので普通に sudo プロンプトを出させる方が確実。
 if ! command -v brew >/dev/null 2>&1 \
     && ! [[ -x /opt/homebrew/bin/brew ]] \
     && ! [[ -x /usr/local/bin/brew ]]; then

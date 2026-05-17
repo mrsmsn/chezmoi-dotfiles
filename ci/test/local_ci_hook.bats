@@ -1,28 +1,16 @@
 #!/usr/bin/env bats
-#
-# .claude/hooks/local-ci.sh は Claude Code の Stop hook として動作し、
-# `just ci-fast` の結果次第で Claude を block / 解放する。Hook 自身の
-# 出力 JSON 形式や skip 条件が壊れると CI ゲートが silently 抜けるか、
-# 逆に常に block して開発を止めてしまう。
-#
-# 守るべき性質:
-#   1. stop_hook_active=true → exit 0、stdout 空 (無限ループ防止)
-#   2. just が PATH に無い → exit 0、context メッセージで skip 表示
-#   3. podman が PATH に無い → 同上 (個別メッセージ)
-#   4. just (= ci-fast) が成功 → exit 0、stdout 空
-#   5. just (= ci-fast) が失敗 → exit 0 だが stdout に decision="block" JSON
+# .claude/hooks/local-ci.sh は Claude Code Stop hook として呼ばれ、
+# `just ci-fast` の結果次第で Claude を block / 解放する。出力 JSON 形式が壊れる
+# と、CI gate が silently 抜けるか逆に常に block して開発が止まる。
 
 load 'helpers/common'
 load 'helpers/shim'
 
 HOOK="$PROJECT_ROOT/.claude/hooks/local-ci.sh"
 
-# Each test creates a fresh shim_dir; teardown wipes it.
-# We deliberately do NOT include /usr/bin or /bin in PATH because GH Actions'
-# ubuntu-latest pre-installs podman at /usr/bin/podman, which would let
-# `command -v podman` succeed even when we explicitly want it to fail.
-# Instead we symlink only the binaries the hook itself depends on into the
-# shim dir, then restrict PATH to that dir only.
+# GH Actions ubuntu-latest は /usr/bin/podman を pre-install しているので、
+# 「podman 無し」を試すには PATH から /usr/bin /bin を外す必要がある。hook 自身が
+# 必要とするバイナリだけを shim_dir に symlink して PATH をそこだけに絞る。
 setup() {
     SHIM_DIR=$(make_shim_dir)
     local bin src
@@ -53,7 +41,6 @@ run_hook() {
 }
 
 @test "just missing: exits 0 and emits Stop hookSpecificOutput context" {
-    # SHIM_DIR is empty → command -v just fails → skip path taken.
     run_hook '{"stop_hook_active":false}'
     [ "$status" -eq 0 ]
     [ -n "$output" ]

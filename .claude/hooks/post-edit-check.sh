@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# PostToolUse hook: per-file fast checks for Write|Edit|MultiEdit.
-# Surfaces violations via hookSpecificOutput.additionalContext so Claude
-# self-corrects in the same loop. Full validation lives in the Stop hook.
+# PostToolUse hook: 編集ファイルだけに per-file の bash/zsh syntax + shellcheck
+# を即時走らせて、違反を additionalContext で同一ループ内に返す (フル検証は
+# Stop hook 側の `just ci-fast`)。
 
 set -u
 set -o pipefail

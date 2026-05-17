@@ -13,9 +13,9 @@ in
 
   programs.vscode = {
     enable = true;
-    # VSCode 本体は Homebrew Cask (/Applications/Visual Studio Code.app) を使う。
-    # null にすることで home-manager 側の本体インストールを抑止し、拡張のみを
-    # ~/.vscode/extensions/ 配下に配置する。
+    # VSCode 本体は Homebrew Cask 側で入れる (Sparkle 自動更新が素直に動くため)。
+    # package = null で home-manager 側の本体インストールを抑止し、拡張だけを
+    # ~/.vscode/extensions/ 配下に置く。
     package = null;
     profiles.default.extensions = [
       vsx.azemoh.one-monokai

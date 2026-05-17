@@ -1,17 +1,8 @@
 #!/usr/bin/env bats
-#
-# install.sh と chezmoi の bootstrap フローを fakehome に対して回す E2E。
-# Nix install / chezmoi init の git clone といった重いステップは
-# `INSTALL_SH_DRY=1` で全部スキップし、代わりに bats 側で chezmoi を
-# 直接呼んで template render / apply / 二度目 apply の冪等性をアサート。
-#
-# 守るべき性質:
-#   1. INSTALL_SH_DRY=1 で main が副作用なく early return する
-#   2. chezmoi apply を 2 回かけて 2 回目で `chezmoi status` が空
-#      (= run_onchange でない target ファイルが冪等に展開される)
-#
-# GH の bootstrap-linux ジョブが Nix install まで含む full E2E を担うので、
-# ここは「テンプレ render と平和な apply が壊れていない」ことの早期検出。
+# install.sh + chezmoi の bootstrap を fakehome に対して回す軽量 E2E。
+# Nix install / git clone は INSTALL_SH_DRY=1 で skip し、bats 側で chezmoi を
+# 直接呼んで template render と 2 回目 apply の冪等性を見る。Nix install 込みの
+# full E2E は GH の bootstrap-linux job がカバーする。
 
 load 'helpers/common'
 
@@ -33,9 +24,8 @@ teardown() {
     local dest="$TMPHOME/home"
     mkdir -p "$dest"
 
-    # 本物の .chezmoi.toml.tmpl が promptStringOnce を持つので、init を
-    # 経由せず data を直接埋め込んだ test config を渡す。値は全て CI 用の
-    # ダミーで、work プロファイルは OFF。
+    # .chezmoi.toml.tmpl が promptStringOnce を持つので、init を経由せず data を
+    # 直接埋め込んだ test config を渡す。work プロファイルは OFF。
     cat > "$cfg" <<EOF
 sourceDir = "$PROJECT_ROOT/home"
 destDir = "$dest"
@@ -66,15 +56,11 @@ destDir = "$dest"
 EOF
 
     # `--exclude=scripts` で run_onchange_*.sh.tmpl (Nix を呼ぶ) を除外。
-    # 通常ファイルだけが target に展開される。
     HOME="$dest" chezmoi --config "$cfg" apply --exclude=scripts
-    # 二度目 apply
     HOME="$dest" chezmoi --config "$cfg" apply --exclude=scripts
 
-    # chezmoi は `.chezmoi.toml.tmpl` を持つ source に対して config 経由で
-    # 走ると「template が変わった、init し直せ」warning を stderr に出す。
-    # 既存ステートの比較 (=空 diff) は stdout でアサートできるので stderr は
-    # 捨てる。
+    # config 経由 apply は「template が変わった、init し直せ」warning を stderr に
+    # 出すので stderr は捨て、stdout (= status diff) だけ見る。
     run bash -c "HOME='$dest' chezmoi --config '$cfg' status --exclude=scripts 2>/dev/null"
     [ "$status" -eq 0 ]
     [ -z "$output" ]

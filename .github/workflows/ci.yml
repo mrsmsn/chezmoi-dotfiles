@@ -29,14 +29,12 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: .
-          # .tmpl files under home/ are chezmoi templates, not pure shell.
-          # nix/ contains Nix expressions, not shell.
+          # .tmpl は chezmoi テンプレ、nix/ は Nix 式なので shellcheck の対象外。
           ignore_paths: home nix
 
   flake-check:
-    # macOS runner is intentionally omitted here; see issue for re-enabling
-    # macOS CI. darwinConfigurations is still evaluated on ubuntu so eval-
-    # time errors in the darwin module are still caught.
+    # macOS runner はコスト都合で省略。darwinConfigurations は ubuntu でも
+    # eval されるのでモジュール評価エラーはここで検出できる。
     name: nix flake check
     runs-on: ubuntu-latest
     steps:
@@ -53,8 +51,7 @@ jobs:
         run: nix flake check --impure --no-build
 
   build-configs:
-    # darwinConfigurations.default is intentionally not built here (requires
-    # macOS runner). See the issue for re-enabling macOS CI.
+    # darwinConfigurations.default は macOS runner が要るので build しない。
     name: build ${{ matrix.label }}
     strategy:
       fail-fast: false
@@ -93,8 +90,7 @@ jobs:
       - name: Install bats
         run: sudo apt-get update && sudo apt-get install -y bats
       - name: Run template_variants bats
-        # PROJECT_ROOT is exported so ci/test/helpers/common.bash skips the
-        # /repo fallback meant for the Podman container path.
+        # PROJECT_ROOT は Podman 用 /repo fallback を回避するための上書き。
         env:
           PROJECT_ROOT: ${{ github.workspace }}
         run: ./ci/run-bats.sh ci/test/template_variants.bats
@@ -112,9 +108,9 @@ jobs:
       - name: Install chezmoi and shellcheck
         run: nix profile install nixpkgs#chezmoi nixpkgs#shellcheck
       - name: Render and shellcheck each variant
-        # run_onchange_20-* は `{{ output "git" ... }}` や `{{ .chezmoi.sourceDir }}`
-        # を使うので単発レンダリングが面倒 (E2E は bootstrap-linux ジョブで cover)。
-        # run_onchange_30 は chezmoi data を消費するので別途 test config を渡す。
+        # run_onchange_20-* は `{{ output "git" ... }}` を使うので単発 render が
+        # 困難 (E2E は bootstrap-linux job)。run_onchange_30 は chezmoi data を
+        # 消費するので別途 test config を渡す。
         run: |
           set -euo pipefail
           variant_templates=(
@@ -175,9 +171,6 @@ jobs:
         run: ./ci/run-bats.sh ci/test/git_profile.bats
 
   bats-unit:
-    # Nix 不要な bats を 1 job に集約。template_variants / git_profile は
-    # Nix install 動線も検証したいので既存 job のまま据え置き、ここでは
-    # install_unit / local_ci_hook / nix_tree_hash / install_e2e を流す。
     name: bats unit + lite E2E
     runs-on: ubuntu-latest
     steps:
@@ -204,9 +197,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run install.sh against the local checkout
-        # GITHUB_TOKEN is forwarded so install.sh can write it into
-        # /etc/nix/nix.conf, which the nix-daemon reads when fetching
-        # flake inputs.
+        # nix-daemon は user-level ~/.config/nix/nix.conf を読まないので、token を
+        # /etc/nix/nix.conf に書き込めるよう install.sh に forward する。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./install.sh "file://${GITHUB_WORKSPACE}"
@@ -229,16 +221,12 @@ jobs:
             exit 1
           fi
       - name: Smoke test that zsh sources .zshrc cleanly
-        # zsh -i so that .zshrc (and through it every split module) is sourced.
-        # TMUX is faked so tmux_automatically_attach_session returns early
-        # instead of trying to attach inside a non-TTY CI step.
+        # TMUX=fake で tmux_automatically_attach_session を non-TTY 環境でも
+        # 早期 return させる。
         run: TMUX=fake zsh -i -c 'exit 0'
       - name: Verify LazyVim bootstraps headlessly
-        # `Lazy! sync` の `!` は同期実行を強制する。初回起動時に
-        # lua/config/lazy.lua が lazy.nvim を clone し、続けて LazyVim
-        # 本体とその依存プラグインを `~/.local/share/nvim/lazy/` に
-        # 展開しきることをアサートする。timeout は plugin clone と
-        # treesitter コンパイルを含めても 10 分で十分余裕がある想定。
+        # `Lazy! sync` の `!` で同期実行を強制し、lazy.nvim clone + LazyVim 本体 +
+        # 依存プラグイン群の展開を 1 ステップで完了させる。
         run: |
           timeout 600 nvim --headless "+Lazy! sync" +qa
           test -d "${HOME}/.local/share/nvim/lazy/lazy.nvim"

@@ -1,9 +1,6 @@
 #!/bin/bash
+# GH Actions の lint job をローカル再現する (push 前に shellcheck 通すため)。
 set -euo pipefail
-
-# Mirrors the `lint` job in .github/workflows/ci.yml so that pushing is not
-# required to catch syntax errors in install.sh, dot_zshrc, or the split
-# modules under home/private_dot_config/zsh.
 
 bash -n install.sh
 

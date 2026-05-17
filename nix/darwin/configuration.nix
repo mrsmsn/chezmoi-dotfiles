@@ -6,16 +6,12 @@
     ./fonts.nix
   ];
 
-  # NixOS 公式 installer は builder group を GID 350 で作る (旧 30000 から
-  # 変更)。nix-darwin のデフォルト想定 (30000) のままだと activation の
-  # integrity check で弾かれるので、実態に合わせて宣言する。
+  # NixOS 公式 installer は builder group を GID 350 で作る。nix-darwin のデフォ
+  # 想定 (30000) のままだと activation の integrity check で弾かれる。
   ids.gids.nixbld = 350;
 
-  # NixOS 公式 installer は vanilla nix-daemon を入れるため、Determinate
-  # 時代の `nix.enable = false` 回避策はもう不要。`/etc/nix/nix.conf` は
-  # nix-darwin にここで宣言的に管理させる。`install.sh` の `--enable-flakes`
-  # も同じ値を書くが、`darwin-rebuild switch` のたびにここが上書きする
-  # ので最終的な真実の源はこのモジュール。
+  # /etc/nix/nix.conf の真実の源はここ。`install.sh --enable-flakes` も同じ値を
+  # 書くが `darwin-rebuild switch` のたびにこのモジュールが上書きする。
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
   };
@@ -34,7 +30,6 @@
     "com.apple.mouse.tapBehavior" = 1;
   };
 
-  # Finder: 開発者向け表示設定。
   system.defaults.finder = {
     AppleShowAllFiles = true;                # 隠しファイル (dotfile) を表示
     ShowPathbar = true;                      # 下部にパスバー表示
@@ -46,11 +41,10 @@
     FXEnableExtensionChangeWarning = false;  # 拡張子変更時の警告ダイアログを抑制
   };
 
-  # トラックパッド: 軸を押さずタップでクリック。NSGlobalDomain の
-  # "com.apple.mouse.tapBehavior" とセットで全アプリに効く。
+  # NSGlobalDomain の `com.apple.mouse.tapBehavior` とセットで全アプリに効かせる。
   system.defaults.trackpad.Clicking = true;
 
-  # Dock: Raycast でアプリ起動するのでピン留め不要。Dock 自体も自動で隠す。
+  # Raycast でアプリ起動するので Dock はピン留め無し + 自動非表示。
   system.defaults.dock = {
     autohide = true;
     autohide-delay = 0.0;
@@ -59,7 +53,6 @@
     persistent-apps = [ ];
   };
 
-  # デスクトップのウィジェットを全部非表示にする (Standard/Stage Manager 両モード)。
   system.defaults.WindowManager = {
     StandardHideWidgets = true;
     StageManagerHideWidgets = true;

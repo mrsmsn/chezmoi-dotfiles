@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Stop hook: runs the fast local CI subset (`just ci-fast`) as a completion
-# gate. Blocks the stop with decision="block" on failure so Claude resumes
-# and fixes the regression. Honors stop_hook_active to avoid infinite loops.
+# Stop hook: `just ci-fast` を完了ゲートとして実行し、失敗時は decision="block"
+# で停止を差し戻して Claude に修正させる。stop_hook_active で無限ループ防止。
 
 set -u
 set -o pipefail

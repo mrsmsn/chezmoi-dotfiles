@@ -56,8 +56,8 @@
         modules = [
           ./darwin/configuration.nix
           { nixpkgs.pkgs = pkgsFor.${system}; }
-          # nix-darwin の system activation は root で走るが、homebrew 等の
-          # オプションは特定ユーザー向けに作用する。primaryUser を明示する。
+          # nix-darwin の system activation は root で走るが homebrew 等の
+          # オプションは特定ユーザー向けに作用するので primaryUser を明示する。
           { system.primaryUser = username; }
           home-manager.darwinModules.home-manager
           {
@@ -84,12 +84,10 @@
         };
       };
 
-      # Re-export the pinned home-manager so the activation script can run
-      # `nix run .#home-manager` instead of `nix run home-manager/master`.
-      # The latter resolves a flake reference at runtime, which hits the
-      # GitHub API and trips the anonymous rate limit on shared CI runners
-      # even when access-tokens are configured (the daemon doesn't reload
-      # /etc/nix/nix.conf mid-session).
+      # activation script から `nix run .#home-manager` を呼べるよう pin した
+      # home-manager を再公開する。`home-manager/master` 直 ref だと毎回 GitHub
+      # API を叩いて anonymous rate limit を踏む (nix-daemon は session 中に
+      # /etc/nix/nix.conf を reload しないので access-tokens を設定しても効かない)。
       packages = builtins.mapAttrs
         (system: _: { home-manager = home-manager.packages.${system}.default; })
         pkgsFor;

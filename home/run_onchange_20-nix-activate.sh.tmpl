@@ -14,10 +14,8 @@ fi
 
 case "{{ .variant }}" in
     darwin)
-        # nix-darwin's system activation (`switch`) must be invoked as root.
-        # Pass HOME and USER through sudo so that ~/.config/nix/nix.conf
-        # (for access-tokens) stays readable and `builtins.getEnv "USER"` in
-        # flake.nix still resolves to the login user, not root.
+        # nix-darwin activation は root で走るので sudo。HOME と USER を pass-through
+        # しないと ~/.config/nix/nix.conf と flake.nix の `getEnv "USER"` が壊れる。
         if command -v darwin-rebuild >/dev/null 2>&1; then
             sudo env HOME="$HOME" USER="$USER" \
                 "$(command -v darwin-rebuild)" \
@@ -29,14 +27,14 @@ case "{{ .variant }}" in
         fi
         ;;
     linux|wsl)
-        # Use the home-manager pinned in our own flake so we don't hit the
-        # GitHub API to resolve `home-manager/master` on every run.
+        # 自前 flake で pin した home-manager を使うことで、毎回 GitHub API を
+        # 叩いて `home-manager/master` を resolve する負荷を避ける。
         nix run "${FLAKE}#home-manager" -- \
             switch -b backup --flake "${FLAKE}#{{ .variant }}" --impure
 
         # Linux/WSL には nix-darwin の `programs.zsh.enable` 相当が無いので
-        # ここで /etc/shells への登録と chsh を行う。home-manager が
-        # ~/.nix-profile/bin/zsh に zsh を配置済みである前提。
+        # ここで /etc/shells 登録と chsh を行う。home-manager 経由で
+        # ~/.nix-profile/bin/zsh が存在する前提。
         ZSH_BIN="${HOME}/.nix-profile/bin/zsh"
         if [[ -x "${ZSH_BIN}" ]]; then
             if ! grep -qxF "${ZSH_BIN}" /etc/shells 2>/dev/null; then

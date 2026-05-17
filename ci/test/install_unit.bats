@@ -1,14 +1,6 @@
 #!/usr/bin/env bats
-#
-# install.sh の内部関数ユニットテスト。
-# `INSTALL_SH_LIB=1` でファイルを source すると main は走らず、ヘルパー関数
-# だけが定義されるので、副作用なくロジックを検証できる。
-#
-# 守るべき性質:
-#   - TTY 判定: /dev/tty が開けない環境では `--promptDefaults` が付く
-#     (PR #37 で fix した「curl | bash で user.name 空になる」事故の再発防止)
-#   - CA cert 選択: valid な NIX_SSL_CERT_FILE は尊重、無効/未設定なら
-#     候補から最初に存在するパスを選ぶ
+# install.sh の helper をユニットテスト。`INSTALL_SH_LIB=1` で source すると
+# main を skip するので副作用なしにロジックだけ叩ける。
 
 load 'helpers/common'
 
@@ -36,7 +28,6 @@ setup() {
         run _select_nix_ssl_cert_file /tmp/missing1 /tmp/missing2
     rm -rf "$tmp"
     [ "$status" -eq 0 ]
-    # tmp is interpolated before we rm so $output should still reflect it
     [[ "$output" == */cert.pem ]]
 }
 
@@ -69,9 +60,6 @@ setup() {
 }
 
 @test "_probe_tty_available inside non-tty bats: returns 1" {
-    # Podman/CI 環境で bats を走らせる場合、controlling tty が無いので
-    # /dev/tty を読めない → rc=1。実機 (macOS の対話シェル) でも `< /dev/null`
-    # 経由 bats なら同様に rc=1 になる。
     run _probe_tty_available
     [ "$status" -ne 0 ]
 }

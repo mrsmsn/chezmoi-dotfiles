@@ -1,11 +1,9 @@
 #!/bin/bash
+# 各 variant でレンダリングした shell テンプレを shellcheck にかける。
+# run_onchange_20-* は `{{ output "git" ... }}` と `{{ .chezmoi.sourceDir }}` を
+# 使うため単発 render が難しい (E2E は bootstrap-linux job で cover)。
+# run_onchange_30-* は chezmoi data に依存するので別途 test config で render する。
 set -euo pipefail
-
-# Mirrors the `template-shellcheck` job: render each shell template per
-# variant and pipe the result into shellcheck. run_onchange_20-* は
-# {{ output "git" ... }} と {{ .chezmoi.sourceDir }} を使うので除外
-# (E2E は bootstrap-linux ジョブが見る)。run_onchange_30 は chezmoi data
-# 値を消費するので、別途 test config を用意して render する。
 
 variant_templates=(
     home/dot_zprofile.tmpl
@@ -25,8 +23,7 @@ for variant in darwin linux wsl; do
     done
 done
 
-# run_onchange_30 用: work ON 相当の test config を用意して render する。
-# chezmoi が format を拡張子で判別するので .toml サフィックス必須。
+# chezmoi は format を拡張子で判別するので .toml サフィックス必須。
 test_config=$(mktemp --suffix=.toml)
 cat > "${test_config}" <<'EOF'
 [data]

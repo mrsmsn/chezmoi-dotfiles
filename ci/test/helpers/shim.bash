@@ -1,7 +1,5 @@
-# PATH shim helper for bats tests that need to control whether a particular
-# binary is "installed" or how it behaves (exit code, stdout). The shim
-# directory is created with `make_shim_dir` and the caller is expected to
-# `rm -rf` it in teardown.
+# PATH shim helper: 特定コマンドの「あり/なし」「exit code」「stdout」を
+# テスト側で制御する。teardown 側で rm -rf するのは caller の責任。
 #
 # Usage:
 #   shim_dir=$(make_shim_dir)

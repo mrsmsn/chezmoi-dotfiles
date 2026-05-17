@@ -1,13 +1,9 @@
 #!/usr/bin/env bats
-#
-# .chezmoi.toml.tmpl の variant / machine 判定を 3 種類のホスト (darwin /
-# linux / wsl) について sed でシミュレートし、期待通りの値になることを
-# アサートする。元は ci/template-variants.sh が同じ役割を担っていた。
-#
-# 特に Linux ランナー上で darwin として render したとき、テンプレ内の
-# `sysctl -n hw.model 2>/dev/null || true` フォールバックが効いて
-# machine が空文字になることを明示的に検証する。`|| true` を外すと
-# Linux 上では sysctl が non-zero で死に、ここで気付ける。
+# .chezmoi.toml.tmpl の variant / machine 判定を darwin/linux/wsl 各ホストで
+# シミュレートして検証。Linux ランナー上で darwin として render したとき、
+# テンプレ内の `sysctl -n hw.model 2>/dev/null || true` が効いて machine が
+# 空文字になることを確認する (`|| true` を外すと Linux 上で sysctl が non-zero
+# で死ぬ)。
 
 load 'helpers/common'
 
@@ -35,8 +31,6 @@ load 'helpers/common'
 }
 
 @test "darwin render on Linux host does not crash even though sysctl(8) is unavailable" {
-    # Negative: テンプレ側で `|| true` を外して回帰させた場合、ここが落ちる。
-    # 既存 3 ケースは status と grep で十分カバーするが、意図を明示しておく。
     run render_chezmoi_toml_tmpl darwin "irrelevant"
     [ "$status" -eq 0 ]
 }

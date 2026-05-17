@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-# ghq tree のルートと、work プロファイル ON 時の work prefix に、それぞれ
-# .envrc を生成する。出力先パス自体が user の ghq.root / work org 名等を
-# 含むため source tree (= public repo) に書けない。run_onchange スクリプト
-# が apply 時に chezmoi.toml の値を読んで動的に組み立てる。
+# 出力先パス自体が user の ghq.root / work org 名等を含むため source tree (=
+# public repo) に書けない。apply 時に chezmoi.toml の値を読んで動的に組み立てる。
 # trigger-on: {{ .ghq.root }}|{{ .git.gh_user_default }}|{{ .work.gitdir_prefix }}|{{ .work.gh_user }}
 set -euo pipefail
 
-# Personal: <ghq.root>/.envrc — ghq tree の defaults。
-# `.ghq.root` だけ set されていれば書く。`gh_user_default` は use_gh_user
-# 行のみに使い、未設定なら行ごと省く (新マシン bootstrap で gh_user_default
-# を空 enter したときに .envrc 自体が生成されない事故の修正)。
+# Personal: <ghq.root>/.envrc
+# .envrc 本体は SRC_HOME export で、use_gh_user 呼び出しはオプション。両方必須に
+# すると bootstrap で gh_user_default を空 enter した瞬間に .envrc が一切生成
+# されなくなる。
 {{ if .ghq.root -}}
 GHQ_ROOT={{ .ghq.root | replace "~" .chezmoi.homeDir | quote }}
 mkdir -p "${GHQ_ROOT}"
@@ -26,12 +24,9 @@ EOF
 echo "==> wrote ${GHQ_ROOT}/.envrc"
 {{- end }}
 
-# Work ghq-aliased: <ghq.root>/github.com/<work.gh_user>/.envrc —
-# ghq が work アカウント名義で clone する場所も work プロファイル扱い。
-# config.tmpl の `[includeIf "gitdir:<ghq.root>/github.com/<work.gh_user>/"]`
-# と対をなす。`work.gitdir_prefix` と同じディレクトリを指すケース (user が
-# work.gitdir_prefix=<ghq.root>/github.com/<work.gh_user>/ にしたとき) は
-# 後段の WORK_PREFIX ブロックで同内容を上書きするだけで無害。
+# Work ghq-aliased: <ghq.root>/github.com/<work.gh_user>/.envrc
+# config.tmpl の `[includeIf "gitdir:<ghq.root>/github.com/<work.gh_user>/"]` と
+# 対をなす direnv 側の work プロファイル。
 {{ if and .ghq.root .work.gh_user -}}
 WORK_GHQ_PREFIX={{ (printf "%s/github.com/%s/" .ghq.root .work.gh_user) | replace "~" .chezmoi.homeDir | quote }}
 mkdir -p "${WORK_GHQ_PREFIX}"
@@ -46,10 +41,8 @@ EOF
 echo "==> wrote ${WORK_GHQ_PREFIX}/.envrc"
 {{- end }}
 
-# Work: <work.gitdir_prefix>/.envrc — work プロファイル上書き。
-# `.work.gitdir_prefix` だけ set されていれば書く。`use_gh_user` 行は
-# `.work.gh_user` 有無で条件付き (新マシン bootstrap で work.gh_user を
-# 空 enter したときに work .envrc 自体が作られない事故の修正)。
+# Work: <work.gitdir_prefix>/.envrc
+# personal 側と同じく、.envrc 本体と use_gh_user 行を独立条件で出し分ける。
 {{ if .work.gitdir_prefix -}}
 WORK_PREFIX={{ .work.gitdir_prefix | replace "~" .chezmoi.homeDir | quote }}
 mkdir -p "${WORK_PREFIX}"
