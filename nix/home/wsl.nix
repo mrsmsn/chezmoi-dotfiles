@@ -6,11 +6,14 @@ let
   # wslview のうち wslview にヒットさせる目的。
   #
   # 本家 wslutilities/wslu は upstream archived のため 2026-04-08 に
-  # nixpkgs から削除された (`pkgs.wslu` は throw を返す)。代替に最小限の
-  # `cmd.exe /c start` ラッパを自前で持つ。empty title `""` は `start` が
-  # 第一引数を title 扱いする仕様を回避するため。
+  # nixpkgs から削除された (`pkgs.wslu` は throw を返す)。代替として
+  # `explorer.exe` を直接呼ぶ最小ラッパを自前で持つ。explorer.exe は
+  # Windows の URL/ファイル shell handler に処理を委譲するため、CMD を
+  # 経由したときに JP Windows で出る CP932 警告メッセージ
+  # ("UNC パスはサポートされません。…") が発生せず、UTF-8 ターミナルでの
+  # mojibake を回避できる。
   wslview = pkgs.writeShellScriptBin "wslview" ''
-    exec /mnt/c/Windows/System32/cmd.exe /c start "" "$@"
+    exec /mnt/c/Windows/explorer.exe "$@"
   '';
 in
 {

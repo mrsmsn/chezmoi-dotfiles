@@ -95,7 +95,7 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 
 | パッケージ | 用途 |
 | --- | --- |
-| `wslview` (自前 shim) | `gh auth login` 等が探す URL ハンドラ。`cmd.exe /c start` で Windows 側のデフォルトブラウザを開く。本家 `wslutilities/wslu` は upstream archived のため 2026-04-08 に nixpkgs から削除済み (`pkgs.wslu` は throw)、最小限の `writeShellScriptBin` ラッパで代替している |
+| `wslview` (自前 shim) | `gh auth login` 等が探す URL ハンドラ。`explorer.exe` 経由で Windows のデフォルトブラウザを開く (`cmd.exe` 経由だと JP Windows で出る CP932 警告 "UNC パスはサポートされません。" が UTF-8 ターミナルで mojibake になるため avoid)。本家 `wslutilities/wslu` は upstream archived のため 2026-04-08 に nixpkgs から削除済み (`pkgs.wslu` は throw)、最小限の `writeShellScriptBin` ラッパで代替している |
 
 ## カスタムパッケージ (`nix/pkgs/`)
 
