@@ -94,7 +94,9 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 
 ## WSL 固有 (`nix/home/wsl.nix`)
 
-現在固有パッケージは未定義 (空)。
+| パッケージ | 用途 |
+| --- | --- |
+| `wslview` (自前 shim) | gh など xdg ハンドラを探すツールが WSL からブラウザを開けるようにする (`pkgs.wslu` は upstream archived で除去されたため自前)。実装の詳細・採用理由は `nix/home/wsl.nix` のコメント参照 |
 
 ## カスタムパッケージ (`nix/pkgs/`)
 
