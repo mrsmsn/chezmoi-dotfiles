@@ -1,5 +1,11 @@
 image := "chezmoi-dotfiles-ci"
 
+# When `.git` is a file (= git worktree), the real gitdir lives outside the
+# project tree. Bind-mount the common gitdir into the container at the same
+# absolute path so `git` inside the container can resolve `/repo/.git`.
+# Resolves to empty in a normal checkout (CI runners), making it a no-op.
+worktree_mount := `if test -f .git; then common=$(git rev-parse --git-common-dir); (cd "$common" && printf -- '-v %s:%s:Z' "$(pwd)" "$(pwd)"); fi`
+
 # Default: run all containerised CI checks
 default: ci
 
@@ -13,45 +19,45 @@ ci-fast: lint template-variants nix-tree-hash local-ci-hook install-unit envrcs
 
 # run_onchange_30-write-envrcs.sh.tmpl の出力契約テスト
 envrcs: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/envrcs.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/envrcs.bats
 
 # install.sh の内部関数のユニットテスト (TTY 判定 / CA cert 候補選択)
 install-unit: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/install_unit.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/install_unit.bats
 
 # Full local CI (Stop hook delegates to ci-fast; this is for manual / pre-push).
 ci: ci-fast template-shellcheck git-profile install-e2e
 
 # chezmoi apply の冪等性 E2E (Nix install はスキップ、scripts は除外)
 install-e2e: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/install_e2e.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/install_e2e.bats
 
 # Reproduce the `lint` GH Actions job in a clean Linux container
 lint: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/lint.sh
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/lint.sh
 
 # Reproduce the `template-variants` job (via bats)
 template-variants: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/template_variants.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/template_variants.bats
 
 # nix-tree-hash contract: run_onchange_20-nix-activate.sh.tmpl の冒頭コメント
 # が `git rev-parse HEAD:nix` と一致する性質をアサート (chezmoi の nix/ 変更
 # 検知ロジックの担保)。
 nix-tree-hash: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/nix_tree_hash.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/nix_tree_hash.bats
 
 # Stop hook 自身の挙動契約 (.claude/hooks/local-ci.sh の JSON 出力 / skip 条件)
 local-ci-hook: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/local_ci_hook.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/local_ci_hook.bats
 
 # Reproduce the `template-shellcheck` job
 template-shellcheck: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/template-shellcheck.sh
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/template-shellcheck.sh
 
 # Reproduce the `git-profile` job (gitdir-based work プロファイル切替の E2E)
 git-profile: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/git_profile.bats
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/git_profile.bats
 
 # Run the bats test suite under ci/test/ inside the CI container
 bats *FILES: build
-    podman run --rm -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh {{FILES}}
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh {{FILES}}
