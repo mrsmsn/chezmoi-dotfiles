@@ -109,7 +109,7 @@ main() {
     if ! command -v chezmoi >/dev/null 2>&1; then
         echo "==> Installing chezmoi via Nix"
         nix --extra-experimental-features 'nix-command flakes' \
-            profile install nixpkgs#chezmoi
+            profile add nixpkgs#chezmoi
     fi
 
     echo "==> Initializing chezmoi from ${repo_url}"

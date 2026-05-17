@@ -11,7 +11,7 @@ curl -fsSL https://raw.githubusercontent.com/mrsmsn/chezmoi-dotfiles/main/instal
 スクリプトの役割:
 
 1. Nix をインストール (NixOS 公式 installer / flakes 有効化済み)
-2. chezmoi をインストール (`nix profile install nixpkgs#chezmoi`)
+2. chezmoi をインストール (`nix profile add nixpkgs#chezmoi`)
 3. `chezmoi init --apply` でこのリポジトリを展開
 4. chezmoi の `run_onchange_*` スクリプトが Nix/nix-darwin/Home Manager の活性化を実行
 
