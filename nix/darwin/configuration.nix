@@ -51,6 +51,8 @@
     autohide-time-modifier = 0.5;
     show-recents = false;
     persistent-apps = [ ];
+    # Mission Control でウィンドウをアプリケーションごとにグループ化。
+    expose-group-apps = true;
   };
 
   system.defaults.WindowManager = {
