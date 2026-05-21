@@ -7,7 +7,11 @@ config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = ['exec-and-forget borders']
+# AeroSpace は GUI .app として LaunchServices 経由で起動するため、`exec-and-forget`
+# が継承する PATH に Nix の per-user profile が入らず素の `borders` だと解決に失敗
+# する。`.chezmoi.username` を埋めて絶対パスで呼ぶ (引数なしで `bordersrc` を自動
+# source する jankyborders の挙動はそのまま使える)。
+after-startup-command = ['exec-and-forget /etc/profiles/per-user/{{ .chezmoi.username }}/bin/borders']
 
 # Start AeroSpace at login
 start-at-login = true
