@@ -5,9 +5,8 @@
     name = {{ .git.user_name | quote }}
     email = {{ .git.user_email | quote }}
 
-[core]
-    excludesfile = ~/.gitignore_global
 {{- if .git.ssh_key }}
+[core]
     sshCommand = "ssh -i ~/.ssh/{{ .git.ssh_key }} -o IdentitiesOnly=yes"
 {{- end }}
 
