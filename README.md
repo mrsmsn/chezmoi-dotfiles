@@ -1,6 +1,6 @@
 # chezmoi-dotfiles
 
-macOS / Ubuntu / WSL(Ubuntu) 向けの dotfiles。**chezmoi** で設定ファイル、**Nix** (flakes + Home Manager、macOSは nix-darwin) でパッケージ・システム設定を管理する。
+macOS / Ubuntu / WSL(Ubuntu) / Android (Google Pixel Linux Terminal) 向けの dotfiles。**chezmoi** で設定ファイル、**Nix** (flakes + Home Manager、macOSは nix-darwin) でパッケージ・システム設定を管理する。
 
 ## Bootstrap (新規環境)
 
@@ -30,6 +30,7 @@ chezmoi apply
 - macOS: `darwin-rebuild switch --flake ~/.local/share/chezmoi/nix#default --impure`
 - Linux: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#linux --impure`
 - WSL: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#wsl --impure`
+- Android (Pixel Linux Terminal): `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#android --impure`
 
 ## ディレクトリ構成
 
@@ -38,7 +39,7 @@ chezmoi-dotfiles/
 ├── install.sh                  # 新規環境 bootstrap
 ├── .chezmoiroot                # chezmoi ソースディレクトリを ./home に限定
 ├── home/                       # chezmoi 管理対象
-│   ├── .chezmoi.toml.tmpl      # OS/WSL 自動判定して variant を確定
+│   ├── .chezmoi.toml.tmpl      # OS/WSL/Android 自動判定して variant を確定
 │   ├── .chezmoiignore          # 非 darwin では private_Library を無視
 │   ├── dot_gitignore_global    # ~/.gitignore_global
 │   ├── dot_zprofile.tmpl       # ログイン時の PATH (macOS は brew shellenv)
@@ -57,7 +58,7 @@ chezmoi-dotfiles/
     ├── home/
     │   ├── common.nix          # 全OS共通
     │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
-    │   ├── linux.nix           # Ubuntu/WSL 共通
+    │   ├── linux.nix           # Ubuntu/WSL/Android (Pixel) 共通
     │   └── wsl.nix             # WSL 固有
     └── pkgs/                   # nixpkgs に無いカスタムパッケージ
 ```
@@ -97,13 +98,15 @@ GUI アプリ (.app) は原則 **Homebrew Cask** で管理する (`nix/darwin/ho
 
 ### variant とテンプレート分岐
 
-chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `wsl` のいずれかを取得できる。
+chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `wsl` / `android` のいずれかを取得できる。`android` は Google Pixel の "Linux Terminal" 機能 (Debian aarch64 VM) を表し、kernel.osrelease に `android` を含むかで判定する。
 
 ```
 {{ if eq .variant "darwin" }}
 # macOS だけに反映したい内容
 {{ else if eq .variant "wsl" }}
 # WSL 固有
+{{ else if eq .variant "android" }}
+# Pixel Linux Terminal 固有
 {{ else }}
 # 純 Linux
 {{ end }}
@@ -154,4 +157,4 @@ Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設�
 - シークレット管理 (機微値は `~/.config/chezmoi/chezmoi.toml` で持つ)
 - ホスト別の machine 固有変数
 - Home Manager の `programs.*` による dotfile 生成 (dotfile は chezmoi 管轄)
-- Intel Mac / aarch64 Linux (必要になったら `nix/flake.nix` へ追記)
+- Intel Mac / aarch64 Linux (Pixel Linux Terminal 以外。必要になったら `nix/flake.nix` へ追記)
