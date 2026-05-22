@@ -43,6 +43,7 @@
 
       pkgsFor = {
         "aarch64-darwin" = mkPkgs "aarch64-darwin";
+        "aarch64-linux"  = mkPkgs "aarch64-linux";
         "x86_64-linux"   = mkPkgs "x86_64-linux";
       };
 
@@ -81,6 +82,11 @@
         wsl = mkHome {
           system = "x86_64-linux";
           extraModule = { imports = [ ./home/linux.nix ./home/wsl.nix ]; };
+        };
+        # Google Pixel "Linux Terminal" (Android AVF / Debian aarch64 VM).
+        android = mkHome {
+          system = "aarch64-linux";
+          extraModule = ./home/linux.nix;
         };
       };
 

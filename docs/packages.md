@@ -6,7 +6,7 @@
 
 ## 共通 (`nix/home/common.nix`)
 
-macOS / Linux / WSL すべての環境にインストールされるパッケージ。
+macOS / Linux / WSL / Android (Pixel Linux Terminal) すべての環境にインストールされるパッケージ。
 
 | パッケージ | 用途 |
 | --- | --- |
@@ -84,13 +84,15 @@ GUI アプリは nix-darwin の `homebrew` モジュールで Cask として宣�
 | `azemoh.one-monokai` | One Monokai カラーテーマ |
 | `vscodevim.vim` | Vim キーバインド |
 
-## Linux 固有 (`nix/home/linux.nix`)
+## Linux / Android 共通 (`nix/home/linux.nix`)
+
+Ubuntu / WSL / Android (Pixel Linux Terminal aarch64) で共通に入るパッケージ。
 
 | パッケージ | 用途 |
 | --- | --- |
 | `espeak-ng` | テキスト音声合成エンジン (TTS) |
-| `gcc` | nvim-treesitter が parser をビルドする際に要求する C コンパイラ。macOS は Xcode CLT が `cc` を提供するので Nix 管理外、Linux/WSL は `build-essential` 任せにせず Nix 側で明示する |
-| `zsh` | デフォルトシェル。macOS は nix-darwin の `programs.zsh.enable` で system 側に入るが、Linux/WSL には相当機能が無いのでここで入れて `run_onchange_20-nix-activate.sh.tmpl` が `chsh` する |
+| `gcc` | nvim-treesitter が parser をビルドする際に要求する C コンパイラ。macOS は Xcode CLT が `cc` を提供するので Nix 管理外、Linux/WSL/Android は `build-essential` 任せにせず Nix 側で明示する |
+| `zsh` | デフォルトシェル。macOS は nix-darwin の `programs.zsh.enable` で system 側に入るが、Linux/WSL/Android には相当機能が無いのでここで入れて `run_onchange_20-nix-activate.sh.tmpl` が `chsh` する |
 
 ## WSL 固有 (`nix/home/wsl.nix`)
 

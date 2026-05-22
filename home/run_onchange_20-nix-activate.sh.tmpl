@@ -26,7 +26,7 @@ case "{{ .variant }}" in
                 run nix-darwin -- switch --flake "${FLAKE}#default" --impure
         fi
         ;;
-    linux|wsl)
+    linux|wsl|android)
         # 自前 flake で pin した home-manager を使うことで、毎回 GitHub API を
         # 叩いて `home-manager/master` を resolve する負荷を避ける。
         nix run "${FLAKE}#home-manager" -- \

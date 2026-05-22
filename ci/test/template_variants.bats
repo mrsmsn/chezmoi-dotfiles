@@ -30,6 +30,14 @@ load 'helpers/common'
     [[ "$output" == *'machine = ""'* ]]
 }
 
+@test "android host (Pixel Linux Terminal): variant=android, is_wsl=false" {
+    run render_chezmoi_toml_tmpl linux "6.12.60-android16-6-g54e1389bda83-ab14631638-4k"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'variant = "android"'* ]]
+    [[ "$output" == *'is_wsl = false'* ]]
+    [[ "$output" == *'machine = ""'* ]]
+}
+
 @test "darwin render on Linux host does not crash even though sysctl(8) is unavailable" {
     run render_chezmoi_toml_tmpl darwin "irrelevant"
     [ "$status" -eq 0 ]

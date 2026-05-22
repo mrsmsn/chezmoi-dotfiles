@@ -9,7 +9,9 @@
 {{-     $machine = "mac-mini-m4" -}}
 {{-   end -}}
 {{- else if eq .chezmoi.os "linux" -}}
-{{-   if contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
+{{-   if contains "android" (lower .chezmoi.kernel.osrelease) -}}
+{{-     $variant = "android" -}}
+{{-   else if contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
 {{-     $variant = "wsl" -}}
 {{-   end -}}
 {{- end -}}
