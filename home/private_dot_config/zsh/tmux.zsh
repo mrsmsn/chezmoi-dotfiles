@@ -8,18 +8,15 @@ function shell_has_started_interactively() { [[ -n "$PS1" ]]; }
 function is_ssh_running()                  { [[ -n "$SSH_CONNECTION" ]]; }
 
 function tmux_automatically_attach_session() {
-    # 既に tmux 内ならば何もしない
     if is_tmux_running; then
         return 0
     fi
 
-    # screen 内ならメッセージのみ出力して終了
     if is_screen_running; then
         echo "This is on screen."
         return 0
     fi
 
-    # 非対話シェル / SSH 接続中は対象外
     if ! shell_has_started_interactively || is_ssh_running; then
         return 0
     fi

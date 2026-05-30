@@ -31,14 +31,14 @@
   };
 
   system.defaults.finder = {
-    AppleShowAllFiles = true;                # 隠しファイル (dotfile) を表示
-    ShowPathbar = true;                      # 下部にパスバー表示
-    ShowStatusBar = true;                    # 下部にステータスバー表示
-    FXPreferredViewStyle = "Nlsv";           # デフォルト表示をリスト (Nlsv = list view)
-    FXDefaultSearchScope = "SCcf";           # 検索範囲をカレントフォルダに (SCcf = current folder)
-    _FXShowPosixPathInTitle = true;          # ウィンドウタイトルに POSIX フルパス
-    _FXSortFoldersFirst = true;              # フォルダをファイルより先にソート
-    FXEnableExtensionChangeWarning = false;  # 拡張子変更時の警告ダイアログを抑制
+    AppleShowAllFiles = true;
+    ShowPathbar = true;
+    ShowStatusBar = true;
+    FXPreferredViewStyle = "Nlsv";           # Nlsv = list view
+    FXDefaultSearchScope = "SCcf";           # SCcf = current folder
+    _FXShowPosixPathInTitle = true;
+    _FXSortFoldersFirst = true;
+    FXEnableExtensionChangeWarning = false;
   };
 
   # NSGlobalDomain の `com.apple.mouse.tapBehavior` とセットで全アプリに効かせる。

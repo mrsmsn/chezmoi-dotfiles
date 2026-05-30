@@ -1,14 +1,10 @@
-# テーマ
 theme = tokyonight
 
-# 背景透過
 background-opacity = 0.9
 # background-blur-radius = 20
 
-# titilebarを消す
 macos-titlebar-style = hidden
 
-# マウスカーソルを非表示にする
 mouse-hide-while-typing = true
 
 # QuickTerm
