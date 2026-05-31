@@ -75,3 +75,11 @@ set -g status-interval 1
 # Vi キーバインド
 set-window-option -g mode-keys vi
 
+# TPM のインストール先を ~/.tmux ではなく XDG 配下に統一する。
+set-environment -g TMUX_PLUGIN_MANAGER_PATH "$XDG_CONFIG_HOME/tmux/plugins/"
+# tmux-translator: コピーモードで選択したテキストを翻訳しポップアップ表示する。
+set -g @translate_engines 'trans google'
+set -g @translate_target_lang 'ja'
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'mrsmsn/tmux-translator'
+run "$XDG_CONFIG_HOME/tmux/plugins/tpm/tpm"

@@ -36,6 +36,7 @@ in {
     ripgrep
     starship
     tmux
+    translate-shell
     yazi
     zoxide
   ];
