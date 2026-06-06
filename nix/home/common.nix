@@ -18,6 +18,7 @@ in {
     bat
     claude-code
     delta
+    devbox
     direnv
     fd
     fzf
