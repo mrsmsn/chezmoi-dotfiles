@@ -6,3 +6,36 @@
 --
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
+
+-- ターミナル側の背景を透過させるため、colorscheme 適用後に主要ハイライトの bg を NONE に戻す。
+local function clear_bg()
+  for _, group in ipairs({
+    "Normal",
+    "NormalNC",
+    "NormalFloat",
+    "FloatBorder",
+    "SignColumn",
+    "EndOfBuffer",
+    "VertSplit",
+    "WinSeparator",
+    "StatusLine",
+    "StatusLineNC",
+    "TabLine",
+    "TabLineFill",
+    "TelescopeNormal",
+    "TelescopeBorder",
+    "NeoTreeNormal",
+    "NeoTreeNormalNC",
+    "NeoTreeEndOfBuffer",
+  }) do
+    vim.api.nvim_set_hl(0, group, { bg = "NONE", ctermbg = "NONE" })
+  end
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("transparent_bg", { clear = true }),
+  callback = clear_bg,
+})
+
+-- VeryLazy 時点では colorscheme が既に適用済みなので一度直接呼ぶ。
+clear_bg()
