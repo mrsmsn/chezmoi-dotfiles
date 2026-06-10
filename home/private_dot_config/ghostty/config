@@ -17,3 +17,7 @@ quick-terminal-size = 50%,60%
 quick-terminal-screen = "main"
 quick-terminal-animation-duration = 0.2
 keybind = "global:ctrl+shift+t=toggle_quick_terminal"
+
+# SSH 接続時に xterm-ghostty terminfo をリモートへ自動配布
+# (リモートで `missing or unsuitable terminal: xterm-ghostty` を防ぐ)
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
