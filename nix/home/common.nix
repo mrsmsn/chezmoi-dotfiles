@@ -20,6 +20,7 @@ in {
     delta
     devbox
     direnv
+    duckdb
     fd
     fzf
     gh
