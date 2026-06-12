@@ -15,6 +15,10 @@ bind l select-pane -R
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
 
+# 現在のpaneを隣のwindowに移動する
+bind -r < join-pane -t :-
+bind -r > join-pane -t :+
+
 # 確認しないでWindow kill
 bind & kill-window
 

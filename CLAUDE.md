@@ -30,6 +30,8 @@ GitHub Actions (`.github/workflows/ci.yml`) のジョブ:
 - `bats-unit` — Nix 不要な bats (`install_unit` / `local_ci_hook` / `nix_tree_hash` / `install_e2e` / `envrcs`) を 1 job に集約
 - `bootstrap-linux` — `install.sh` の E2E + 二度目の `chezmoi apply` が冪等であること + `nvim --headless +Lazy! sync` の完走
 
+`.github/workflows/update-flake-lock.yml` が週 2 回 (月・木 06:00 JST) `nix flake update` を実行し、`nix/flake.lock` 更新 PR を自動生成する (`workflow_dispatch` で手動実行も可)。PAT secret `FLAKE_UPDATE_TOKEN` があればそれで PR を作り、無ければ `GITHUB_TOKEN` で PR を作って CI を `gh workflow run` で別途 dispatch する (default token の PR は `pull_request` イベントを発火しないため)。
+
 dotfile を実機に反映するときは `chezmoi apply` (Nix 側を編集した場合は `run_onchange_20-nix-activate.sh.tmpl` が `darwin-rebuild switch` / `home-manager switch` を自動で呼ぶ)。
 
 ## Claude Code フック

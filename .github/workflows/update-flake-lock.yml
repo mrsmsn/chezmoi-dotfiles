@@ -1,0 +1,42 @@
+name: Update flake.lock
+
+on:
+  schedule:
+    # 月・木 06:00 JST (= 日・水 21:00 UTC)
+    - cron: "0 21 * * 0,3"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-flake-lock:
+    runs-on: ubuntu-latest
+    env:
+      # PAT (FLAKE_UPDATE_TOKEN) があればそれで PR を作る。default の
+      # GITHUB_TOKEN で作った PR は pull_request イベントを発火しない
+      # (GitHub の再帰防止) ので、その場合は後段で CI を手動 dispatch する。
+      HAS_PAT: ${{ secrets.FLAKE_UPDATE_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - name: Update nix/flake.lock and open PR
+        id: update
+        uses: DeterminateSystems/update-flake-lock@v28
+        with:
+          path-to-flake-dir: nix
+          branch: update-flake-lock
+          pr-title: "chore: update nix/flake.lock"
+          pr-labels: dependencies
+          commit-msg: "chore: update nix/flake.lock"
+          token: ${{ secrets.FLAKE_UPDATE_TOKEN || github.token }}
+      - name: Trigger CI on the update branch
+        if: env.HAS_PAT != 'true' && steps.update.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref update-flake-lock
