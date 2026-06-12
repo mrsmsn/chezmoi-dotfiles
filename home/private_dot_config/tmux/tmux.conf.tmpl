@@ -1,3 +1,8 @@
+{{- /* OS アイコン: starship.toml.tmpl と同じ判定。darwin= (Apple), wsl= (Windows), linux= (Tux) */ -}}
+{{- $os_icon := "" -}}
+{{- if eq .variant "darwin" -}}{{- $os_icon = "" -}}
+{{- else if eq .variant "wsl" -}}{{- $os_icon = "" -}}
+{{- end -}}
 # prefixキー
 set -g prefix C-f
 
@@ -51,7 +56,19 @@ set -g status-bg "colour60"
 {{- end }}
 # status line の文字色を指定する。
 set -g status-fg "colour255"
-#フォーカスしているペインの設定
+
+# ペイン境界線に starship 風 powerline (OSアイコン/ディレクトリ/gitブランチ/コマンド) を表示する。
+# 配色は starship.toml.tmpl と同一。
+set -g pane-border-status top
+set -g pane-border-format "#($XDG_CONFIG_HOME/tmux/pane-border.sh '{{ $os_icon }}' '#{pane_current_path}' '#{pane_current_command}' '#{pane_active}')"
+# 境界線はアクティブ状態に関わらず一律同色。tmux はボーダーステータス行の先頭に
+# 必ず 2 セル分の線を描くため、バー先頭のフェード ░▒▓ と同色にして溶け込ませる。
+set -g pane-active-border-style "fg=#a3aed2"
+set -g pane-border-style "fg=#a3aed2"
+# 非アクティブペインの減光。bg=default で背景透過を維持する (tmux は透明のまま
+# 背景だけ暗くすることはできないため、デフォルト色の文字のみ fg で減光する)。
+set -g window-active-style "fg=terminal,bg=default"
+set -g window-style "fg=#9399b2,bg=default"
 
 #マウス操作を有効にする
 set -g mouse on
