@@ -44,3 +44,8 @@ git-profile: build
 
 bats *FILES: build
     podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh {{FILES}}
+
+# nix flake input を更新 (引数なしで全部、引数指定で特定 input だけ)。
+# 例: just nix-update / just nix-update nixpkgs / just nix-update llm-agents
+nix-update *INPUTS:
+    nix flake update {{INPUTS}} --flake ./nix
