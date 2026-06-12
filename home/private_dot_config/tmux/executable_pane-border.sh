@@ -10,7 +10,7 @@ pane_active=${4:-0}
 
 # 先頭フェード ░▒▓ は境界線 (一律 #a3aed2) に溶け込ませるため両状態で固定。
 c_icon='#a3aed2' fg_icon='#090c0c'
-# 残りのセグメントは starship.toml.tmpl と同じパレット。非アクティブはグレーに落とす。
+# 残りのセグメントは元 starship プロンプトと同じパレット。非アクティブはグレーに落とす。
 if [ "$pane_active" = "1" ]; then
   c_dir='#769ff0' c_git='#394260' c_cmd='#212736'
   fg_dir='#e3e5e5' fg_seg='#769ff0'

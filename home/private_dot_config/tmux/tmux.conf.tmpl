@@ -1,4 +1,4 @@
-{{- /* OS アイコン: starship.toml.tmpl と同じ判定。darwin= (Apple), wsl= (Windows), linux= (Tux) */ -}}
+{{- /* OS アイコン: darwin= (Apple), wsl= (Windows), linux= (Tux) */ -}}
 {{- $os_icon := "" -}}
 {{- if eq .variant "darwin" -}}{{- $os_icon = "" -}}
 {{- else if eq .variant "wsl" -}}{{- $os_icon = "" -}}
@@ -58,7 +58,7 @@ set -g status-bg "colour60"
 set -g status-fg "colour255"
 
 # ペイン境界線に starship 風 powerline (OSアイコン/ディレクトリ/gitブランチ/コマンド) を表示する。
-# 配色は starship.toml.tmpl と同一。
+# 配色は元 starship プロンプトと同一の powerline パレット。
 set -g pane-border-status top
 set -g pane-border-format "#($XDG_CONFIG_HOME/tmux/pane-border.sh '{{ $os_icon }}' '#{pane_current_path}' '#{pane_current_command}' '#{pane_active}')"
 # 境界線はアクティブ状態に関わらず一律同色。tmux はボーダーステータス行の先頭に
