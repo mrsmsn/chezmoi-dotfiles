@@ -39,3 +39,13 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 -- VeryLazy 時点では colorscheme が既に適用済みなので一度直接呼ぶ。
 clear_bg()
+
+-- markdown は日本語主体で、英語 spell check が全語を誤検出して邪魔になるため OFF にする。
+-- LazyVim の lazyvim_wrap_spell より後に登録されるので上書きできる (wrap は維持)。
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("md_no_spell", { clear = true }),
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.spell = false
+  end,
+})
