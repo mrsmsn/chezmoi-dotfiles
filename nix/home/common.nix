@@ -33,6 +33,7 @@ in {
     lazygit
     lsd
     neovim
+    pnpm
     podman
     podman-compose
     ripgrep
