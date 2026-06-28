@@ -9,6 +9,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # 後段の "Trigger CI on the update branch" が workflow_dispatch API を叩くため
+  actions: write
 
 jobs:
   update-flake-lock:
