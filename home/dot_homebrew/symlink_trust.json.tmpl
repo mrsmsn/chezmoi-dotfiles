@@ -1,0 +1,11 @@
+{{- /*
+  Homebrew 6.0+ は非公式 tap の cask 読み込みに trust を要求する ($HOMEBREW_REQUIRE_TAP_TRUST)。
+  `brew trust` は trust.json を $XDG_CONFIG_HOME/homebrew/ (未設定時は ~/.homebrew/) に書く。
+  対話シェルでは XDG_CONFIG_HOME=~/.config なので ~/.config/homebrew/trust.json に保存される。
+  一方 nix-darwin の activation は `sudo --preserve-env=PATH ... brew bundle` で XDG_CONFIG_HOME を
+  引き継がないため、フォールバックの ~/.homebrew/trust.json を見にいき trust を見失う。
+  そのフォールバック先を XDG 上の実体へ向けて両経路で同じ trust.json を参照させる。
+*/ -}}
+{{- if eq .variant "darwin" -}}
+{{ .chezmoi.homeDir }}/.config/homebrew/trust.json
+{{- end -}}
