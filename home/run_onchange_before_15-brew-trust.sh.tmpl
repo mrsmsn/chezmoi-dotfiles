@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+{{ if eq .variant "darwin" -}}
+# Homebrew 6.0+ は非公式 tap の cask/formula 読み込みに trust を要求する
+# ($HOMEBREW_REQUIRE_TAP_TRUST)。run_onchange_20-nix-activate の brew bundle が
+# nikitabobko/tap の aerospace を読むため、その前に trust を登録しておく。
+#
+# trust.json の保存先は XDG_CONFIG_HOME 依存 (未設定時は ~/.homebrew/)。ここでは
+# 明示的に ~/.config 配下へ書き、activation 側 (XDG を引き継がない sudo 環境) からは
+# dot_homebrew/symlink_trust.json が ~/.homebrew/trust.json -> ~/.config/homebrew/trust.json
+# として橋渡しする。両者の保存先を一致させるため XDG_CONFIG_HOME を固定する。
+if command -v brew >/dev/null 2>&1 || [[ -x /opt/homebrew/bin/brew ]]; then
+    BREW="$(command -v brew || echo /opt/homebrew/bin/brew)"
+    export XDG_CONFIG_HOME="${HOME}/.config"
+    # homebrew.nix の taps = [ "nikitabobko/tap" ] と一致させること。
+    for tap in nikitabobko/tap; do
+        "${BREW}" trust "${tap}"
+    done
+fi
+{{- end }}
