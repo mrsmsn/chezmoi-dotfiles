@@ -9,6 +9,7 @@ variant_templates=(
     home/dot_zprofile.tmpl
     home/dot_claude/hooks/executable_notify-complete.sh.tmpl
     home/dot_claude/hooks/executable_notify-waiting.sh.tmpl
+    home/run_onchange_before_15-brew-trust.sh.tmpl
 )
 
 for variant in darwin linux wsl; do

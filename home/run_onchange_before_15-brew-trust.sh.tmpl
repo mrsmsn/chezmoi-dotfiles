@@ -13,7 +13,8 @@ if command -v brew >/dev/null 2>&1 || [[ -x /opt/homebrew/bin/brew ]]; then
     BREW="$(command -v brew || echo /opt/homebrew/bin/brew)"
     export XDG_CONFIG_HOME="${HOME}/.config"
     # homebrew.nix の taps = [ "nikitabobko/tap" ] と一致させること。
-    for tap in nikitabobko/tap; do
+    taps=(nikitabobko/tap)
+    for tap in "${taps[@]}"; do
         "${BREW}" trust "${tap}"
     done
 fi
