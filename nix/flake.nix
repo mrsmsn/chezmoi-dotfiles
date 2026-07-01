@@ -33,6 +33,17 @@
         jpcal       = final.callPackage ./pkgs/jpcal.nix { };
         apm         = llm-agents.packages.${final.system}.apm;
         claude-code = llm-agents.packages.${final.system}.claude-code;
+
+        # Temporary shim: the nixos-unstable channel is currently pinned to a
+        # nixpkgs commit that limits podman to `lib.platforms.linux` (nixpkgs
+        # PR #536067), which makes aarch64-darwin refuse to evaluate. Upstream
+        # already widened it back to `lib.platforms.unix` on master (#536759),
+        # but that has not reached the channel yet. Re-widen meta.platforms so
+        # podman keeps building on darwin. Remove once the channel advances
+        # past commit c96fe92bf.
+        podman = prev.podman.overrideAttrs (old: {
+          meta = old.meta // { platforms = prev.lib.platforms.unix; };
+        });
       };
 
       mkPkgs = system: import nixpkgs {
