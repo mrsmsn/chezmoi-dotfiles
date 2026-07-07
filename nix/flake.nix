@@ -1,5 +1,5 @@
 {
-  description = "chezmoi-dotfiles: Nix side (Home Manager + nix-darwin)";
+  description = "chezmoi-dotfiles: Nix side (Home Manager + nix-darwin + NixOS)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -14,6 +14,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    xremap = {
+      url = "github:xremap/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -25,7 +32,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, llm-agents, nix-vscode-extensions, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -82,8 +89,31 @@
           }
         ];
       };
+      mkNixos = { system }: nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./nixos/configuration.nix
+          # hardware-configuration.nix はマシン固有情報のためリポジトリに置かない。
+          # 実機では /etc/nixos の自動生成物を --impure で参照、CI では stub。
+          (if builtins.pathExists /etc/nixos/hardware-configuration.nix
+           then /etc/nixos/hardware-configuration.nix
+           else ./nixos/ci-hardware-stub.nix)
+          { nixpkgs.pkgs = pkgsFor.${system}; }
+          nixos-hardware.nixosModules.common-cpu-amd
+          nixos-hardware.nixosModules.common-pc-ssd
+          xremap.nixosModules.default
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ];
+          }
+        ];
+      };
     in {
       darwinConfigurations.default = mkDarwin { system = "aarch64-darwin"; };
+
+      nixosConfigurations.default = mkNixos { system = "x86_64-linux"; };
 
       homeConfigurations = {
         linux = mkHome {

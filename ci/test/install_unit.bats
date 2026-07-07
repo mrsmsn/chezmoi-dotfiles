@@ -63,3 +63,16 @@ setup() {
     run _probe_tty_available
     [ "$status" -ne 0 ]
 }
+
+@test "_is_nixos: returns success when given an existing path" {
+    tmp=$(mktemp -d)
+    touch "$tmp/NIXOS"
+    run _is_nixos "$tmp/NIXOS"
+    rm -rf "$tmp"
+    [ "$status" -eq 0 ]
+}
+
+@test "_is_nixos: returns failure when given a nonexistent path" {
+    run _is_nixos "/nonexistent/NIXOS-marker"
+    [ "$status" -ne 0 ]
+}

@@ -14,6 +14,12 @@ _probe_tty_available() {
     : < /dev/tty 2>/dev/null
 }
 
+# shellcheck disable=SC2120  # 引数はテストからのみ注入する (本番は default の /etc/NIXOS)
+_is_nixos() {
+    # /etc/NIXOS は NixOS が必ず置く marker ファイル (テストのため path を引数注入可能に)
+    [ -e "${1:-/etc/NIXOS}" ]
+}
+
 _select_nix_ssl_cert_file() {
     if [ -n "${NIX_SSL_CERT_FILE:-}" ] && [ -f "${NIX_SSL_CERT_FILE}" ]; then
         printf '%s\n' "${NIX_SSL_CERT_FILE}"
@@ -80,8 +86,20 @@ main() {
 
     # nix-daemon は flake fetch を担当する一方で user-level
     # ~/.config/nix/nix.conf を読まないので、token は /etc/nix/nix.conf に書く。
+    # ただし NixOS では /etc/nix/nix.conf は store への read-only symlink なので
+    # tee が失敗し set -e で bootstrap ごと落ちる。access-tokens はクライアント側
+    # (flake fetch 元) の設定なので user-level ~/.config/nix/nix.conf でも効く。
     if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        if ! sudo grep -q '^access-tokens' /etc/nix/nix.conf 2>/dev/null; then
+        local user_nix_conf
+        if _is_nixos; then
+            user_nix_conf="${XDG_CONFIG_HOME:-$HOME/.config}/nix/nix.conf"
+            mkdir -p "$(dirname "${user_nix_conf}")"
+            if ! grep -q '^access-tokens' "${user_nix_conf}" 2>/dev/null; then
+                echo "==> Adding GitHub access-tokens to ${user_nix_conf}"
+                echo "access-tokens = github.com=${GITHUB_TOKEN}" \
+                    >> "${user_nix_conf}"
+            fi
+        elif ! sudo grep -q '^access-tokens' /etc/nix/nix.conf 2>/dev/null; then
             echo "==> Adding GitHub access-tokens to /etc/nix/nix.conf"
             echo "access-tokens = github.com=${GITHUB_TOKEN}" \
                 | sudo tee -a /etc/nix/nix.conf >/dev/null
@@ -93,6 +111,11 @@ main() {
         nix --extra-experimental-features 'nix-command flakes' \
             profile add nixpkgs#chezmoi
     fi
+
+    # 素の NixOS home だと profile.d の nix-daemon.sh も nix.sh も存在しないため
+    # 上の source ブロックが発火せず、`nix profile add` 直後でも PATH に
+    # ~/.nix-profile/bin が乗らないことがある。chezmoi が見えなければ直接足す。
+    command -v chezmoi >/dev/null 2>&1 || export PATH="$HOME/.nix-profile/bin:$PATH"
 
     echo "==> Initializing chezmoi from ${repo_url}"
     # chezmoi の promptStringOnce は /dev/tty を直接開くので、`curl | bash` でも

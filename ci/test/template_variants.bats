@@ -42,3 +42,22 @@ load 'helpers/common'
     run render_chezmoi_toml_tmpl darwin "irrelevant"
     [ "$status" -eq 0 ]
 }
+
+@test "nixos host (os-release id=nixos): variant=nixos, is_wsl=false" {
+    run render_chezmoi_toml_tmpl linux "6.12.0" "nixos"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'variant = "nixos"'* ]]
+    [[ "$output" == *'is_wsl = false'* ]]
+}
+
+@test "linux host with unrelated os-release id (ubuntu): variant=linux" {
+    run render_chezmoi_toml_tmpl linux "6.5.0-1014-azure" "ubuntu"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'variant = "linux"'* ]]
+}
+
+@test "wsl precedence over nixos: microsoft kernel wins even with os-release id=nixos" {
+    run render_chezmoi_toml_tmpl linux "5.15.0-microsoft-standard-WSL2" "nixos"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'variant = "wsl"'* ]]
+}
