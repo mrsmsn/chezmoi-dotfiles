@@ -40,6 +40,22 @@ extract_hash() {
     [ "$hash" = "$expected" ]
 }
 
+@test "android variant: embedded hash matches HEAD:nix" {
+    rendered=$(render_activate android)
+    hash=$(printf '%s\n' "$rendered" | extract_hash)
+    expected=$(git -C "$PROJECT_ROOT" rev-parse HEAD:nix)
+    [ -n "$hash" ]
+    [ "$hash" = "$expected" ]
+}
+
+@test "nixos variant: embedded hash matches HEAD:nix" {
+    rendered=$(render_activate nixos)
+    hash=$(printf '%s\n' "$rendered" | extract_hash)
+    expected=$(git -C "$PROJECT_ROOT" rev-parse HEAD:nix)
+    [ -n "$hash" ]
+    [ "$hash" = "$expected" ]
+}
+
 @test "modifying nix/ changes the tree hash chezmoi watches" {
     # objects 共有の独立 worktree で nix/ を編集 → HEAD:nix が変わることを assert。
     # chezmoi が onchange 再実行をトリガできる土台の担保。

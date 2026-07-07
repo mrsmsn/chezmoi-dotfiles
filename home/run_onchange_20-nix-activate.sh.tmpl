@@ -26,6 +26,23 @@ case "{{ .variant }}" in
                 run nix-darwin -- switch --flake "${FLAKE}#default" --impure
         fi
         ;;
+    nixos)
+        # hardware-configuration.nix はリポジトリに置かず /etc/nixos の自動生成物を
+        # flake が --impure で参照する。無いまま rebuild すると CI 用 stub が使われ
+        # 起動不能なシステムを作りうるので事前チェックする。
+        [ -e /etc/nixos/hardware-configuration.nix ] || {
+            echo "ERROR: /etc/nixos/hardware-configuration.nix not found (run nixos-generate-config)" >&2
+            exit 1
+        }
+        # darwin と同様 HOME/USER を pass-through (flake の getEnv "USER" 対策)。
+        # sudo の secure_path 対策で command -v で解決したフルパスを渡す。
+        sudo env HOME="$HOME" USER="$USER" \
+            "$(command -v nixos-rebuild)" switch --flake "${FLAKE}#default" --impure
+        # NixOS では /etc/shells が read-only (store へのシンボリックリンク) で
+        # chsh も効かない。ログインシェルは programs.zsh.enable +
+        # users.users.<name>.shell が system config 側で管理するので、ここでの
+        # /etc/shells 登録・chsh は行わない (linux|wsl|android ケースと非対称)。
+        ;;
     linux|wsl|android)
         # 自前 flake で pin した home-manager を使うことで、毎回 GitHub API を
         # 叩いて `home-manager/master` を resolve する負荷を避ける。

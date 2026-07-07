@@ -110,46 +110,9 @@ jobs:
       - name: Render and shellcheck each variant
         # run_onchange_20-* は `{{ output "git" ... }}` を使うので単発 render が
         # 困難 (E2E は bootstrap-linux job)。run_onchange_30 は chezmoi data を
-        # 消費するので別途 test config を渡す。
-        run: |
-          set -euo pipefail
-          variant_templates=(
-            home/dot_zprofile.tmpl
-            home/dot_claude/hooks/executable_notify-complete.sh.tmpl
-            home/dot_claude/hooks/executable_notify-waiting.sh.tmpl
-          )
-          for variant in darwin linux wsl android; do
-            for tmpl in "${variant_templates[@]}"; do
-              echo "=== variant=${variant} ${tmpl} ==="
-              rendered=$(sed "s|\.variant|\"${variant}\"|g" "$tmpl" | chezmoi execute-template)
-              if [[ -z "${rendered//[[:space:]]/}" ]]; then
-                echo "(empty after rendering — skip)"
-                continue
-              fi
-              echo "${rendered}" | shellcheck -s bash -
-            done
-          done
-
-          test_config=$(mktemp --suffix=.toml)
-          cat > "${test_config}" <<'EOF'
-          [data]
-          [data.git]
-              gh_user_default = "test"
-          [data.ghq]
-              root = "~/src"
-          [data.work]
-              gitdir_prefix = "~/src/github.com/TEST/"
-              gh_user = "test-work"
-          EOF
-          data_templates=(
-            home/run_onchange_30-write-envrcs.sh.tmpl
-          )
-          for tmpl in "${data_templates[@]}"; do
-            echo "=== ${tmpl} (work ON test config) ==="
-            rendered=$(chezmoi --config "${test_config}" execute-template < "${tmpl}")
-            echo "${rendered}" | shellcheck -s bash -
-          done
-          rm -f "${test_config}"
+        # 消費するので別途 test config を渡す。実体は ci/template-shellcheck.sh
+        # に集約してあるので local (`just template-shellcheck`) と CI の乖離を防ぐ。
+        run: ./ci/template-shellcheck.sh
 
   git-profile:
     name: gitdir-based work プロファイル切替の E2E

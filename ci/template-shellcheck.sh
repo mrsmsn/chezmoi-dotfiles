@@ -12,7 +12,7 @@ variant_templates=(
     home/run_onchange_before_15-brew-trust.sh.tmpl
 )
 
-for variant in darwin linux wsl; do
+for variant in darwin linux wsl android nixos; do
     for tmpl in "${variant_templates[@]}"; do
         echo "=== variant=${variant} ${tmpl} ==="
         rendered=$(sed "s|\.variant|\"${variant}\"|g" "$tmpl" | chezmoi execute-template)

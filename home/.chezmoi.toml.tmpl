@@ -13,6 +13,8 @@
 {{-     $variant = "android" -}}
 {{-   else if contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
 {{-     $variant = "wsl" -}}
+{{-   else if eq (.chezmoi.osRelease.id | default "") "nixos" -}}
+{{-     $variant = "nixos" -}}
 {{-   end -}}
 {{- end -}}
 

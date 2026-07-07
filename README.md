@@ -1,6 +1,6 @@
 # chezmoi-dotfiles
 
-macOS / Ubuntu / WSL(Ubuntu) / Android (Google Pixel Linux Terminal) 向けの dotfiles。**chezmoi** で設定ファイル、**Nix** (flakes + Home Manager、macOSは nix-darwin) でパッケージ・システム設定を管理する。
+macOS / Ubuntu / WSL(Ubuntu) / Android (Google Pixel Linux Terminal) / NixOS 向けの dotfiles。**chezmoi** で設定ファイル、**Nix** (flakes + Home Manager、macOS は nix-darwin、NixOS は NixOS モジュール) でパッケージ・システム設定を管理する。
 
 ## Bootstrap (新規環境)
 
@@ -17,6 +17,15 @@ curl -fsSL https://raw.githubusercontent.com/mrsmsn/chezmoi-dotfiles/main/instal
 
 macOS は初回 `darwin-rebuild` 実行時に sudo プロンプトが出る場合がある。
 
+### 新規 NixOS マシン
+
+NixOS だけは「素の状態から `curl | bash` だけで完結」できない。先に NixOS 自体をインストールする必要があるため、手順は以下の通り。
+
+1. NixOS を通常インストール (公式 installer が `/etc/nixos/hardware-configuration.nix` を生成する)
+2. インストール後の環境で上記の `install.sh` を実行する (Nix は既にインストール済みなので Nix 自体のインストールはスキップされる)
+3. `chezmoi init --apply` の中で `run_onchange_20-nix-activate.sh.tmpl` が `nixos-rebuild switch` を呼ぶ際に sudo プロンプトが出る
+4. 以後 `/etc/nixos/configuration.nix` は使わなくなる (システム設定は `nix/nixos/configuration.nix` に一本化) が、**`/etc/nixos/hardware-configuration.nix` は削除しないこと**。flake が `--impure` でこのファイルを直接参照しているため、消すと `nixos-rebuild` が壊れる。
+
 ## 更新 (既存環境)
 
 ```bash
@@ -31,6 +40,7 @@ chezmoi apply
 - Linux: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#linux --impure`
 - WSL: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#wsl --impure`
 - Android (Pixel Linux Terminal): `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#android --impure`
+- NixOS: `sudo env HOME="$HOME" USER="$USER" nixos-rebuild switch --flake ~/.local/share/chezmoi/nix#default --impure` (素の `sudo` だと `USER=root` になり flake の `getEnv "USER"` が壊れる)
 
 ## ディレクトリ構成
 
@@ -55,6 +65,11 @@ chezmoi-dotfiles/
     │   ├── configuration.nix   # macOS システム設定
     │   ├── homebrew.nix        # Homebrew Cask (GUI アプリ) を宣言
     │   └── fonts.nix           # システムフォント
+    ├── nixos/
+    │   ├── configuration.nix   # NixOS システム設定 (zsh ログインシェル、timezone 等)
+    │   ├── desktop.nix         # GNOME+GDM (X11)、pipewire、fcitx5-mozc、firefox/chromium
+    │   ├── fonts.nix           # システムフォント (Noto CJK + HackGen)
+    │   └── ci-hardware-stub.nix  # CI eval 専用のダミー hardware モジュール (実機では未使用)
     ├── home/
     │   ├── common.nix          # 全OS共通
     │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
@@ -76,6 +91,7 @@ chezmoi-dotfiles/
 | VSCode のユーザ設定を編集 | `home/private_Library/private_Application Support/private_Code/User/{settings,keybindings}.json` (macOS) |
 | macOS システム設定 | `nix/darwin/configuration.nix` |
 | macOS キーボードショートカット (AppleSymbolicHotKeys 等) | `nix/darwin/configuration.nix` の `system.defaults.CustomUserPreferences` |
+| NixOS システム設定 (デスクトップ環境、日本語入力、xremap 等) | `nix/nixos/*.nix` |
 
 ### nix-darwin と chezmoi の役割分担
 
@@ -98,7 +114,9 @@ GUI アプリ (.app) は原則 **Homebrew Cask** で管理する (`nix/darwin/ho
 
 ### variant とテンプレート分岐
 
-chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `wsl` / `android` のいずれかを取得できる。`android` は Google Pixel の "Linux Terminal" 機能 (Debian aarch64 VM) を表し、kernel.osrelease に `android` を含むかで判定する。
+chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `wsl` / `android` / `nixos` のいずれかを取得できる。`android` は Google Pixel の "Linux Terminal" 機能 (Debian aarch64 VM) を表し、kernel.osrelease に `android` を含むかで判定する。`nixos` は `.chezmoi.osRelease.id == "nixos"` で判定する。
+
+判定順は `android > wsl > nixos > linux` (`.chezmoi.toml.tmpl` 内で上から順に評価)。そのため **NixOS を WSL 上で動かした場合は `wsl` 判定になり、`nixos` にはならない** (kernel.osrelease の `microsoft` 判定が先に当たるため)。
 
 ```
 {{ if eq .variant "darwin" }}
@@ -107,6 +125,8 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 # WSL 固有
 {{ else if eq .variant "android" }}
 # Pixel Linux Terminal 固有
+{{ else if eq .variant "nixos" }}
+# NixOS 固有
 {{ else }}
 # 純 Linux
 {{ end }}

@@ -1,7 +1,8 @@
-{{- /* OS アイコン: darwin= (Apple), wsl= (Windows), linux= (Tux) */ -}}
+{{- /* OS アイコン: darwin= (Apple), wsl= (Windows), nixos= (NixOS), linux= (Tux) */ -}}
 {{- $os_icon := "" -}}
 {{- if eq .variant "darwin" -}}{{- $os_icon = "" -}}
 {{- else if eq .variant "wsl" -}}{{- $os_icon = "" -}}
+{{- else if eq .variant "nixos" -}}{{- $os_icon = "" -}}
 {{- end -}}
 # prefixキー
 set -g prefix C-f
