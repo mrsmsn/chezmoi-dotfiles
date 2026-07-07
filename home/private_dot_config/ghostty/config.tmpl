@@ -1,0 +1,26 @@
+# テーマ (Ghostty 内蔵。Linux/macOS 共通)
+theme = tokyonight
+
+# 背景透過
+background-opacity = 0.9
+# background-blur-radius = 20
+
+# マウスカーソルを非表示にする
+mouse-hide-while-typing = true
+
+# SSH 接続時に xterm-ghostty terminfo をリモートへ自動配布
+# (リモートで `missing or unsuitable terminal: xterm-ghostty` を防ぐ)
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
+
+{{ if eq .variant "darwin" -}}
+# ---- macOS 専用 ----
+# titlebar を消す
+macos-titlebar-style = hidden
+
+# QuickTerm (global keybind は macOS のみ対応)
+quick-terminal-position = "center"
+quick-terminal-size = 50%,60%
+quick-terminal-screen = "main"
+quick-terminal-animation-duration = 0.2
+keybind = "global:ctrl+shift+t=toggle_quick_terminal"
+{{- end }}

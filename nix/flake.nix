@@ -21,6 +21,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # niri (scrollable-tiling Wayland compositor)。あえて inputs.nixpkgs.follows
+    # は付けない: follows すると niri.cachix.org のバイナリキャッシュとハッシュが
+    # ずれ、niri 本体 (Rust) を毎回ローカルフルビルドすることになるため。
+    niri.url = "github:sodiboo/niri-flake";
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,7 +37,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -56,7 +61,12 @@
       mkPkgs = system: import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [ customPackagesOverlay ];
+        # niri.overlays.niri は pkgs.niri-stable / niri-unstable を生やす。
+        # このリポジトリは nixosSystem に nixpkgs.pkgs を注入する構成なので、
+        # niri モジュール (nixpkgs.overlays を自前設定しない設計) に pkgs.niri-stable
+        # を届けるには overlay をこの注入 pkgs 側に組み込む必要がある。overlay 方式は
+        # niri の依存 (特に mesa) を system の nixpkgs に整合させ、GPU 描画を保証する。
+        overlays = [ customPackagesOverlay niri.overlays.niri ];
       };
 
       pkgsFor = {
@@ -99,9 +109,10 @@
            then /etc/nixos/hardware-configuration.nix
            else ./nixos/ci-hardware-stub.nix)
           { nixpkgs.pkgs = pkgsFor.${system}; }
-          nixos-hardware.nixosModules.common-cpu-amd
+          nixos-hardware.nixosModules.common-cpu-intel
           nixos-hardware.nixosModules.common-pc-ssd
           xremap.nixosModules.default
+          niri.nixosModules.niri
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
