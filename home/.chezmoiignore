@@ -14,7 +14,8 @@
 private_Library
 {{- end }}
 
-{{- /* fcitx5+mozc は NixOS 専用。他 variant には fcitx5 config を配らない。 */ -}}
+{{- /* fcitx5+mozc は NixOS 専用。他 variant には fcitx5 設定一式を配らない。 */ -}}
 {{- if ne .variant "nixos" }}
 .config/fcitx5/config
+.config/fcitx5/conf/mozc.conf
 {{- end }}

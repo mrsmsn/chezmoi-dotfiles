@@ -6,21 +6,21 @@ EnumerateSkipFirst=False
 # Time limit in milliseconds for triggering modifier key shortcuts
 ModifierOnlyKeyTimeout=250
 
+# Hangul は下の ActivateKeys 専用にするので Trigger からは外す (衝突回避)。
 [Hotkey/TriggerKeys]
 0=Control+space
 1=Zenkaku_Hankaku
-2=Hangul
 
-# xremap が左Alt 単押しで Muhenkan、右Alt 単押しで Henkan を送出する
-# (nix/nixos/configuration.nix の dual-role modmap)。それを IME の
-# Deactivate/Activate に結んで macOS の英数/かな相当にする:
-#   Muhenkan -> Deactivate = 英数 (us 直接入力)
-#   Henkan   -> Activate   = mozc/かな
+# xremap が左Alt 単押しで Hangul_Hanja、右Alt 単押しで Hangul を送出する
+# (nix/nixos/configuration.nix の dual-role modmap)。Hangul 系は Mozc が束縛
+# しないので Mozc に食われず、fcitx5 の Activate/Deactivate が確実に発火する:
+#   Hangul       -> Activate   = mozc/かな (InitialMode=Hiragana は conf/mozc.conf)
+#   Hangul_Hanja -> Deactivate = 英数 (us 直接入力)
 [Hotkey/ActivateKeys]
-0=Henkan
+0=Hangul
 
 [Hotkey/DeactivateKeys]
-0=Muhenkan
+0=Hangul_Hanja
 
 [Hotkey/AltTriggerKeys]
 0=Shift_L

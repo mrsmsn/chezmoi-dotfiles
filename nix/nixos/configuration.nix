@@ -67,17 +67,19 @@ in
       #
       # さらに左右 Alt を dual-role 化して macOS の英数/かな相当を作る:
       # 押しっぱなしは従来通り Alt(修飾キー)、単押しのときだけ IME 切替キーを送出する。
-      #   左Alt 単押し -> Muhenkan (fcitx5 の Deactivate = 英数/us 直接入力)
-      #   右Alt 単押し -> Henkan   (fcitx5 の Activate   = mozc/かな)
-      # xremap は自分の uinput 出力を読み直さないので HENKAN 単押しで HENKAN を
-      # 送出してもループしない。
+      #   左Alt 単押し -> Hangul_Hanja (fcitx5 の Deactivate = 英数/us 直接入力)
+      #   右Alt 単押し -> Hangul       (fcitx5 の Activate   = mozc/かな)
+      # あえて Henkan/Muhenkan ではなく Hangul 系キーシムを使う: Mozc は既定
+      # キーマップでこれらを束縛しない (Korean 用) ため Mozc に消費されず、
+      # fcitx5 の Activate/Deactivate が競合なく発火する。Henkan/Muhenkan だと
+      # Mozc がカナ種切替として先に食ってしまい fcitx5 の切替が効かない。
       {
         name = "JIS right-side keys + dual-role Alt for IME toggle";
         remap = {
-          HENKAN = { held = "Alt_R"; alone = "HENKAN"; };    # 右Alt: 修飾=Alt_R / 単押し=かな
-          LEFTALT = { held = "Alt_L"; alone = "MUHENKAN"; }; # 左Alt: 修飾=Alt_L / 単押し=英数
-          KATAKANAHIRAGANA = "Super_R";                      # 右App -> 右Super
-          RO = "Ctrl_R";                                     # IntlRo -> 右Ctrl
+          HENKAN = { held = "Alt_R"; alone = "HANGEUL"; };  # 右Alt: 修飾=Alt_R / 単押し=かな
+          LEFTALT = { held = "Alt_L"; alone = "HANJA"; };   # 左Alt: 修飾=Alt_L / 単押し=英数
+          KATAKANAHIRAGANA = "Super_R";                     # 右App -> 右Super
+          RO = "Ctrl_R";                                    # IntlRo -> 右Ctrl
         };
       }
     ];
