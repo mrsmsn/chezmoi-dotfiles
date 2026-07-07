@@ -26,6 +26,15 @@
     # ずれ、niri 本体 (Rust) を毎回ローカルフルビルドすることになるため。
     niri.url = "github:sodiboo/niri-flake";
 
+    # Noctalia (Quickshell ベースのデスクトップシェル: バー/ランチャー/通知/
+    # ロック/壁紙/OSD)。v5 は nixpkgs 未収録 (nixpkgs は v4 系) なので flake から
+    # 入れる。重い依存の quickshell は nixpkgs 側にあるので follows で nixos.org
+    # キャッシュを使わせる (noctalia 本体は QML で軽量)。
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,7 +46,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, noctalia, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -117,7 +126,12 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ];
+            # noctalia の home-manager モジュール (./home/nixos.nix で import) が
+            # flake input を参照できるよう extraSpecialArgs で渡す。
+            home-manager.extraSpecialArgs = { inherit noctalia; };
+            # ./home/nixos.nix は nixos variant 専用 (WSL/android の
+            # homeConfigurations には import されないので Noctalia は波及しない)。
+            home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ./home/nixos.nix ];
           }
         ];
       };

@@ -51,30 +51,26 @@
     ];
   };
 
-  # swaylock は sway モジュールを使わないので PAM サービスを手動登録しないと
-  # pam_authenticate に失敗して解錠できない。
-  security.pam.services.swaylock = { };
-
   # Chromium/Electron を Wayland ネイティブ (Ozone) で動かす。
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # Noctalia のウィジェット (電池/電源プロファイル/Bluetooth) をフル機能で
+  # 動かすための推奨サービス。GNOME も内部で使うので併存中は実質有効だが、
+  # 将来 GNOME を撤去しても Noctalia が機能するよう明示しておく。
+  services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
+  hardware.bluetooth.enable = true;
 
   # ブラウザ。programs.chromium は NixOS ではポリシー設定のみで本体を
   # インストールしないため、Chromium は systemPackages で入れる。
   programs.firefox.enable = true;
+  # バー/ランチャー/通知/ロック/壁紙/OSD は Noctalia デスクトップシェルが担う
+  # (nix/home/nixos.nix の programs.noctalia)。以前の waybar/fuzzel/mako/
+  # swaylock/swayidle/swaybg/wl-clipboard の寄せ集めは Noctalia に置き換えた。
   environment.systemPackages = with pkgs; [
     chromium
 
     # ターミナル (macOS は Homebrew cask、NixOS では pkgs から入れる)。
     ghostty
-
-    # niri 付属フルスタック。WSL/android の home ビルドと共有される
-    # home/linux.nix ではなく、NixOS 実機専用のこの module に置く。
-    waybar     # バー
-    fuzzel     # ランチャー
-    mako       # 通知デーモン
-    swaylock   # 画面ロック
-    swayidle   # アイドル検出 (timeout でロック)
-    swaybg     # 壁紙
-    wl-clipboard
   ];
 }

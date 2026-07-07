@@ -27,14 +27,8 @@ prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/screenshot-%Y-%m-%d-%H-%M-%S.png"
 
 // ---- 自動起動 ----
-spawn-at-startup "waybar"
-spawn-at-startup "mako"
-spawn-at-startup "swaybg" "-c" "#1a1b26"
-spawn-at-startup "swayidle" "-w" \
-    "timeout" "300" "swaylock -f" \
-    "timeout" "600" "niri msg action power-off-monitors" \
-    "resume"       "niri msg action power-on-monitors" \
-    "before-sleep" "swaylock -f"
+// Noctalia デスクトップシェル (バー/ランチャー/通知/ロック/壁紙/OSD を統合)。
+spawn-at-startup "noctalia"
 // fcitx5: init タイミング問題 (niri#2283) が出る場合は systemd user service
 // 化や遅延起動に切り替える。
 spawn-at-startup "fcitx5" "-d" "--replace"
@@ -44,10 +38,12 @@ binds {
     // ヘルプ (バインド一覧)
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // アプリ起動
-    Mod+Return hotkey-overlay-title="Terminal: ghostty" { spawn "ghostty"; }
-    Mod+D      hotkey-overlay-title="Launcher: fuzzel"   { spawn "fuzzel"; }
-    Mod+Escape hotkey-overlay-title="Lock: swaylock"     { spawn "swaylock" "-f"; }
+    // アプリ起動 / Noctalia シェル操作 (IPC は `noctalia msg ...`)
+    Mod+Return  hotkey-overlay-title="Terminal: ghostty"  { spawn "ghostty"; }
+    Mod+D       hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+S       hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Mod+Shift+S hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
+    Mod+Escape  hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
 
     // ウィンドウ操作
     Mod+Q { close-window; }
