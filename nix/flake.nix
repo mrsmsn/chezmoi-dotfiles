@@ -106,7 +106,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ];
+            home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ./home/nixos.nix ];
           }
         ];
       };

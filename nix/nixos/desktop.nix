@@ -29,10 +29,7 @@
     ];
   };
 
-  # ブラウザ。programs.chromium は NixOS ではポリシー設定のみで本体を
-  # インストールしないため、Chromium は systemPackages で入れる。
+  # ブラウザ。chromium は NixOS の programs.chromium がポリシー設定のみで本体を
+  # インストールしないため、home-manager 側 (nix/home/nixos.nix) で宣言する。
   programs.firefox.enable = true;
-  environment.systemPackages = with pkgs; [
-    chromium
-  ];
 }

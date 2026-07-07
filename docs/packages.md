@@ -103,7 +103,7 @@ Home Manager 側のユーザーパッケージとは別に、NixOS はデスク�
 | デスクトップ環境 | `desktop.nix` | GNOME + GDM (X11 セッション) |
 | サウンド | `desktop.nix` | pipewire (pulseaudio 互換込み。PulseAudio 本体は無効化) |
 | 日本語入力 | `desktop.nix` | fcitx5 + fcitx5-mozc |
-| ブラウザ | `desktop.nix` | firefox (`programs.firefox`)、chromium (`environment.systemPackages`) |
+| ブラウザ | `desktop.nix` / `../home/nixos.nix` | firefox は system 側 (`programs.firefox`)。chromium は NixOS の `programs.chromium` が policy 設定のみで本体を入れないため、home-manager 側 (`nix/home/nixos.nix` の `programs.chromium`) で宣言 |
 | キーリマップ | `configuration.nix` | xremap (CapsLock → Ctrl_L、`serviceMode = "system"`) |
 | VPN | `configuration.nix` | tailscale (`services.tailscale.enable`) |
 | 印刷 | `configuration.nix` | CUPS (`services.printing.enable`) |

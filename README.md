@@ -67,13 +67,14 @@ chezmoi-dotfiles/
     │   └── fonts.nix           # システムフォント
     ├── nixos/
     │   ├── configuration.nix   # NixOS システム設定 (zsh ログインシェル、timezone 等)
-    │   ├── desktop.nix         # GNOME+GDM (X11)、pipewire、fcitx5-mozc、firefox/chromium
+    │   ├── desktop.nix         # GNOME+GDM (X11)、pipewire、fcitx5-mozc、firefox
     │   ├── fonts.nix           # システムフォント (Noto CJK + HackGen)
     │   └── ci-hardware-stub.nix  # CI eval 専用のダミー hardware モジュール (実機では未使用)
     ├── home/
     │   ├── common.nix          # 全OS共通
     │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
     │   ├── linux.nix           # Ubuntu/WSL/Android (Pixel) 共通
+    │   ├── nixos.nix           # NixOS ユーザー単位 GUI (chromium)
     │   └── wsl.nix             # WSL 固有
     └── pkgs/                   # nixpkgs に無いカスタムパッケージ
 ```
