@@ -67,7 +67,7 @@ chezmoi-dotfiles/
     │   └── fonts.nix           # システムフォント
     ├── nixos/
     │   ├── configuration.nix   # NixOS システム設定 (zsh ログインシェル、timezone 等)
-    │   ├── desktop.nix         # GNOME+GDM (X11)、pipewire、fcitx5-mozc、firefox/chromium
+    │   ├── desktop.nix         # niri (Wayland)+GDM、pipewire、fcitx5-mozc、firefox/chromium
     │   ├── fonts.nix           # システムフォント (Noto CJK + HackGen)
     │   └── ci-hardware-stub.nix  # CI eval 専用のダミー hardware モジュール (実機では未使用)
     ├── home/

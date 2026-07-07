@@ -1,13 +1,12 @@
 { pkgs, ... }:
 
 {
-  # X11。近年の nixos-unstable では GDM/GNOME の enable は
-  # services.displayManager.* / services.desktopManager.* に移動している。
-  services.xserver.enable = true;
-  services.xserver.xkb.layout = "us";
-
+  # ログイン (display manager) は GDM、セッション本体は niri (Wayland の
+  # スクロール型タイリングコンポジタ)。programs.niri (nixpkgs の NixOS module)
+  # が session 登録・xdg-desktop-portal (gnome/gtk、screencast 対応)・
+  # gnome-keyring・polkit を一式配線する。
   services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  programs.niri.enable = true;
 
   # 音声は PipeWire に統一 (PulseAudio は無効化)。
   services.pulseaudio.enable = false;
@@ -34,5 +33,14 @@
   programs.firefox.enable = true;
   environment.systemPackages = with pkgs; [
     chromium
+
+    # niri のデフォルト config のキーバインドが前提とするツール:
+    # Mod+T = alacritty、Mod+D = fuzzel、Super+Alt+L = swaylock。
+    alacritty
+    fuzzel
+    swaylock
+    # niri は XWayland を内蔵しない。PATH にあれば X11 アプリ起動時に
+    # niri が xwayland-satellite を自動起動する。
+    xwayland-satellite
   ];
 }

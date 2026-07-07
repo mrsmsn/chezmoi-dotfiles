@@ -100,7 +100,7 @@ Home Manager 側のユーザーパッケージとは別に、NixOS はデスク�
 
 | 設定 | 定義場所 | 内容 |
 | --- | --- | --- |
-| デスクトップ環境 | `desktop.nix` | GNOME + GDM (X11 セッション) |
+| デスクトップ環境 | `desktop.nix` | niri (Wayland スクロール型タイリング、`programs.niri`) + GDM (ログイン)。X11 アプリは xwayland-satellite 経由。デフォルト keybind 用に alacritty / fuzzel / swaylock を同梱 |
 | サウンド | `desktop.nix` | pipewire (pulseaudio 互換込み。PulseAudio 本体は無効化) |
 | 日本語入力 | `desktop.nix` | fcitx5 + fcitx5-mozc |
 | ブラウザ | `desktop.nix` | firefox (`programs.firefox`)、chromium (`environment.systemPackages`) |

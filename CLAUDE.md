@@ -25,7 +25,7 @@ GitHub Actions (`.github/workflows/ci.yml`) のジョブ:
 
 - `lint` — bash/zsh syntax + shellcheck
 - `flake-check` — `nix flake check --impure --no-build` (`USER=runner` を強制)。`nixosConfigurations.default` も評価対象に含まれ、CI では `/etc/nixos/hardware-configuration.nix` が無いので `nix/nixos/ci-hardware-stub.nix` にフォールバックする
-- `build-configs` — `homeConfigurations.{linux,wsl}.activationPackage` を実ビルド (NixOS の GNOME フルデスクトップ closure はランナーに重すぎるため matrix 対象外。eval のみ `flake-check` で担保する)
+- `build-configs` — `homeConfigurations.{linux,wsl}.activationPackage` を実ビルド (NixOS のフルデスクトップ closure (niri + ブラウザ等) はランナーに重すぎるため matrix 対象外。eval のみ `flake-check` で担保する)
 - `template-variants` / `git-profile` — Nix を立ててから対応 bats を実行
 - `template-shellcheck` — `ci/template-shellcheck.sh` (= `just template-shellcheck`) を呼び、darwin/linux/wsl/android/nixos 全 variant でレンダリングしたテンプレを shellcheck
 - `bats-unit` — Nix 不要な bats (`install_unit` / `local_ci_hook` / `nix_tree_hash` / `install_e2e` / `envrcs`) を 1 job に集約
