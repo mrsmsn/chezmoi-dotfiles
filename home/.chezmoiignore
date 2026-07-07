@@ -1,7 +1,8 @@
 # Per-OS ignore rules can be added here using chezmoi template syntax.
+# パターンは target (destination) 相対で書く (ソース名の dot_/private_ 前置ではない)。
 # Example:
 # {{ if ne .variant "darwin" }}
-# dot_some_macos_only_file
+# .some_macos_only_file
 # {{ end }}
 
 {{- /* work プロファイル OFF (.work.gitdir_prefix が空) なら config_work は要らないので ignore する。
@@ -11,7 +12,7 @@
 {{- end }}
 
 {{- if ne .variant "darwin" }}
-private_Library
+Library
 {{- end }}
 
 {{- /* fcitx5+mozc は NixOS 専用。他 variant には fcitx5 設定一式を配らない。 */ -}}
