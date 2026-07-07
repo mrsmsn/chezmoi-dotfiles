@@ -24,7 +24,14 @@ fi
 
 if command -v tmux >/dev/null 2>&1; then
   echo "Installing tmux plugins via TPM"
-  TMUX_PLUGIN_MANAGER_PATH="${plugins_dir}/" "${tpm_path}/bin/install_plugins" ||
+  # TPM は TMUX_PLUGIN_MANAGER_PATH をプロセス環境からではなく tmux サーバの
+  # global environment から読む。install_plugins が start-server した新規サーバは
+  # tmux.conf を source し、その set-environment -g TMUX_PLUGIN_MANAGER_PATH
+  # "$XDG_CONFIG_HOME/..." が値を上書きする。XDG_CONFIG_HOME は dot_zshrc でしか
+  # export されないため、curl|bash の bootstrap 経路では未設定 → 空展開で
+  # /tmux/plugins/ になり必ず失敗する (#57)。ここで明示注入して防ぐ。
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" \
+    TMUX_PLUGIN_MANAGER_PATH="${plugins_dir}/" "${tpm_path}/bin/install_plugins" ||
     echo "TPM install_plugins failed; run 'prefix + I' inside tmux to retry."
 else
   echo "tmux not found; TPM cloned. Run 'prefix + I' inside tmux to install plugins."
