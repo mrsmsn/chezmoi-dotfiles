@@ -23,6 +23,34 @@ input {
 // サーバーサイド装飾を好む (ウィンドウ側の余計なタイトルバーを避ける)。
 prefer-no-csd
 
+// ---- レイアウト ----
+layout {
+    // 空 {} だと既定プリセットに戻るので proportion を明示する。
+    default-column-width { proportion 0.96; }
+    // 直前の列と並べて画面に収まらない幅の窓 (0.96 等) は中央、収まる窓 (0.5 等) は端寄せ。
+    center-focused-column "on-overflow"
+
+    // フォーカス窓だけを囲むリング。全窓に出る border とは別物 (border は既定 off のまま)。
+    focus-ring {
+        width 3
+    }
+
+    // Mod+R (switch-preset-column-width) が循環する幅。先頭に 0.96 を置き、
+    // 押し続ければデフォルト幅に戻れるようにする。
+    preset-column-widths {
+        proportion 0.96
+        proportion 0.5
+        proportion 0.33333
+    }
+}
+
+// ---- ウィンドウルール ----
+window-rule {
+    geometry-corner-radius 12
+    // これが無いと角丸はボーダー描画だけに効き、ウィンドウ内容の角は四角のまま。
+    clip-to-geometry true
+}
+
 // スクリーンショットの保存先。
 screenshot-path "~/Pictures/Screenshots/screenshot-%Y-%m-%d-%H-%M-%S.png"
 
@@ -78,6 +106,7 @@ binds {
 
     // レイアウト
     Mod+R { switch-preset-column-width; }
+    // Mod+C hotkey-overlay-title="Center column" { center-column; } // windowをセンターにするショートカット
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Minus { set-column-width "-10%"; }
