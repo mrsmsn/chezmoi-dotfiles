@@ -15,8 +15,11 @@
 Library
 {{- end }}
 
-{{- /* fcitx5+mozc は NixOS 専用。他 variant には fcitx5 設定一式を配らない。 */ -}}
+{{- /* fcitx5+mozc / noctalia は NixOS 専用。他 variant には配らない。
+       noctalia の設定実体は XDG_STATE (.local/state) 側で、settings.toml だけ管理し
+       clipboard 履歴・plugins・runtime state は追跡しない。 */ -}}
 {{- if ne .variant "nixos" }}
 .config/fcitx5/config
 .config/fcitx5/conf/mozc.conf
+.local/state/noctalia/settings.toml
 {{- end }}
