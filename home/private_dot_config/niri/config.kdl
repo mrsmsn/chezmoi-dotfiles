@@ -68,6 +68,7 @@ binds {
 
     // アプリ起動 / Noctalia シェル操作 (IPC は `noctalia msg ...`)
     Ctrl+Space  hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Super+V     hotkey-overlay-title="Clipboard"          { spawn-sh "noctalia msg panel-toggle clipboard"; }
     Super+S     hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
     Super+I     hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
     Super+L     hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
