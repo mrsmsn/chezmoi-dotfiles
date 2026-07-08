@@ -35,7 +35,7 @@ layout {
         width 3
     }
 
-    // Mod+R (switch-preset-column-width) が循環する幅。先頭に 0.96 を置き、
+    // Alt+R (switch-preset-column-width) が循環する幅。先頭に 0.96 を置き、
     // 押し続ければデフォルト幅に戻れるようにする。
     preset-column-widths {
         proportion 0.96
@@ -64,55 +64,55 @@ spawn-at-startup "fcitx5" "-d" "--replace"
 // ---- キーバインド ----
 binds {
     // ヘルプ (バインド一覧)
-    Mod+Shift+Slash { show-hotkey-overlay; }
+    Alt+Shift+Slash { show-hotkey-overlay; }
 
     // アプリ起動 / Noctalia シェル操作 (IPC は `noctalia msg ...`)
-    Mod+Return  hotkey-overlay-title="Terminal: ghostty"  { spawn "ghostty"; }
-    Mod+D       hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
-    Mod+S       hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
-    Mod+Shift+S hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
-    Mod+Escape  hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
+    Alt+Return  hotkey-overlay-title="Terminal: ghostty"  { spawn "ghostty"; }
+    Alt+D       hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Alt+S       hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Alt+Shift+S hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
+    Alt+Escape  hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
 
     // ウィンドウ操作
-    Mod+Q { close-window; }
+    Alt+Q { close-window; }
 
     // フォーカス移動
-    Mod+Left  { focus-column-left; }
-    Mod+Right { focus-column-right; }
-    Mod+Up    { focus-window-up; }
-    Mod+Down  { focus-window-down; }
-    Mod+H { focus-column-left; }
-    Mod+L { focus-column-right; }
-    Mod+J { focus-window-down; }
-    Mod+K { focus-window-up; }
+    Alt+Left  { focus-column-left; }
+    Alt+Right { focus-column-right; }
+    Alt+Up    { focus-window-up; }
+    Alt+Down  { focus-window-down; }
+    Alt+H { focus-column-left; }
+    Alt+L { focus-column-right; }
+    Alt+J { focus-window-down; }
+    Alt+K { focus-window-up; }
 
     // ウィンドウ移動
-    Mod+Shift+Left  { move-column-left; }
-    Mod+Shift+Right { move-column-right; }
-    Mod+Shift+H { move-column-left; }
-    Mod+Shift+L { move-column-right; }
-    Mod+Shift+J { move-window-down; }
-    Mod+Shift+K { move-window-up; }
+    Alt+Shift+Left  { move-column-left; }
+    Alt+Shift+Right { move-column-right; }
+    Alt+Shift+H { move-column-left; }
+    Alt+Shift+L { move-column-right; }
+    Alt+Shift+J { move-window-down; }
+    Alt+Shift+K { move-window-up; }
 
     // ワークスペース
-    Mod+1 { focus-workspace 1; }
-    Mod+2 { focus-workspace 2; }
-    Mod+3 { focus-workspace 3; }
-    Mod+4 { focus-workspace 4; }
-    Mod+Shift+1 { move-column-to-workspace 1; }
-    Mod+Shift+2 { move-column-to-workspace 2; }
-    Mod+Shift+3 { move-column-to-workspace 3; }
-    Mod+Shift+4 { move-column-to-workspace 4; }
+    Alt+1 { focus-workspace 1; }
+    Alt+2 { focus-workspace 2; }
+    Alt+3 { focus-workspace 3; }
+    Alt+4 { focus-workspace 4; }
+    Alt+Shift+1 { move-column-to-workspace 1; }
+    Alt+Shift+2 { move-column-to-workspace 2; }
+    Alt+Shift+3 { move-column-to-workspace 3; }
+    Alt+Shift+4 { move-column-to-workspace 4; }
 
     // レイアウト
-    Mod+R { switch-preset-column-width; }
-    // Mod+C hotkey-overlay-title="Center column" { center-column; } // windowをセンターにするショートカット
-    Mod+F { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
-    Mod+Minus { set-column-width "-10%"; }
-    Mod+Equal { set-column-width "+10%"; }
-    Mod+Comma  { consume-window-into-column; }
-    Mod+Period { expel-window-from-column; }
+    Alt+R { switch-preset-column-width; }
+    // Alt+C hotkey-overlay-title="Center column" { center-column; } // windowをセンターにするショートカット
+    Alt+F { maximize-column; }
+    Alt+Shift+F { fullscreen-window; }
+    Alt+Minus { set-column-width "-10%"; }
+    Alt+Equal { set-column-width "+10%"; }
+    Alt+Comma  { consume-window-into-column; }
+    Alt+Period { expel-window-from-column; }
 
     // スクリーンショット
     Print { screenshot; }
@@ -125,6 +125,6 @@ binds {
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute"   "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
     // 終了
-    Mod+Shift+E { quit; }
-    Mod+Shift+P { power-off-monitors; }
+    Alt+Shift+E { quit; }
+    Alt+Shift+P { power-off-monitors; }
 }
