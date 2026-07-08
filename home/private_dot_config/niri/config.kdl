@@ -67,14 +67,13 @@ binds {
     Alt+Shift+Slash { show-hotkey-overlay; }
 
     // アプリ起動 / Noctalia シェル操作 (IPC は `noctalia msg ...`)
-    Alt+Return  hotkey-overlay-title="Terminal: ghostty"  { spawn "ghostty"; }
-    Alt+D       hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
-    Alt+S       hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
-    Alt+Shift+S hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
-    Alt+Escape  hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
+    Ctrl+Space  hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Super+S     hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Super+I     hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
+    Super+L     hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
 
     // ウィンドウ操作
-    Alt+Q { close-window; }
+    Super+W { close-window; }
 
     // フォーカス移動
     Alt+Left  { focus-column-left; }
@@ -106,7 +105,7 @@ binds {
 
     // レイアウト
     Alt+R { switch-preset-column-width; }
-    // Alt+C hotkey-overlay-title="Center column" { center-column; } // windowをセンターにするショートカット
+    Alt+C hotkey-overlay-title="Center column" { center-column; } // windowをセンターにするショートカット
     Alt+F { maximize-column; }
     Alt+Shift+F { fullscreen-window; }
     Alt+Minus { set-column-width "-10%"; }
