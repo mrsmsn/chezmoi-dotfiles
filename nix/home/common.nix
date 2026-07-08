@@ -40,6 +40,10 @@ in {
     starship
     tmux
     translate-shell
+    # LazyVim (nvim-treesitter main) がパーサ生成/ビルドに使う CLI。これが PATH に
+    # 無いと mason が generic Linux バイナリを落としてきて NixOS の stub-ld で起動
+    # 不可になる。nix 版を PATH に置き mason 版を使わせない。
+    tree-sitter
     yazi
     zoxide
   ];
