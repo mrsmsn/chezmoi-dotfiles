@@ -66,11 +66,16 @@
   programs.firefox.enable = true;
   # バー/ランチャー/通知/ロック/壁紙/OSD は Noctalia デスクトップシェルが担う
   # (nix/home/nixos.nix の programs.noctalia)。以前の waybar/fuzzel/mako/
-  # swaylock/swayidle/swaybg/wl-clipboard の寄せ集めは Noctalia に置き換えた。
+  # swaylock/swayidle/swaybg の UI 部品は Noctalia に置き換えた。wl-clipboard は
+  # UI ではなく CLI クリップボードの実体なので下で別途残す。
   environment.systemPackages = with pkgs; [
     chromium
 
     # ターミナル (macOS は Homebrew cask、NixOS では pkgs から入れる)。
     ghostty
+
+    # Wayland クリップボード CLI (wl-copy/wl-paste)。Noctalia の履歴 UI とは別物で、
+    # lazygit 等が shell out するコピーコマンドの実体。
+    wl-clipboard
   ];
 }
