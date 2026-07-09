@@ -67,7 +67,9 @@ binds {
     Alt+Shift+Slash { show-hotkey-overlay; }
 
     // アプリ起動 / Noctalia シェル操作 (IPC は `noctalia msg ...`)
-    Ctrl+Space  hotkey-overlay-title="Launcher"           { spawn-sh "noctalia msg panel-toggle launcher"; }
+    // ランチャーは vicinae (Raycast 相当)。Noctalia 付属 launcher の IPC
+    // (`noctalia msg panel-toggle launcher`) も生きているので必要なら別キーに割当可。
+    Ctrl+Space  hotkey-overlay-title="Launcher"           { spawn "vicinae" "toggle"; }
     Super+V     hotkey-overlay-title="Clipboard"          { spawn-sh "noctalia msg panel-toggle clipboard"; }
     Super+S     hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
     Super+I     hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }

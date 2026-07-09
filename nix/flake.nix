@@ -35,6 +35,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # vicinae (Raycast 相当の Linux ネイティブランチャー: Qt/C++)。niri 上で
+    # Noctalia の launcher を差し替える。niri と同じ理由で inputs.nixpkgs.follows
+    # は付けない: follows すると vicinae.cachix.org のバイナリキャッシュとハッシュ
+    # がずれ、重い Qt/C++ を毎回ローカルフルビルドすることになるため
+    # (cachix は nix/nixos/configuration.nix の nix.settings で substituter 登録)。
+    vicinae.url = "github:vicinaehq/vicinae";
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,7 +53,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, noctalia, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, noctalia, vicinae, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -122,13 +129,16 @@
           nixos-hardware.nixosModules.common-pc-ssd
           xremap.nixosModules.default
           niri.nixosModules.niri
+          # vicinae の input-server (setuid wrapper: 貼り付け/グローバルショート
+          # カット用) を有効化する。ランチャー本体は home-manager 側 (nixos.nix)。
+          vicinae.nixosModules.default
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            # noctalia の home-manager モジュール (./home/nixos.nix で import) が
-            # flake input を参照できるよう extraSpecialArgs で渡す。
-            home-manager.extraSpecialArgs = { inherit noctalia; };
+            # noctalia / vicinae の home-manager モジュール (./home/nixos.nix で
+            # import) が flake input を参照できるよう extraSpecialArgs で渡す。
+            home-manager.extraSpecialArgs = { inherit noctalia vicinae; };
             # ./home/nixos.nix は nixos variant 専用 (WSL/android の
             # homeConfigurations には import されないので Noctalia は波及しない)。
             home-manager.users.${username}.imports = [ ./home/common.nix ./home/linux.nix ./home/nixos.nix ];

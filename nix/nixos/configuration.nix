@@ -15,6 +15,13 @@ in
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # vicinae (flake input) を毎回ローカルフルビルド (重い Qt/C++) しないよう、
+  # vicinae 公式の cachix バイナリキャッシュを substituter に登録する。
+  nix.settings.extra-substituters = [ "https://vicinae.cachix.org" ];
+  nix.settings.extra-trusted-public-keys = [
+    "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
+  ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
