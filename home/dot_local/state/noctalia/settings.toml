@@ -1,3 +1,7 @@
+[bar.main]
+thickness = 42
+scale     = 1.25
+
 [dock]
 auto_hide = true
 
