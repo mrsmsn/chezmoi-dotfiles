@@ -118,6 +118,8 @@ binds {
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print  { screenshot-window; }
+    // Windows の Snipping Tool (Win+Shift+S) と同じ操作感の範囲スクショ。
+    Super+Shift+S hotkey-overlay-title="Screenshot" { screenshot; }
 
     // 音量 (PipeWire / wpctl)
     XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }

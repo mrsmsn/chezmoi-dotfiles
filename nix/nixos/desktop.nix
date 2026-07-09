@@ -77,5 +77,11 @@
     # Wayland クリップボード CLI (wl-copy/wl-paste)。Noctalia の履歴 UI とは別物で、
     # lazygit 等が shell out するコピーコマンドの実体。
     wl-clipboard
+
+    # 画面録画。Noctalia の Screen Toolkit / Screen Recorder は動画キャプチャに
+    # wl-screenrec (または wf-recorder) を必要とするため、そのバックエンドとして
+    # 入れる。wlroots screencopy + VA-API ハードウェアエンコード対応で、この
+    # マシンの Intel iGPU (i915) だと CPU 負荷を抑えて短尺クリップを撮れる。
+    wl-screenrec
   ];
 }
