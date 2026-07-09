@@ -1,6 +1,24 @@
 {
   description = "chezmoi-dotfiles: Nix side (Home Manager + nix-darwin + NixOS)";
 
+  # input フレークの nixConfig は消費側に伝播しないため、各 input が配る非標準
+  # バイナリキャッシュをここに集約する。cache.nixos.org は全システムでデフォルト
+  # 有効なので列挙不要。狙いは初回 `nixos-rebuild --flake .#default` で重い
+  # Rust/Qt/C++ をソースビルドしないこと (activate 前=フレーク評価時から効かせる。
+  # sudo=root は trusted-user なのでプロンプト無しで適用される)。
+  nixConfig = {
+    extra-substituters = [
+      "https://niri.cachix.org"      # niri: niri-stable (Rust)
+      "https://vicinae.cachix.org"   # vicinae: Qt/C++ ランチャー
+      "https://noctalia.cachix.org"  # noctalia: C++/meson シェル
+    ];
+    extra-trusted-public-keys = [
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -26,14 +44,13 @@
     # ずれ、niri 本体 (Rust) を毎回ローカルフルビルドすることになるため。
     niri.url = "github:sodiboo/niri-flake";
 
-    # Noctalia (Quickshell ベースのデスクトップシェル: バー/ランチャー/通知/
-    # ロック/壁紙/OSD)。v5 は nixpkgs 未収録 (nixpkgs は v4 系) なので flake から
-    # 入れる。重い依存の quickshell は nixpkgs 側にあるので follows で nixos.org
-    # キャッシュを使わせる (noctalia 本体は QML で軽量)。
-    noctalia = {
-      url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Noctalia (デスクトップシェル: バー/通知/ロック/壁紙/OSD)。v5 は C++/meson の
+    # 重量ビルドで nixpkgs 未収録なので flake から入れる。niri/vicinae と同じく
+    # inputs.nixpkgs.follows は付けない: follows すると derivation hash が
+    # noctalia.cachix.org のビルドとズレて必ず cache miss になるため (公式 docs も
+    # inputs を override すると cache miss と明記)。cachix は下記トップレベル
+    # nixConfig と nix/nixos/configuration.nix の nix.settings で substituter 登録。
+    noctalia.url = "github:noctalia-dev/noctalia";
 
     # vicinae (Raycast 相当の Linux ネイティブランチャー: Qt/C++)。niri 上で
     # Noctalia の launcher を差し替える。niri と同じ理由で inputs.nixpkgs.follows

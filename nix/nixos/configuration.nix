@@ -15,11 +15,19 @@ in
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # vicinae (flake input) を毎回ローカルフルビルド (重い Qt/C++) しないよう、
-  # vicinae 公式の cachix バイナリキャッシュを substituter に登録する。
-  nix.settings.extra-substituters = [ "https://vicinae.cachix.org" ];
+  # 重い input (niri=Rust / vicinae=Qt/C++ / noctalia=C++/meson) をローカル
+  # フルビルドしないよう、各 upstream の cachix を substituter 登録する。これは
+  # activate 後の恒常 /etc/nix/nix.conf に効く (以降の rebuild や ad-hoc nix 操作用)。
+  # "新規 PC の初回ビルド" 用には flake.nix の nixConfig 側が同じ集合を担う二層構成。
+  nix.settings.extra-substituters = [
+    "https://niri.cachix.org"
+    "https://vicinae.cachix.org"
+    "https://noctalia.cachix.org"
+  ];
   nix.settings.extra-trusted-public-keys = [
+    "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
     "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
+    "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
   ];
 
   boot.loader.systemd-boot.enable = true;
@@ -61,6 +69,10 @@ in
   # CapsLock を Ctrl に。system モードで動かし、対象ユーザを明示する。
   services.xremap = {
     enable = true;
+    # xremap-flake の既定パッケージは crane のソースビルド (上流 cachix 無し=毎回
+    # ローカルビルド)。nixpkgs の hydra ビルド (cache.nixos.org 済み) に差し替える。
+    # 現行 config は modmap 中心で compositor 機能非依存のため features 無しで挙動不変。
+    package = pkgs.xremap;
     serviceMode = "system";
     userName = username;
     config.modmap = [
