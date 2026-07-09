@@ -78,10 +78,15 @@
     # lazygit 等が shell out するコピーコマンドの実体。
     wl-clipboard
 
-    # 画面録画。Noctalia の Screen Toolkit / Screen Recorder は動画キャプチャに
-    # wl-screenrec (または wf-recorder) を必要とするため、そのバックエンドとして
-    # 入れる。wlroots screencopy + VA-API ハードウェアエンコード対応で、この
-    # マシンの Intel iGPU (i915) だと CPU 負荷を抑えて短尺クリップを撮れる。
+    # スクリーンショット/録画のバックエンド (いずれも Noctalia が shell out する)。
+    # Noctalia v5 のネイティブ screenshot コマンド
+    # (noctalia msg screenshot-region / screenshot-fullscreen) は
+    # grim (キャプチャ) + slurp (範囲選択) を必要とする。録画は screen_recorder
+    # プラグインが wl-screenrec を使う。wl-screenrec は wlroots screencopy +
+    # VA-API HW エンコード対応で、このマシンの Intel iGPU (i915) だと CPU 負荷を
+    # 抑えて短尺クリップを撮れる。
+    grim
+    slurp
     wl-screenrec
   ];
 }
