@@ -74,7 +74,7 @@ binds {
     Super+L     hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
 
     // ウィンドウ操作
-    Super+W { close-window; }
+    Alt+W { close-window; }
 
     // フォーカス移動
     Alt+Left  { focus-column-left; }
