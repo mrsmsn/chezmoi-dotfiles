@@ -88,5 +88,9 @@
     grim
     slurp
     wl-screenrec
+
+    # 輝度キー (niri の XF86MonBrightness* バインドが spawn する)。
+    # logind の SetBrightness D-Bus API 経由なので udev ルールや video グループは不要。
+    brightnessctl
   ];
 }
