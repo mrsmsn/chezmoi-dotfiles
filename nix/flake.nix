@@ -141,6 +141,11 @@
           (if builtins.pathExists /etc/nixos/hardware-configuration.nix
            then /etc/nixos/hardware-configuration.nix
            else ./nixos/ci-hardware-stub.nix)
+          # マシン固有・chezmoi 管理外の追加設定 (VPN 等) を取り込む汎用フック。
+          # hardware-configuration.nix と同じく /etc/nixos に置き、あれば import する。
+          (if builtins.pathExists /etc/nixos/local.nix
+           then /etc/nixos/local.nix
+           else { })
           { nixpkgs.pkgs = pkgsFor.${system}; }
           nixos-hardware.nixosModules.common-cpu-intel
           nixos-hardware.nixosModules.common-pc-ssd
