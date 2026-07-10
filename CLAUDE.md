@@ -32,19 +32,18 @@ chezmoi が舐めるソースは **`home/` 配下だけ**。リポジトリ直�
 - `nix/flake.nix` は `--impure` 必須 (`builtins.getEnv "USER"` を使って username をハードコードしない設計)。CI は `USER=runner` を export している。
 - `customPackagesOverlay` で `jpcal` (`nix/pkgs/jpcal.nix`) と `apm` / `claude-code` (`numtide/llm-agents.nix` flake から再公開) を nixpkgs に重ねる。
 - `packages.<system>.home-manager` を再公開しているのは、activation スクリプトが `nix run nixpkgs#home-manager` で毎回 GitHub API を叩かないようにするため (CI の anonymous rate limit 対策)。
-- `nixosConfigurations.default` は `home-manager.nixosModules.home-manager` で home-manager を NixOS モジュールとして統合し、他の linux variant と同じ `nix/home/common.nix` + `linux.nix` を import する。`nixos-hardware` (`common-cpu-intel`, `common-pc-ssd`) と `xremap` はこの variant 専用の追加 input。
+- `nixosConfigurations.default` は `home-manager.nixosModules.home-manager` で home-manager を NixOS モジュールとして統合し、他の linux variant と同じ `nix/home/common.nix` + `linux.nix` を import する。`nixos-hardware` (`common-cpu-intel`, `common-pc-ssd`) はこの variant 専用の追加 input。
 - **マシン固有・chezmoi 管理外の NixOS 設定は `/etc/nixos/local.nix` に置く**。`mkNixos` の modules に `hardware-configuration.nix` と同じ要領で `(if builtins.pathExists /etc/nixos/local.nix then /etc/nixos/local.nix else { })` の汎用フックがある。dotfiles リポジトリ (全 variant 共有) に入れたくない実機固有の設定 (例: VPN の strongSwan NM プラグイン有効化) の逃がし先。資格情報を伴う実行時状態 (NM の `/etc/NetworkManager/system-connections/`) はそもそも git 管理外。
 
 ### バイナリキャッシュと初回ビルド速度優先
 
 新規マシンの初回 `nixos-rebuild --flake .#default` で重い Rust/Qt/C++ (niri / vicinae / noctalia) を**ソースビルドさせない**ことを最優先に設計している。ここを踏み外すと初回起動が数十分〜フルビルドに化ける。
 
-- **自前 cachix を配る input には `inputs.nixpkgs.follows` を付けない**。niri / vicinae / noctalia は各自の cachix (`{niri,vicinae,noctalia}.cachix.org`) にビルド済み closure を持つが、`follows = "nixpkgs"` で nixpkgs を override すると derivation hash がずれて **必ず cache miss** し、重いビルドがローカルに落ちる (nix 公式 docs も「inputs を override すると cache miss」と明記)。逆に自前 cachix を持たず `cache.nixos.org` に乗る input (home-manager / nix-darwin / xremap / llm-agents / nix-vscode-extensions) は closure 統一のため follows を付ける。**新しい input を足すときは「自前 cachix を配っているか」で follows の有無を判断する**。
+- **自前 cachix を配る input には `inputs.nixpkgs.follows` を付けない**。niri / vicinae / noctalia は各自の cachix (`{niri,vicinae,noctalia}.cachix.org`) にビルド済み closure を持つが、`follows = "nixpkgs"` で nixpkgs を override すると derivation hash がずれて **必ず cache miss** し、重いビルドがローカルに落ちる (nix 公式 docs も「inputs を override すると cache miss」と明記)。逆に自前 cachix を持たず `cache.nixos.org` に乗る input (home-manager / nix-darwin / llm-agents / nix-vscode-extensions) は closure 統一のため follows を付ける。**新しい input を足すときは「自前 cachix を配っているか」で follows の有無を判断する**。
 - cachix substituter は **3 箇所に同じ集合を登録**する。1 つでも欠けるか集合がズレると初回ビルドで cache miss するので、追加・変更時は 3 箇所を必ず同期させる (`run_onchange_20-nix-activate.sh.tmpl` のコメントにも同期義務が明記されている):
   1. `nix/flake.nix` トップレベルの `nixConfig.extra-substituters` — input flake の nixConfig は消費側に伝播しないのでここへ集約。**フレーク評価時 (activate 前)** から効かせる狙い。
   2. `nix/nixos/configuration.nix` の `nix.settings.extra-substituters` — activate 後の恒常 `/etc/nix/nix.conf` に効く (2 回目以降の rebuild や ad-hoc `nix` 操作用)。
   3. `home/run_onchange_20-nix-activate.sh.tmpl` の `nixos-rebuild ... --option extra-substituters` — 新規 PC の初回、まだ system config も nixConfig の許可プロンプト応答も無い状況で、root(trusted-user) から `--option` で直接渡し**プロンプト無しに完全無人ブートストラップ**する。
-- xremap は module こそ flake input (`xremap.nixosModules.default`) だが、既定パッケージは crane のソースビルド (上流 cachix 無し=毎回フルビルド) なので **nixpkgs 版のパッケージを使う**ことでフルビルドを回避している。
 
 ### Nix 側を編集した変更の検知
 

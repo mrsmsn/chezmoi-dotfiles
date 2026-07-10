@@ -34,11 +34,6 @@
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
-    xremap = {
-      url = "github:xremap/nix-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # niri (scrollable-tiling Wayland compositor)。あえて inputs.nixpkgs.follows
     # は付けない: follows すると niri.cachix.org のバイナリキャッシュとハッシュが
     # ずれ、niri 本体 (Rust) を毎回ローカルフルビルドすることになるため。
@@ -70,7 +65,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, xremap, llm-agents, nix-vscode-extensions, niri, noctalia, vicinae, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, nixos-hardware, llm-agents, nix-vscode-extensions, niri, noctalia, vicinae, ... }:
     let
       username = builtins.getEnv "USER";
 
@@ -149,7 +144,6 @@
           { nixpkgs.pkgs = pkgsFor.${system}; }
           nixos-hardware.nixosModules.common-cpu-intel
           nixos-hardware.nixosModules.common-pc-ssd
-          xremap.nixosModules.default
           niri.nixosModules.niri
           # vicinae の input-server (setuid wrapper: 貼り付け/グローバルショート
           # カット用) を有効化する。ランチャー本体は home-manager 側 (nixos.nix)。

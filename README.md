@@ -91,7 +91,7 @@ chezmoi-dotfiles/
 | VSCode のユーザ設定を編集 | `home/private_Library/private_Application Support/private_Code/User/{settings,keybindings}.json` (macOS) |
 | macOS システム設定 | `nix/darwin/configuration.nix` |
 | macOS キーボードショートカット (AppleSymbolicHotKeys 等) | `nix/darwin/configuration.nix` の `system.defaults.CustomUserPreferences` |
-| NixOS システム設定 (デスクトップ環境、日本語入力、xremap 等) | `nix/nixos/*.nix` |
+| NixOS システム設定 (デスクトップ環境、日本語入力、kanata 等) | `nix/nixos/*.nix` |
 
 ### nix-darwin と chezmoi の役割分担
 

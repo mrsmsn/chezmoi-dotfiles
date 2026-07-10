@@ -104,7 +104,7 @@ Home Manager 側のユーザーパッケージとは別に、NixOS はデスク�
 | サウンド | `desktop.nix` | pipewire (pulseaudio 互換込み。PulseAudio 本体は無効化) |
 | 日本語入力 | `desktop.nix` | fcitx5 + fcitx5-mozc |
 | ブラウザ | `desktop.nix` | firefox (`programs.firefox`)、chromium (`environment.systemPackages`) |
-| キーリマップ | `configuration.nix` | xremap (CapsLock → Ctrl_L、`serviceMode = "system"`) |
+| キーリマップ | `kanata.nix` | kanata (内蔵キーボードのみ。CapsLock → Ctrl、HomeRowMods (CSAG)、JIS 右側キー修正、Alt 単押し IME 切替) |
 | VPN | `configuration.nix` | tailscale (`services.tailscale.enable`) |
 | 印刷 | `configuration.nix` | CUPS (`services.printing.enable`) |
 | ログインシェル | `configuration.nix` | zsh を `users.users.<name>.shell` で system 側から割り当て (`/etc/shells` + `chsh` は不使用) |
@@ -140,6 +140,5 @@ nixpkgs に存在しない、または独自にビルドしているパッケー
 | `home-manager` | `github:nix-community/home-manager` | ユーザー環境 (dotfiles・パッケージ) 管理 |
 | `nix-darwin` | `github:LnL7/nix-darwin` | macOS のシステム設定管理 |
 | `nixos-hardware` | `github:NixOS/nixos-hardware` | NixOS 実機向けのハードウェア別モジュール (`common-cpu-amd` / `common-pc-ssd` を使用) |
-| `xremap` | `github:xremap/nix-flake` | NixOS の system service としてキーリマップ (CapsLock → Ctrl_L) を提供 |
 | `llm-agents` | `github:numtide/llm-agents.nix` | `apm` 等の LLM エージェント関連パッケージ |
 | `nix-vscode-extensions` | `github:nix-community/nix-vscode-extensions` | VSCode Marketplace 拡張を Nix で取得 |
