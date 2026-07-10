@@ -39,6 +39,7 @@ layout {
     // 押し続ければデフォルト幅に戻れるようにする。
     preset-column-widths {
         proportion 0.96
+        proportion 0.66667
         proportion 0.5
         proportion 0.33333
     }
