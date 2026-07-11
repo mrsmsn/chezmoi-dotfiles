@@ -20,6 +20,8 @@ input {
         // 打鍵イベントは kanata の仮想キーボード経由なので、kanata 側の
         // linux-output-device-bus-type I8042 (nix/nixos/kanata.nix) とセットで効く。
         dwt
+        // スクロール速度を半分にする (1.0 が既定)。
+        scroll-factor 0.3
     }
     focus-follows-mouse max-scroll-amount="0%"
 }
