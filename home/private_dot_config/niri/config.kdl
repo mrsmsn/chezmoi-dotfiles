@@ -84,6 +84,7 @@ binds {
 
     // ウィンドウ操作
     Alt+W { close-window; }
+    Alt+O { toggle-overview; }
 
     // フォーカス移動
     Alt+Left  { focus-column-left; }
