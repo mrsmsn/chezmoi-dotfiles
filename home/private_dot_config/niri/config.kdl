@@ -16,6 +16,10 @@ input {
     touchpad {
         tap
         natural-scroll
+        // タイピング中はタッチパッドを無効化する (palm rejection)。
+        // 打鍵イベントは kanata の仮想キーボード経由なので、kanata 側の
+        // linux-output-device-bus-type I8042 (nix/nixos/kanata.nix) とセットで効く。
+        dwt
     }
     focus-follows-mouse max-scroll-amount="0%"
 }

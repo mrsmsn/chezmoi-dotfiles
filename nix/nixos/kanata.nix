@@ -16,8 +16,14 @@
       # 一律適用にはしない。パスは実機の `ls -l /dev/input/by-path/ | grep kbd`
       # で確認したもの。
       devices = [ "/dev/input/by-path/platform-i8042-serio-0-event-kbd" ];
-      # defsrc に無いキーはそのまま素通しする。
-      extraDefCfg = "process-unmapped-keys yes";
+      # process-unmapped-keys: defsrc に無いキーはそのまま素通しする。
+      # linux-output-device-bus-type I8042: kanata の仮想キーボードを内蔵
+      # (i8042) バスとして見せる。既定の USB だと libinput が外付けキーボード
+      # 扱いにして disable-while-typing が発火しない。
+      extraDefCfg = ''
+        process-unmapped-keys yes
+        linux-output-device-bus-type I8042
+      '';
       config = ''
         ;; KEY_HANGEUL/KEY_HANJA は kanata の Linux ターゲットに builtin 名が
         ;; 無いため evdev コードで定義する (henk/katakanahiragana/ro は builtin)。
