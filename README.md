@@ -42,6 +42,16 @@ chezmoi apply
 - Android (Pixel Linux Terminal): `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#android --impure`
 - NixOS: `sudo env HOME="$HOME" USER="$USER" nixos-rebuild switch --flake ~/.local/share/chezmoi/nix#default --impure` (素の `sudo` だと `USER=root` になり flake の `getEnv "USER"` が壊れる)
 
+### 手動 rebuild (nh)
+
+セットアップ済み環境では全 variant に [nh](https://github.com/nix-community/nh) CLI と `NH_FLAKE` (home-manager の `programs.nh.flake`) が配布されているので、chezmoi を介さず flake だけ反映したいときは nh で直接叩ける。ビルドはユーザー権限で走り activation だけ昇格されるため、NixOS でも上記の `sudo env HOME= USER=` ハックが不要 (`--impure` の `getEnv "USER"` がそのまま通る)。ビルド前後の closure diff も表示される。
+
+- macOS: `nh darwin switch -H default -- --impure`
+- Linux / WSL / Android: `nh home switch -c <variant> -b backup -- --impure` (`<variant>` は `linux` / `wsl` / `android`)
+- NixOS: `nh os switch -H default -- --impure`
+
+新規マシンの初回ブートストラップは従来どおり activate スクリプト経由 (nh 未インストール、かつ cachix の `--option extra-substituters` は root=trusted-user からしか効かないため)。
+
 ## ディレクトリ構成
 
 ```
@@ -61,6 +71,7 @@ chezmoi-dotfiles/
 │   └── run_onchange_20-nix-activate.sh.tmpl
 └── nix/                        # Nix flake (chezmoi の管理外)
     ├── flake.nix
+    ├── gc-policy.nix           # 世代保持ポリシーの単一ソース (nh clean の keep フラグ)
     ├── darwin/
     │   ├── configuration.nix   # macOS システム設定
     │   ├── homebrew.nix        # Homebrew Cask (GUI アプリ) を宣言
@@ -74,6 +85,7 @@ chezmoi-dotfiles/
     │   ├── common.nix          # 全OS共通
     │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
     │   ├── linux.nix           # Ubuntu/WSL/Android (Pixel) 共通
+    │   ├── nixos.nix           # NixOS 実機専用 (Noctalia/vicinae 等)
     │   └── wsl.nix             # WSL 固有
     └── pkgs/                   # nixpkgs に無いカスタムパッケージ
 ```

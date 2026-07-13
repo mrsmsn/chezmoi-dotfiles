@@ -1,10 +1,24 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
+let
+  gcPolicy = import ../gc-policy.nix;
+in
 {
   imports = [
     ./homebrew.nix
     ./fonts.nix
   ];
+
+  # 世代保持 + GC (ポリシーは ../gc-policy.nix)。root daemon の `nh clean all` で
+  # darwin-rebuild のシステム世代とユーザープロファイルをまとめて掃除する。
+  # home-manager の programs.nh.clean (launchd agent) を使わないのは、
+  # ①user 権限ではシステム世代を消せない ②HM モジュールが extraArgs を argv の
+  # 1 要素として丸ごと渡すため保持フラグが壊れる (nh 側で parse error) の 2 点。
+  # StartCalendarInterval は gcPolicy.dates (weekly) 相当の月曜 03:45。
+  launchd.daemons.nh-clean = {
+    command = "${lib.getExe pkgs.nh} clean all ${gcPolicy.keepArgs}";
+    serviceConfig.StartCalendarInterval = [ { Weekday = 1; Hour = 3; Minute = 45; } ];
+  };
 
   # NixOS 公式 installer は builder group を GID 350 で作る。nix-darwin のデフォ
   # 想定 (30000) のままだと activation の integrity check で弾かれる。

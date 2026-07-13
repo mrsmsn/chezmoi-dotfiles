@@ -10,6 +10,10 @@
     ./noctalia-caffeine-lid.nix
   ];
 
+  # 世代保持 + GC は system 側の `nh clean all` (nix/nixos/configuration.nix) が
+  # ユーザープロファイルまで掃除するので、linux.nix の user timer は重複 → 無効化。
+  programs.nh.clean.enable = false;
+
   # Noctalia デスクトップシェル (niri 上のバー/通知/ロック/壁紙/OSD)。
   # 設定は Noctalia のコントロールセンター GUI が実行時に ~/.config/noctalia へ
   # 書き出すため、ここでは enable のみ。宣言的に固定したくなったら settings を足す。

@@ -4,6 +4,7 @@ let
   # flake.nix と同じ impure パターンで username を取得する
   # (username をハードコードしない設計なので --impure 必須)。
   username = builtins.getEnv "USER";
+  gcPolicy = import ../gc-policy.nix;
 in
 {
   imports = [
@@ -31,16 +32,17 @@ in
     "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
   ];
 
-  # 世代の保持ポリシー: 直近 5 世代は年齢に関係なく残し、かつ 14 日以内も残す。
+  # 世代の保持ポリシーは ../gc-policy.nix (単一ソース) を参照。
   # nix-collect-garbage --delete-older-than は「最低 N 世代残す」を表現できない
   # ため、両方をネイティブに表現できる nh clean を使う (nix.gc.automatic とは排他)。
-  # nh clean all は system に加えユーザー/home-manager プロファイルも掃除する。
+  # nh clean all は system に加えユーザー/home-manager プロファイルも掃除する
+  # (このため HM 側の clean は nix/home/nixos.nix で無効化している)。
   programs.nh = {
     enable = true;
     clean = {
       enable = true;
-      dates = "weekly";
-      extraArgs = "--keep 5 --keep-since 14d";
+      dates = gcPolicy.dates;
+      extraArgs = gcPolicy.keepArgs;
     };
   };
 

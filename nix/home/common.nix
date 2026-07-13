@@ -12,6 +12,14 @@ in {
   home.homeDirectory = lib.mkForce homeDir;
   home.stateVersion = "24.05";
 
+  # nh CLI と NH_FLAKE を全 variant に配布し、手動 rebuild を
+  # `nh os|darwin|home switch` で打てるようにする。flake は string で渡す
+  # (path 型だとソースツリーが store にコピーされてしまう)。
+  programs.nh = {
+    enable = true;
+    flake = "${homeDir}/.local/share/chezmoi/nix";
+  };
+
   home.packages = with pkgs; [
     apm
     awscli2
