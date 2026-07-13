@@ -7,6 +7,7 @@
   imports = [
     noctalia.homeModules.default
     vicinae.homeManagerModules.default
+    ./noctalia-caffeine-lid.nix
   ];
 
   # Noctalia デスクトップシェル (niri 上のバー/通知/ロック/壁紙/OSD)。

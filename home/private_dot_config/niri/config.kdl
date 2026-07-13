@@ -21,7 +21,7 @@ input {
         // linux-output-device-bus-type I8042 (nix/nixos/kanata.nix) とセットで効く。
         dwt
         // スクロール速度を半分にする (1.0 が既定)。
-        scroll-factor 0.4
+        scroll-factor 0.3
     }
     focus-follows-mouse max-scroll-amount="0%"
 }
@@ -84,6 +84,7 @@ binds {
 
     // ウィンドウ操作
     Alt+W { close-window; }
+    Alt+O { toggle-overview; }
 
     // フォーカス移動
     Alt+Left  { focus-column-left; }
