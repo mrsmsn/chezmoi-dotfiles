@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   # flake.nix と同じ impure パターンで username を取得する
@@ -31,8 +31,42 @@ in
     "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
   ];
 
+  # 週次で store を GC する。世代の削除自体は下の preStart が行う
+  # (nix.gc.options の --delete-older-than は「最低 N 世代残す」を表現できない)。
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+  };
+
+  # 保持ポリシー: 直近 5 世代は年齢に関係なく残し、それ以外は 14 日を超えた
+  # 世代だけ削除する。rollback 中 (current が最新でない) の current も守る。
+  systemd.services.nix-gc = {
+    path = [ config.nix.package ];
+    preStart = ''
+      profile=/nix/var/nix/profiles/system
+      cutoff=$(( $(date +%s) - 14 * 86400 ))
+      delete=$(
+        nix-env --profile "$profile" --list-generations | head -n -5 |
+        while read -r num day time rest; do
+          case $rest in *current*) continue ;; esac
+          if [ "$(date -d "$day $time" +%s)" -lt "$cutoff" ]; then
+            printf '%s ' "$num"
+          fi
+        done
+      )
+      if [ -n "$delete" ]; then
+        nix-env --profile "$profile" --delete-generations $delete
+      fi
+    '';
+  };
+
+  # store 内の同一内容ファイルをハードリンクに寄せて容量を回収する (既定: 毎日 03:45)。
+  nix.optimise.automatic = true;
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # ブートメニューと ESP 上の kernel/initrd は直近 10 世代分だけ保持する。
+  boot.loader.systemd-boot.configurationLimit = 10;
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
