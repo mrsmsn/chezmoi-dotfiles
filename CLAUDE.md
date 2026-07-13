@@ -47,9 +47,8 @@ chezmoi が舐めるソースは **`home/` 配下だけ**。リポジトリ直�
 
 ### GC・世代保持と nh
 
-- 世代保持ポリシー (最低 5 世代 + 14 日以内保持、weekly) は **`nix/gc-policy.nix` が単一ソース**。消費経路は 3 つ: ①NixOS system の `programs.nh.clean` (`nh clean all`)、②standalone HM (linux/wsl/android) の `programs.nh.clean` (`nh clean user`、nixos variant は `nix/home/nixos.nix` が無効化 — system 側と重複するため)、③darwin の root `launchd.daemons.nh-clean` (`nh clean all`)。ポリシーを変えるときは gc-policy.nix だけ編集すれば 3 経路に波及する。
-- darwin で home-manager の `programs.nh.clean` (launchd agent) を使わないのは、user 権限ではシステム世代を消せないことに加え、HM モジュールが `extraArgs` を argv の 1 要素として丸ごと渡す quirk があり保持フラグが壊れるため。
-- **activate スクリプト (`run_onchange_20-nix-activate.sh.tmpl`) の rebuild を nh に置き換えないこと**。`nh os switch` はビルドをユーザー権限で行うため、root(trusted-user) から `--option extra-substituters` を渡す無人ブートストラップ設計 (上記「バイナリキャッシュ」参照) と非互換で、初回に cachix が効かず重い input がフルビルドになる。nh は手動 rebuild (README 参照) と自動 GC 専用。
+- 世代保持ポリシーは `nix/gc-policy.nix` が単一ソース。
+- **activate スクリプト (`run_onchange_20-nix-activate.sh.tmpl`) の rebuild を nh に置き換えないこと**。`nh os switch` はビルドをユーザー権限で行うため、root(trusted-user) から `--option extra-substituters` を渡す無人ブートストラップ設計 (上記「バイナリキャッシュ」参照) と非互換で、初回に cachix が効かず重い input がフルビルドになる。
 
 ### Nix 側を編集した変更の検知
 
