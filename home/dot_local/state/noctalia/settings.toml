@@ -1,6 +1,20 @@
 [bar.main]
-thickness = 42
-scale     = 1.25
+end = [
+    "media",
+    "tray",
+    "notifications",
+    "clipboard",
+    "network",
+    "bluetooth",
+    "volume",
+    "brightness",
+    "battery",
+    "session"
+]
+font_weight = 400
+scale = 1.15
+thickness = 36
+widget_spacing = 8
 
 [dock]
 auto_hide = true
@@ -48,6 +62,10 @@ ui_scale = 1.1
 
 [theme]
 builtin = "Tokyo-Night"
+community_palette = "Tokyo Night Storm"
+mode = "dark"
+source = "community"
+wallpaper_scheme = "m3-content"
 
 [wallpaper]
 directory = "/home/mosh/Pictures/Wallpapers"
@@ -60,3 +78,13 @@ directory = "/home/mosh/Pictures/Wallpapers"
 
     [wallpaper.monitors.eDP-1]
     path = "/home/mosh/Pictures/Wallpapers/1370824.png"
+
+[widget.control-center]
+enabled = true
+
+[widget.media]
+enabled = true
+
+[widget.network]
+enabled = true
+show_label = false
