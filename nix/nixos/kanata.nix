@@ -33,7 +33,7 @@
         )
 
         (defsrc
-          caps a s d f j k l ; lalt henk katakanahiragana ro
+          caps a s d f j k l ; lalt henk katakanahiragana ro n p
         )
 
         (defalias
@@ -64,13 +64,21 @@
           ;; tap-hold-press (hold-preferred: 他キーの press で即 hold 確定)。
           lalt (tap-hold-press 175 200 hanj lalt)
           henk (tap-hold-press 175 200 hngl ralt)
+
+          ;; Ctrl+n/p = カーソル下/上 (Emacs 風、全アプリ横断)。
+          ;; fork は物理キーではなく kanata の論理出力を見るため、物理 Ctrl
+          ;; だけでなく HRM (@a/@scln) や caps 由来の lctl でも発火する。
+          ;; unmod で Ctrl のみ剥がして送出する (放すと復元される) ので
+          ;; Shift は残り、Ctrl+Shift+n は Shift+Down (選択しながら移動)。
+          n (fork n (unmod (lctl rctl) down) (lctl rctl))
+          p (fork p (unmod (lctl rctl) up) (lctl rctl))
         )
 
         ;; 内蔵キーボードの右側 3 キーは JIS キーのイベントコードを吐くので
         ;; 本来のキーへ戻す (右Alt=Convert/HENKAN, 右App=KanaMode/KATAKANAHIRAGANA,
         ;; 右Ctrl=IntlRo/RO)。右App は右Super に割り当てる。
         (deflayer default
-          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl
+          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl @n @p
         )
       '';
     };
