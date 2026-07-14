@@ -6,7 +6,13 @@ in
 {
   home.packages = with pkgs; [
     espeak-ng
+    # nvim-treesitter の parser ビルドに必要。macOS は Xcode CLT が cc を
+    # 提供するので Nix 管理外、Linux 系のみ明示する。
     gcc
+    # macOS は nix-darwin の programs.zsh.enable が system 側に入れる。
+    # Linux/WSL/Android は相当機能が無いのでここで入れ、activate スクリプトが
+    # chsh する。NixOS は nix/nixos/configuration.nix が system 側で別途
+    # 提供するため、これとは独立 (chsh されない)。
     zsh
   ];
 

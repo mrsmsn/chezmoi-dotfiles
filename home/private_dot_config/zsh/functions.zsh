@@ -1,4 +1,3 @@
-## ソース一覧に飛ぶやつ
 ### ghq.root を複数設定している場合に対応するため -p を使用。
 ### ${HOME}/src/ プレフィックスはプレビュー時にうるさいので sed で除去。
 function fzf-src() {
@@ -18,7 +17,6 @@ zle -N fzf-src
 # 実際のキーバインドは ^/
 bindkey '^_' fzf-src
 
-## fzfでhistory検索
 function select-history() {
     BUFFER=$(history -n -r 1 \
         | awk '!a[$0]++' \
@@ -31,7 +29,6 @@ function select-history() {
 zle -N select-history
 bindkey '^r' select-history
 
-## GithubにRepositoryを作成して開くやつ
 function gh-create-and-cd() {
     local repo_name=$1
     if [[ -z "$repo_name" ]]; then
@@ -55,7 +52,6 @@ function gh-create-and-cd() {
     [[ -n "$repo_path" ]] && cd "$repo_path"
 }
 
-## killするプロセスを選択
 function fzf-kill() {
     local pids
     pids=$(ps aux | fzf-tmux -p -w80% -e | awk '{print $2}')

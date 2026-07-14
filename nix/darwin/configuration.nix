@@ -32,27 +32,26 @@ in
 
   system.stateVersion = 4;
 
-  # 起動音 (boot chime) を無効化。内部的に nvram StartupMute=%01 を設定。
+  # 内部的に nvram StartupMute=%01 を設定。
   system.startup.chime = false;
 
   system.defaults.NSGlobalDomain = {
     KeyRepeat = 1;
     InitialKeyRepeat = 15;
-    # ファイルの拡張子を常に表示。Finder / 全アプリ共通。
     AppleShowAllExtensions = true;
     # トラックパッドのタップをクリックと解釈する (global mouse setting)。
     "com.apple.mouse.tapBehavior" = 1;
   };
 
   system.defaults.finder = {
-    AppleShowAllFiles = true;                # 隠しファイル (dotfile) を表示
-    ShowPathbar = true;                      # 下部にパスバー表示
-    ShowStatusBar = true;                    # 下部にステータスバー表示
-    FXPreferredViewStyle = "Nlsv";           # デフォルト表示をリスト (Nlsv = list view)
-    FXDefaultSearchScope = "SCcf";           # 検索範囲をカレントフォルダに (SCcf = current folder)
-    _FXShowPosixPathInTitle = true;          # ウィンドウタイトルに POSIX フルパス
-    _FXSortFoldersFirst = true;              # フォルダをファイルより先にソート
-    FXEnableExtensionChangeWarning = false;  # 拡張子変更時の警告ダイアログを抑制
+    AppleShowAllFiles = true;
+    ShowPathbar = true;
+    ShowStatusBar = true;
+    FXPreferredViewStyle = "Nlsv"; # Nlsv = list view
+    FXDefaultSearchScope = "SCcf"; # SCcf = current folder
+    _FXShowPosixPathInTitle = true;
+    _FXSortFoldersFirst = true;
+    FXEnableExtensionChangeWarning = false;
   };
 
   # NSGlobalDomain の `com.apple.mouse.tapBehavior` とセットで全アプリに効かせる。
@@ -65,7 +64,6 @@ in
     autohide-time-modifier = 0.5;
     show-recents = false;
     persistent-apps = [ ];
-    # Mission Control でウィンドウをアプリケーションごとにグループ化。
     expose-group-apps = true;
   };
 

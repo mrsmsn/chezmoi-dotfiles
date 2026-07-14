@@ -1,4 +1,3 @@
-## 環境変数
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 export GPG_TTY=$(tty)
@@ -20,5 +19,4 @@ export SAVEHIST=100000
 setopt hist_ignore_dups
 setopt EXTENDED_HISTORY
 
-## uv 等が生成する env があれば読み込む
 [[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"

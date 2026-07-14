@@ -4,58 +4,46 @@
 {{- else if eq .variant "wsl" -}}{{- $os_icon = "" -}}
 {{- else if eq .variant "nixos" -}}{{- $os_icon = "" -}}
 {{- end -}}
-# prefixキー
 set -g prefix C-f
 
-# ウィンドウ履歴の最大行数
 set -g history-limit 50000
 
-# Vimのキーバインドでペインを移動する
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
 
-# Prefix + Ctrl-h/l でウィンドウ切り替え
 # Prefix + Ctrl-h,h,h,h,...と連打できる
 bind -r C-h select-window -t :-
 bind -r C-l select-window -t :+
 
-# 現在のpaneを隣のwindowに移動する
 bind -r < join-pane -t :-
 bind -r > join-pane -t :+
 
 # 確認しないでWindow kill
 bind & kill-window
 
-#confをリロード
 bind r source-file $XDG_CONFIG_HOME/tmux/tmux.conf \; display "Reload $XDG_CONFIG_HOME/tmux/tmux.conf"
 bind C-r source-file $XDG_CONFIG_HOME/tmux/new-session \; display "Reload $XDG_CONFIG_HOME/tmux/new-session"
 
-# Set new windows/panes to open in current directory
 bind c new-window -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind | split-window -h -c "#{pane_current_path}"
 
-# Prefix+v でコピーモード開始
 bind v copy-mode \; display "Copy mode!"
 bind -T copy-mode-vi v      send-keys -X begin-selection
 bind -T copy-mode-vi y      send-keys -X copy-pipe-no-clear "reattach-to-user-namespace pbcopy"
 bind -T copy-mode-vi Enter  send-keys -X copy-pipe-no-clear "reattach-to-user-namespace pbcopy"
 
-# Prefix+p でペースト
 # クリップボードにも保存されているので Cmd-v でもペースト可能
 bind p paste-buffer
 
-#ステータスバーをボトムに配置する
 set -g status-position bottom
-# status line の背景色を指定する。機種ごとに切り替え。
 {{- if eq .machine "mac-mini-m4" }}
 set -g status-bg "colour36"
 {{- else }}
 set -g status-bg "colour60"
 {{- end }}
-# status line の文字色を指定する。
 set -g status-fg "colour255"
 
 # ペイン境界線に starship 風 powerline (OSアイコン/ディレクトリ/gitブランチ/コマンド) を表示する。
@@ -71,30 +59,19 @@ set -g pane-border-style "fg=#a3aed2"
 set -g window-active-style "fg=terminal,bg=default"
 set -g window-style "fg=#9399b2,bg=default"
 
-#マウス操作を有効にする
 set -g mouse on
 
-#左右のステータスバーの長さを決定する
 set -g status-left-length 90
 set -g status-right-length 90
 
 # #H => マシン名
 # #P => ペイン番号
-# 最右に表示
 set -g status-right '#H:[#P] '
 
-# Wi-Fi、バッテリー残量、現在時刻
-# 最左に表示
-# set -g status-left '#(get_ssid) #(battery -c tmux) [%Y-%m-%d(%a) %H:%M] '
 set -g status-left ' [%Y-%m-%d(%a) %H:%M] '
 
-# ステータスバーを１秒毎に描画し直す
 set -g status-interval 1
 
-#PCのステータスバーの追加
-#set -g status-right '#(wifi) #(battery --tmux) [%Y-%m-%d(%a) %H:%M]'
-
-# Vi キーバインド
 set-window-option -g mode-keys vi
 
 # TPM のインストール先を ~/.tmux ではなく XDG 配下に統一する。

@@ -8,13 +8,6 @@ macOS / Ubuntu / WSL(Ubuntu) / Android (Google Pixel Linux Terminal) / NixOS 向
 curl -fsSL https://raw.githubusercontent.com/mrsmsn/chezmoi-dotfiles/main/install.sh | bash
 ```
 
-スクリプトの役割:
-
-1. Nix をインストール (NixOS 公式 installer / flakes 有効化済み)
-2. chezmoi をインストール (`nix profile add nixpkgs#chezmoi`)
-3. `chezmoi init --apply` でこのリポジトリを展開
-4. chezmoi の `run_onchange_*` スクリプトが Nix/nix-darwin/Home Manager の活性化を実行
-
 macOS は初回 `darwin-rebuild` 実行時に sudo プロンプトが出る場合がある。
 
 ### 新規 NixOS マシン
@@ -34,13 +27,7 @@ chezmoi update        # git pull + apply
 chezmoi apply
 ```
 
-`nix/` 配下を編集した場合は `chezmoi apply` で `run_onchange_20-nix-activate.sh.tmpl` が走り、下記コマンド相当が実行される。
-
-- macOS: `darwin-rebuild switch --flake ~/.local/share/chezmoi/nix#default --impure`
-- Linux: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#linux --impure`
-- WSL: `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#wsl --impure`
-- Android (Pixel Linux Terminal): `nix run home-manager -- switch -b backup --flake ~/.local/share/chezmoi/nix#android --impure`
-- NixOS: `sudo env HOME="$HOME" USER="$USER" nixos-rebuild switch --flake ~/.local/share/chezmoi/nix#default --impure` (素の `sudo` だと `USER=root` になり flake の `getEnv "USER"` が壊れる)
+`nix/` 配下を編集した場合は `chezmoi apply` で `run_onchange_20-nix-activate.sh.tmpl` が走り、variant に応じた rebuild (`darwin-rebuild` / `home-manager switch` / `nixos-rebuild`) が実行される。NixOS を手で叩く場合は `sudo env HOME="$HOME" USER="$USER" nixos-rebuild ...` の形にすること (素の `sudo` だと `USER=root` になり flake の `getEnv "USER"` が壊れる)。
 
 ### 手動 rebuild (nh)
 
@@ -56,37 +43,26 @@ chezmoi apply
 
 ```
 chezmoi-dotfiles/
-├── install.sh                  # 新規環境 bootstrap
+├── install.sh
 ├── .chezmoiroot                # chezmoi ソースディレクトリを ./home に限定
-├── home/                       # chezmoi 管理対象
-│   ├── .chezmoi.toml.tmpl      # OS/WSL/Android 自動判定して variant を確定
-│   ├── .chezmoiignore          # 非 darwin では private_Library を無視
-│   ├── dot_gitignore_global    # ~/.gitignore_global
-│   ├── dot_zprofile.tmpl       # ログイン時の PATH (macOS は brew shellenv)
-│   ├── dot_zshrc               # 対話 zsh の設定
-│   ├── dot_claude/             # Claude Code 設定 (CLAUDE.md / settings.json / hooks)
-│   ├── private_dot_config/     # ~/.config (aerospace, borders, ghostty, git, karabiner, nvim, starship, tmux, vim)
-│   ├── private_Library/        # macOS の ~/Library (VSCode ユーザ設定など)
+├── home/                       # chezmoi 管理対象 ($HOME 配下の dotfile)
+│   ├── .chezmoi.toml.tmpl
+│   ├── .chezmoiignore
+│   ├── dot_gitignore_global
+│   ├── dot_zprofile.tmpl
+│   ├── dot_zshrc
+│   ├── dot_claude/
+│   ├── private_dot_config/
+│   ├── private_Library/
 │   ├── run_onchange_before_10-install-nix.sh.tmpl
 │   └── run_onchange_20-nix-activate.sh.tmpl
 └── nix/                        # Nix flake (chezmoi の管理外)
     ├── flake.nix
     ├── gc-policy.nix           # 世代保持ポリシーの単一ソース (nh clean の keep フラグ)
-    ├── darwin/
-    │   ├── configuration.nix   # macOS システム設定
-    │   ├── homebrew.nix        # Homebrew Cask (GUI アプリ) を宣言
-    │   └── fonts.nix           # システムフォント
+    ├── darwin/                 # nix-darwin (macOS システム設定 / Homebrew / フォント)
     ├── nixos/
-    │   ├── configuration.nix   # NixOS システム設定 (zsh ログインシェル、timezone 等)
-    │   ├── desktop.nix         # GNOME+GDM (X11)、pipewire、fcitx5-mozc、firefox/chromium
-    │   ├── fonts.nix           # システムフォント (Noto CJK + HackGen)
     │   └── ci-hardware-stub.nix  # CI eval 専用のダミー hardware モジュール (実機では未使用)
-    ├── home/
-    │   ├── common.nix          # 全OS共通
-    │   ├── darwin.nix          # macOS ユーザパッケージ + VSCode 拡張
-    │   ├── linux.nix           # Ubuntu/WSL/Android (Pixel) 共通
-    │   ├── nixos.nix           # NixOS 実機専用 (Noctalia/vicinae 等)
-    │   └── wsl.nix             # WSL 固有
+    ├── home/                   # home-manager (common + variant 別)
     └── pkgs/                   # nixpkgs に無いカスタムパッケージ
 ```
 
@@ -122,27 +98,11 @@ GUI アプリ (.app) は原則 **Homebrew Cask** で管理する (`nix/darwin/ho
 - **Scroll Reverser / Raycast**: アクセシビリティ権限を許可。
 - **Tailscale**: 初回起動時に System Extension の許可とアカウントログインが必要。
 
-対話シェルから `brew` コマンドを叩けるよう、`home/dot_zprofile.tmpl` でログイン時に `eval "$(/opt/homebrew/bin/brew shellenv)"` を実行している (Apple Silicon: `/opt/homebrew`、Intel: `/usr/local` の両方に対応)。
-
 ### variant とテンプレート分岐
 
 chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `wsl` / `android` / `nixos` のいずれかを取得できる。`android` は Google Pixel の "Linux Terminal" 機能 (Debian aarch64 VM) を表し、kernel.osrelease に `android` を含むかで判定する。`nixos` は `.chezmoi.osRelease.id == "nixos"` で判定する。
 
 判定順は `android > wsl > nixos > linux` (`.chezmoi.toml.tmpl` 内で上から順に評価)。そのため **NixOS を WSL 上で動かした場合は `wsl` 判定になり、`nixos` にはならない** (kernel.osrelease の `microsoft` 判定が先に当たるため)。
-
-```
-{{ if eq .variant "darwin" }}
-# macOS だけに反映したい内容
-{{ else if eq .variant "wsl" }}
-# WSL 固有
-{{ else if eq .variant "android" }}
-# Pixel Linux Terminal 固有
-{{ else if eq .variant "nixos" }}
-# NixOS 固有
-{{ else }}
-# 純 Linux
-{{ end }}
-```
 
 ## 個人/work のセットアップ
 
@@ -173,7 +133,7 @@ git の `[includeIf "gitdir:..."]` は **対象パス配下の git repo の中**
 
 ## Neovim (LazyVim)
 
-Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設定は [LazyVim](https://www.lazyvim.org/) の [starter](https://github.com/LazyVim/starter) を `home/private_dot_config/nvim/` に vendor 配置 (公式の `git clone starter` 手順と同じ運用)。
+Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設定は [LazyVim](https://www.lazyvim.org/) の [starter](https://github.com/LazyVim/starter) をベースに `home/private_dot_config/nvim/` に配置している。
 
 初回 `nvim` 起動時に `lua/config/lazy.lua` が `lazy.nvim` を `~/.local/share/nvim/lazy/lazy.nvim` に clone し、続けて `LazyVim` 本体と依存プラグイン群を一括 install する。**この間 UI が固まったように見えても数十秒〜数分待つ**。完了するとダッシュボード (mini.starter) が表示される。
 
@@ -181,8 +141,7 @@ Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設�
 
 - `:Lazy` でプラグインマネージャ UI、`:Lazy sync` で手動更新
 - `:checkhealth` で LSP / treesitter / 各種依存の整合性チェック
-- 設定の上書き/追加は `home/private_dot_config/nvim/lua/plugins/*.lua` に新規ファイルを置く (例: `lua/plugins/example.lua` を雛形に)
-- starter 自体の upstream 追従は手動 git merge (年に数回のメジャー変更時のみ)。プラグインの自動最新化は `lazy.nvim` が `checker.enabled = true` で担うので無関係
+- 設定の上書き/追加は `home/private_dot_config/nvim/lua/plugins/*.lua` に新規ファイルを置く
 
 ## スコープ外
 

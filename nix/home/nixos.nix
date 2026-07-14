@@ -24,7 +24,7 @@
   # ~/.local/share/vicinae/scripts/ の script command (chezmoi 管理) で供給する。
   programs.vicinae = {
     enable = true;
-    systemd.enable = true; # user service で daemon 常駐
+    systemd.enable = true;
     # niri で layer-shell オーバーレイ表示させる (Raycast 風のフローティング)。
     systemd.environment.USE_LAYER_SHELL = 1;
   };

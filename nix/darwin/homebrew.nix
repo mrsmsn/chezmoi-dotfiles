@@ -5,9 +5,9 @@
     enable = true;
 
     onActivation = {
-      autoUpdate = false;
-      upgrade = false;
-      cleanup = "none";
+      autoUpdate = false; # darwin-rebuild switch を brew update で遅くしない
+      upgrade = false; # 更新は Cask 自前の auto-update に任せる
+      cleanup = "none"; # 手動 brew install を排除しない (Homebrew 移行直後の安全策)
     };
 
     global.brewfile = true;

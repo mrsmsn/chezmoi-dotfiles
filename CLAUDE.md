@@ -1,6 +1,6 @@
 ## リポジトリの目的
 
-macOS (Apple Silicon) / Ubuntu / WSL / Android (Pixel Linux Terminal) / NixOS 用 dotfiles。**chezmoi が `$HOME` 配下のファイル**、**Nix (flakes + home-manager、macOS は nix-darwin、NixOS は NixOS モジュール) がパッケージとシステム設定**を管理する 2 層構成。詳細な構成・運用ルールは README.md と docs/packages.md にまとまっている。
+macOS (Apple Silicon) / Ubuntu / WSL / Android (Pixel Linux Terminal) / NixOS 用 dotfiles。**chezmoi が `$HOME` 配下のファイル**、**Nix (flakes + home-manager、macOS は nix-darwin、NixOS は NixOS モジュール) がパッケージとシステム設定**を管理する 2 層構成。詳細な構成・運用ルールは README.md にまとまっている。
 
 ## よく使うコマンド
 
