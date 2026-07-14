@@ -37,7 +37,8 @@
   },
   "language": "ja",
   "theme": "dark-daltonized",
-  "skipAutoPermissionPrompt": true,
+  "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "remoteControlAtStartup": true
+  "skipAutoPermissionPrompt": true,
+  "model": "fable"
 }
