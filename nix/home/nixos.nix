@@ -32,7 +32,6 @@
   # KDE Connect。kdeconnectd を graphical-session.target 起動の user service で
   # 常駐させ、indicator で noctalia の SNI tray にアイコンを出す。firewall は
   # システム側 (nix/nixos/desktop.nix の programs.kdeconnect) が開放する。
-  # Android 側のセットアップ手順は docs/mobile-sync.md 参照。
   services.kdeconnect = {
     enable = true;
     indicator = true;
