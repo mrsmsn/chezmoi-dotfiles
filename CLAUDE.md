@@ -25,7 +25,7 @@ chezmoi が舐めるソースは **`home/` 配下だけ**。リポジトリ直�
 - macOS の `defaults write` 相当の設定は **必ず `nix/darwin/configuration.nix` の `system.defaults.*` か `system.defaults.CustomUserPreferences.*` に宣言**する (chezmoi 側に書かない)。
 - macOS GUI アプリ (.app) は Homebrew Cask (`nix/darwin/homebrew.nix`)。Sparkle 自動更新や Spotlight 連携が素直に動く。
 - VSCode: 本体は Cask、拡張は `nix/home/darwin.nix` の `programs.vscode.profiles.default.extensions` (`programs.vscode.package = null` で本体インストールを抑止している)。
-- NixOS はシステム全体を NixOS が持つので、GUI/デスクトップ環境含むシステムレベルの設定は `nix/nixos/*.nix` (`configuration.nix` / `desktop.nix` / `fonts.nix`) に宣言する。ユーザー単位限定の GUI 設定が要るようになったら `nix/home/nixos.nix` を新設するのが拡張ポイント (現状は未作成)。
+- NixOS はシステム全体を NixOS が持つので、GUI/デスクトップ環境含むシステムレベルの設定は `nix/nixos/*.nix` (`configuration.nix` / `desktop.nix` / `fonts.nix`) に宣言する。ユーザー単位限定の GUI 設定 (noctalia / vicinae / kdeconnect の常駐など) は `nix/home/nixos.nix` に置く (nixosConfigurations だけが import し、WSL/android には波及しない)。
 
 ### Nix flake の評価
 

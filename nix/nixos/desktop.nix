@@ -64,6 +64,15 @@
   # ブラウザ。programs.chromium は NixOS ではポリシー設定のみで本体を
   # インストールしないため、Chromium は systemPackages で入れる。
   programs.firefox.enable = true;
+
+  # KDE Connect (Pixel との連携)。システム側の役割は firewall 開放
+  # (TCP/UDP 1714-1764) だけに絞り、package = null で本体は入れない。
+  # 本体 + kdeconnectd/indicator の常駐は home-manager 側
+  # (nix/home/nixos.nix の services.kdeconnect) が持つ。
+  programs.kdeconnect = {
+    enable = true;
+    package = null;
+  };
   # バー/ランチャー/通知/ロック/壁紙/OSD は Noctalia デスクトップシェルが担う
   # (nix/home/nixos.nix の programs.noctalia)。以前の waybar/fuzzel/mako/
   # swaylock/swayidle/swaybg の UI 部品は Noctalia に置き換えた。wl-clipboard は

@@ -1,4 +1,4 @@
-{ noctalia, vicinae, ... }:
+{ lib, noctalia, vicinae, ... }:
 
 # NixOS 実機専用の home-manager 設定 (flake の nixosConfigurations だけが import
 # する)。WSL/android/generic-linux の homeConfigurations には読まれないので、
@@ -28,4 +28,31 @@
     # niri で layer-shell オーバーレイ表示させる (Raycast 風のフローティング)。
     systemd.environment.USE_LAYER_SHELL = 1;
   };
+
+  # KDE Connect。kdeconnectd を graphical-session.target 起動の user service で
+  # 常駐させ、indicator で noctalia の SNI tray にアイコンを出す。firewall は
+  # システム側 (nix/nixos/desktop.nix の programs.kdeconnect) が開放する。
+  # Android 側のセットアップ手順は docs/mobile-sync.md 参照。
+  services.kdeconnect = {
+    enable = true;
+    indicator = true;
+  };
+
+  # indicator は Requires=tray.target で起動するが、noctalia (SNI watcher) は
+  # niri の spawn-at-startup 起動で systemd 順序保証の外にいる。KStatusNotifierItem
+  # は watcher の後着登録に対応するので通常は放置で動くが、保険として失敗時
+  # リトライを付ける (HM 既定は Restart=on-abort なので mkForce が要る)。
+  systemd.user.services.kdeconnect-indicator.Service = {
+    Restart = lib.mkForce "on-failure";
+    RestartSec = 2;
+  };
+
+  # kdeconnect-kde 同梱の xdg autostart を無効化。niri は
+  # Wants=xdg-desktop-autostart.target を持ち GNOME も autostart を処理するため、
+  # 放置すると上の kdeconnect.service と kdeconnectd が二重起動する
+  # (2 個目は DBus 名衝突で即終了するだけだが failed unit のノイズになる)。
+  xdg.configFile."autostart/org.kde.kdeconnect.daemon.desktop".text = ''
+    [Desktop Entry]
+    Hidden=true
+  '';
 }
