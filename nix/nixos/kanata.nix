@@ -33,7 +33,7 @@
         )
 
         (defsrc
-          caps a s d f j k l ; lalt henk katakanahiragana ro
+          caps a s d f j k l ; lalt henk katakanahiragana ro spc y u i o h
         )
 
         (defalias
@@ -64,13 +64,23 @@
           ;; tap-hold-press (hold-preferred: 他キーの press で即 hold 確定)。
           lalt (tap-hold-press 175 200 hanj lalt)
           henk (tap-hold-press 175 200 hngl ralt)
+
+          ;; Space 長押し = Hyper レイヤー (SpaceFn)。flavor/パラメータは HRM と
+          ;; 同じ balanced/175/200 (quick-tap によりタップ→175ms 以内の
+          ;; 押し直しでスペースのキーリピートも維持される)。
+          spc (tap-hold-release 175 200 spc (layer-while-held hyper))
         )
 
         ;; 内蔵キーボードの右側 3 キーは JIS キーのイベントコードを吐くので
         ;; 本来のキーへ戻す (右Alt=Convert/HENKAN, 右App=KanaMode/KATAKANAHIRAGANA,
         ;; 右Ctrl=IntlRo/RO)。右App は右Super に割り当てる。
         (deflayer default
-          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl
+          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl @spc y u i o h
+        )
+
+        ;; Hyper: YUIO=Home/PgDn/PgUp/End、HJKL=←↓↑→
+        (deflayer hyper
+          _ _ _ _ _ down up rght _ _ _ _ _ _ home pgdn pgup end left
         )
       '';
     };
