@@ -30,6 +30,7 @@ in {
     devbox
     direnv
     duckdb
+    fastfetch
     fd
     fzf
     gh
