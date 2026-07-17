@@ -37,6 +37,7 @@ in {
     ghq
     git
     go
+    herdr
     jpcal
     jq
     just

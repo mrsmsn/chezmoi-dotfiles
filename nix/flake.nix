@@ -73,6 +73,7 @@
         jpcal       = final.callPackage ./pkgs/jpcal.nix { };
         apm         = llm-agents.packages.${final.system}.apm;
         claude-code = llm-agents.packages.${final.system}.claude-code;
+        herdr       = llm-agents.packages.${final.system}.herdr;
 
         # Temporary shim: the nixos-unstable channel is currently pinned to a
         # nixpkgs commit that limits podman to `lib.platforms.linux` (nixpkgs
