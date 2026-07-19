@@ -73,6 +73,18 @@
     enable = true;
     package = null;
   };
+  # Sunshine (Moonlight ストリーミングホスト)。Android TV 側の Moonlight
+  # クライアントへ低遅延で画面ミラーリングする。niri は Sunshine の Wayland
+  # キャプチャが要求する wlr-export-dmabuf を実装しないため、KMS キャプチャで
+  # 動かす。capSysAdmin がそのための CAP_SYS_ADMIN を security wrapper で
+  # バイナリに付与する。openFirewall はペアリング/ストリーム用ポート
+  # (TCP/UDP 47984-48010) を開ける。
+  services.sunshine = {
+    enable = true;
+    capSysAdmin = true;
+    openFirewall = true;
+  };
+
   # バー/ランチャー/通知/ロック/壁紙/OSD は Noctalia デスクトップシェルが担う
   # (nix/home/nixos.nix の programs.noctalia)。以前の waybar/fuzzel/mako/
   # swaylock/swayidle/swaybg の UI 部品は Noctalia に置き換えた。wl-clipboard は
