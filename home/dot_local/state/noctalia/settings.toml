@@ -73,7 +73,7 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-1" ]
         show_password_hint = true
 
 [plugins]
-enabled = [ "mrsmsn/kdeconnect-reply" ]
+enabled = [ "mrsmsn/kdeconnect-reply", "noctalia/bongocat" ]
 
 [shell]
 app_icon_color = "primary"
