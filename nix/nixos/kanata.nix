@@ -33,7 +33,7 @@
         )
 
         (defsrc
-          caps a s d f j k l ; lalt henk katakanahiragana ro spc y u i o h
+          caps a s d f j k l ; lalt henk katakanahiragana ro spc y u i o h q p w
         )
 
         (defalias
@@ -75,12 +75,13 @@
         ;; 本来のキーへ戻す (右Alt=Convert/HENKAN, 右App=KanaMode/KATAKANAHIRAGANA,
         ;; 右Ctrl=IntlRo/RO)。右App は右Super に割り当てる。
         (deflayer default
-          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl @spc y u i o h
+          lctl @a @s @d @f @j @k @l @scln @lalt @henk rmet rctl @spc y u i o h q p w
         )
 
-        ;; Hyper: YUIO=Home/PgDn/PgUp/End、HJKL=←↓↑→
+        ;; Hyper: YUIO=Home/PgDn/PgUp/End、HJKL=←↓↑→、
+        ;; Q=Esc/P=BS/W=Tab/;=Enter
         (deflayer hyper
-          _ _ _ _ _ down up rght _ _ _ _ _ _ home pgdn pgup end left
+          _ _ _ _ _ down up rght ret _ _ _ _ _ home pgdn pgup end left esc bspc tab
         )
       '';
     };
