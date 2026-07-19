@@ -11,11 +11,13 @@
       "https://niri.cachix.org"      # niri: niri-stable (Rust)
       "https://vicinae.cachix.org"   # vicinae: Qt/C++ ランチャー
       "https://noctalia.cachix.org"  # noctalia: C++/meson シェル
+      "https://cache.numtide.com"    # llm-agents: apm / claude-code / herdr (Rust)
     ];
     extra-trusted-public-keys = [
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
   };
 
@@ -54,10 +56,15 @@
     # (cachix は nix/nixos/configuration.nix の nix.settings で substituter 登録)。
     vicinae.url = "github:vicinaehq/vicinae";
 
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # apm / claude-code / herdr の供給元。numtide が全パッケージを CI で
+    # ビルドして自前キャッシュ (cache.numtide.com) に push しているため、
+    # niri/vicinae/noctalia と同じ理由で inputs.nixpkgs.follows は付けない:
+    # follows するとハッシュがずれて herdr (Rust) が毎回ローカルフルビルドになる。
+    # さらに follows を外すだけでは不十分で、lock の llm-agents/nixpkgs を
+    # llm-agents 自身の lock と同じ rev に pin して初めて cache hit する
+    # (nix は親 lock 作成時に子 flake の lock を引き継がない)。
+    # 更新は `just nix-update` を使うこと (再 pin まで自動で行う)。
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     nix-vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";

@@ -34,14 +34,14 @@ case "{{ .variant }}" in
             echo "ERROR: /etc/nixos/hardware-configuration.nix not found (run nixos-generate-config)" >&2
             exit 1
         }
-        # 新規 PC の初回ビルドで重い input (niri/vicinae/noctalia) の cachix を
-        # 効かせる。flake の nixConfig でも供給できるが、それは初回 rebuild で
+        # 新規 PC の初回ビルドで重い input (niri/vicinae/noctalia/llm-agents) の
+        # バイナリキャッシュを効かせる。flake の nixConfig でも供給できるが、それは初回 rebuild で
         # 対話的な "allow configuration setting? (y/N)" を要求する。root(trusted)
         # から --option で直接渡せばプロンプト無しで適用され、ブートストラップが
         # 完全無人になる。※ この集合は nix/flake.nix の nixConfig と
         # nix/nixos/configuration.nix の nix.settings と同期させること。
-        EXTRA_SUBS="https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org"
-        EXTRA_KEYS="niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+        EXTRA_SUBS="https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org https://cache.numtide.com"
+        EXTRA_KEYS="niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         # darwin と同様 HOME/USER を pass-through (flake の getEnv "USER" 対策)。
         # sudo の secure_path 対策で command -v で解決したフルパスを渡す。
         sudo env HOME="$HOME" USER="$USER" \
