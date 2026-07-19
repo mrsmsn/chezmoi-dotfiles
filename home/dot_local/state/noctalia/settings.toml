@@ -16,6 +16,17 @@ scale = 1.1499999999999999
 thickness = 36
 widget_spacing = 8
 
+[desktop_widgets]
+schema_version = 2
+widget_order = []
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget]
+
 [dock]
 auto_hide = true
 
@@ -73,7 +84,7 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-1" ]
         show_password_hint = true
 
 [plugins]
-enabled = [ "mrsmsn/kdeconnect-reply", "noctalia/bongocat" ]
+enabled = [ "mrsmsn/kdeconnect-reply", "noctalia/bongocat", "noctalia/screen_recorder" ]
 
 [shell]
 app_icon_color = "primary"
