@@ -29,6 +29,24 @@
     systemd.environment.USE_LAYER_SHELL = 1;
   };
 
+  # デフォルトブラウザを Chromium に宣言的に固定する (GUI 操作等で書き換わった
+  # mimeapps.list を home-manager 管理に置き換える)。claude-cli は Claude Code の
+  # URL ハンドラで、管理下に入れないと mimeapps.list ごと消えるためここで維持する。
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications =
+      let
+        browser = "chromium-browser.desktop";
+      in
+      {
+        "x-scheme-handler/http" = browser;
+        "x-scheme-handler/https" = browser;
+        "text/html" = browser;
+        "application/xhtml+xml" = browser;
+        "x-scheme-handler/claude-cli" = "claude-code-url-handler.desktop";
+      };
+  };
+
   # KDE Connect。kdeconnectd を graphical-session.target 起動の user service で
   # 常駐させ、indicator で noctalia の SNI tray にアイコンを出す。firewall は
   # システム側 (nix/nixos/desktop.nix の programs.kdeconnect) が開放する。
