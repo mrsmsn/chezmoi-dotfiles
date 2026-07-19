@@ -1,6 +1,7 @@
 [bar.main]
 end = [
     "media",
+    "noctalia/screen_recorder:recorder",
     "tray",
     "notifications",
     "clipboard",

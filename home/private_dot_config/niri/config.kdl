@@ -84,6 +84,7 @@ binds {
     // Noctalia の Reply ボタンは KDE Connect に届かないため専用パネルで返信する
     // (plugin: github.com/mrsmsn/noctalia-plugins の kdeconnect-reply)。
     Super+R     hotkey-overlay-title="KDE Connect Reply"  { spawn-sh "noctalia msg panel-toggle mrsmsn/kdeconnect-reply:reply"; }
+    Super+Shift+R hotkey-overlay-title="Record Screen"    { spawn-sh "noctalia msg plugin noctalia/screen_recorder:service all toggle"; }
 
     // ウィンドウ操作
     Alt+W { close-window; }
