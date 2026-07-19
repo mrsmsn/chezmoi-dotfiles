@@ -1,56 +1,27 @@
 ## リポジトリの目的
 
-macOS (Apple Silicon) / Ubuntu / WSL / Android (Pixel Linux Terminal) / NixOS 用 dotfiles。**chezmoi が `$HOME` 配下のファイル**、**Nix (flakes + home-manager、macOS は nix-darwin、NixOS は NixOS モジュール) がパッケージとシステム設定**を管理する 2 層構成。詳細な構成・運用ルールは README.md にまとまっている。
+macOS / Ubuntu / WSL / Android / NixOS 用 dotfiles。**chezmoi が `$HOME` 配下のファイル**、**Nix (flakes + home-manager / nix-darwin / NixOS モジュール) がパッケージとシステム設定**を管理する 2 層構成。構成・運用ルールの詳細は README.md。
 
 ## よく使うコマンド
 
-ローカル CI はすべて `just` 経由 (Podman + Ubuntu コンテナで実行する。Containerfile を更新したら `just build` で再ビルド)。
+ローカル CI はすべて `just` 経由 (Podman + Ubuntu コンテナ。Containerfile を更新したら `just build` で再ビルド)。
 
-## アーキテクチャの要点
+## ルール
 
-### `.chezmoiroot = home` の含意
-
-chezmoi が舐めるソースは **`home/` 配下だけ**。リポジトリ直下の `nix/`、`ci/`、`install.sh`、`docs/` は chezmoi の管理外で、`home/run_onchange_*.sh.tmpl` から相対パス (`{{ .chezmoi.sourceDir }}/../nix`) で参照される。新しい dotfile を追加するときは必ず `home/` 配下に置くこと。
-
-### variant とテンプレート分岐
-
-`home/.chezmoi.toml.tmpl` が `darwin` / `linux` / `wsl` / `android` / `nixos` を自動判定し、テンプレ内では `{{ .variant }}` で参照できる。判定順は `android > wsl > nixos > linux` で、`nixos` は `.chezmoi.osRelease.id == "nixos"` を見るため NixOS-on-WSL は `wsl` になる (kernel.osrelease の `microsoft` 判定が先に当たる)。`run_onchange_20-nix-activate.sh.tmpl` がこの値で `darwin-rebuild` / `home-manager switch` / `nixos-rebuild` を切り替えるので、**新しい variant 分岐を追加したらこのファイルと `ci/test/template_variants.bats` の両方を更新する必要がある**。
-
-`sysctl -n hw.model` は Linux で失敗するため、`hw.model` 取得は `sh -c "... 2>/dev/null || true"` で包んで空文字フォールバックする。`template_variants.bats` がこの fallback を Linux ランナー上でアサートしている。
-
-### chezmoi と nix-darwin の役割分担
-
-判断軸: 「macOS のシステム DB (cfprefsd) が読む値か」→ `nix/darwin/`、「ユーザー HOME 配下のファイルか」→ `home/`。
-
-- macOS の `defaults write` 相当の設定は **必ず `nix/darwin/configuration.nix` の `system.defaults.*` か `system.defaults.CustomUserPreferences.*` に宣言**する (chezmoi 側に書かない)。
-- macOS GUI アプリ (.app) は Homebrew Cask (`nix/darwin/homebrew.nix`)。Sparkle 自動更新や Spotlight 連携が素直に動く。
-- VSCode: 本体は Cask、拡張は `nix/home/darwin.nix` の `programs.vscode.profiles.default.extensions` (`programs.vscode.package = null` で本体インストールを抑止している)。
-- NixOS はシステム全体を NixOS が持つので、GUI/デスクトップ環境含むシステムレベルの設定は `nix/nixos/*.nix` (`configuration.nix` / `desktop.nix` / `fonts.nix`) に宣言する。ユーザー単位限定の GUI 設定 (noctalia / vicinae / kdeconnect の常駐など) は `nix/home/nixos.nix` に置く (nixosConfigurations だけが import し、WSL/android には波及しない)。
-
-### Nix flake の評価
-
-- `nix/flake.nix` は `--impure` 必須 (`builtins.getEnv "USER"` を使って username をハードコードしない設計)。CI は `USER=runner` を export している。
-- `customPackagesOverlay` で `jpcal` (`nix/pkgs/jpcal.nix`) と `apm` / `claude-code` (`numtide/llm-agents.nix` flake から再公開) を nixpkgs に重ねる。
-- `packages.<system>.home-manager` を再公開しているのは、activation スクリプトが `nix run nixpkgs#home-manager` で毎回 GitHub API を叩かないようにするため (CI の anonymous rate limit 対策)。
-- `nixosConfigurations.default` は `home-manager.nixosModules.home-manager` で home-manager を NixOS モジュールとして統合し、他の linux variant と同じ `nix/home/common.nix` + `linux.nix` を import する。`nixos-hardware` (`common-cpu-intel`, `common-pc-ssd`) はこの variant 専用の追加 input。
-- **マシン固有・chezmoi 管理外の NixOS 設定は `/etc/nixos/local.nix` に置く**。`mkNixos` の modules に `hardware-configuration.nix` と同じ要領で `(if builtins.pathExists /etc/nixos/local.nix then /etc/nixos/local.nix else { })` の汎用フックがある。dotfiles リポジトリ (全 variant 共有) に入れたくない実機固有の設定 (例: VPN の strongSwan NM プラグイン有効化) の逃がし先。資格情報を伴う実行時状態 (NM の `/etc/NetworkManager/system-connections/`) はそもそも git 管理外。
-
-### バイナリキャッシュと初回ビルド速度優先
-
-新規マシンの初回 `nixos-rebuild --flake .#default` で重い Rust/Qt/C++ (niri / vicinae / noctalia) を**ソースビルドさせない**ことを最優先に設計している。ここを踏み外すと初回起動が数十分〜フルビルドに化ける。
-
-- **自前バイナリキャッシュを配る input には `inputs.nixpkgs.follows` を付けない**。niri / vicinae / noctalia は各自の cachix (`{niri,vicinae,noctalia}.cachix.org`)、llm-agents は numtide の自前ホスト (`cache.numtide.com`) にビルド済み closure を持つが、`follows = "nixpkgs"` で nixpkgs を override すると derivation hash がずれて **必ず cache miss** し、重いビルドがローカルに落ちる (nix 公式 docs も「inputs を override すると cache miss」と明記)。逆に自前キャッシュを持たず `cache.nixos.org` に乗る input (home-manager / nix-darwin / nix-vscode-extensions) は closure 統一のため follows を付ける。**新しい input を足すときは「自前バイナリキャッシュを配っているか」で follows の有無を判断する** (cachix とは限らない。README にキャッシュ URL と公開鍵の案内が無いかまで確認する)。
-- **llm-agents は follows を外すだけでは cache hit しない**。nix は親 lock を作るとき子 flake の lock を引き継がず input spec を最新解決するため、`llm-agents/nixpkgs` が numtide CI のビルドに使われた rev からずれて herdr がソースビルドに化ける。lock の `llm-agents/nixpkgs` は llm-agents 自身の lock が pin する rev に `--override-input` で揃える必要があり、`just nix-update` がこの再 pin を自動で行う (素の `nix flake update` を直接叩かないこと)。
-- substituter は **3 箇所に同じ集合を登録**する。1 つでも欠けるか集合がズレると初回ビルドで cache miss するので、追加・変更時は 3 箇所を必ず同期させる (`run_onchange_20-nix-activate.sh.tmpl` のコメントにも同期義務が明記されている):
-  1. `nix/flake.nix` トップレベルの `nixConfig.extra-substituters` — input flake の nixConfig は消費側に伝播しないのでここへ集約。**フレーク評価時 (activate 前)** から効かせる狙い。
-  2. `nix/nixos/configuration.nix` の `nix.settings.extra-substituters` — activate 後の恒常 `/etc/nix/nix.conf` に効く (2 回目以降の rebuild や ad-hoc `nix` 操作用)。
-  3. `home/run_onchange_20-nix-activate.sh.tmpl` の `nixos-rebuild ... --option extra-substituters` — 新規 PC の初回、まだ system config も nixConfig の許可プロンプト応答も無い状況で、root(trusted-user) から `--option` で直接渡し**プロンプト無しに完全無人ブートストラップ**する。
-
-### GC・世代保持と nh
-
+- `.chezmoiroot = home`: chezmoi が見るのは `home/` 配下のみ。新規 dotfile は必ず `home/` に置く (`nix/` や `ci/` は chezmoi 管理外)。
+- 新しい variant 分岐を追加したら `home/run_onchange_20-nix-activate.sh.tmpl` と `ci/test/template_variants.bats` の**両方**を更新する。判定順や NixOS-on-WSL の注意は README 参照。
+- macOS 設定の判断軸: 「システム DB (cfprefsd) が読む値か」→ `nix/darwin/`、「HOME 配下のファイルか」→ `home/`。詳細は README の運用ルール表。
+- `nix/flake.nix` は `--impure` 必須 (`builtins.getEnv "USER"` を使うため。CI は `USER=runner` を export)。
+- `packages.<system>.home-manager` の再公開は、activation スクリプトが毎回 GitHub API を叩かないための rate limit 対策。
+- マシン固有・リポジトリに入れたくない NixOS 設定は `/etc/nixos/local.nix` へ (`mkNixos` に pathExists フックがある)。
 - 世代保持ポリシーは `nix/gc-policy.nix` が単一ソース。
-- **activate スクリプト (`run_onchange_20-nix-activate.sh.tmpl`) の rebuild を nh に置き換えないこと**。`nh os switch` はビルドをユーザー権限で行うため、root(trusted-user) から `--option extra-substituters` を渡す無人ブートストラップ設計 (上記「バイナリキャッシュ」参照) と非互換で、初回に cachix が効かず重い input がフルビルドになる。
+- **`nix/` を編集したら git に commit (もしくは index) しないと `chezmoi apply` が run_onchange を再実行しない** (nix-tree-hash 契約。`ci/test/nix_tree_hash.bats` がアサート)。
 
-### Nix 側を編集した変更の検知
+## バイナリキャッシュと初回ビルド速度優先
 
-`run_onchange_20-nix-activate.sh.tmpl` の先頭コメントに `# nix-tree-hash: {{ output "git" "-C" ... "rev-parse" "HEAD:nix" }}` が埋め込まれており、`nix/` ディレクトリの tree hash が変わると chezmoi が `run_onchange_*` を再実行する。**`nix/` を編集して `chezmoi apply` を走らせるためには、その変更が git にコミット (もしくは index) されている必要がある**。この契約は `ci/test/nix_tree_hash.bats` がアサートしている。
+新規マシンの初回 rebuild で重い input (niri / vicinae / noctalia / llm-agents) を**ソースビルドさせない**ことを最優先に設計している。踏み外すと初回起動が数十分〜フルビルドに化ける。
+
+- **自前バイナリキャッシュを配る input には `inputs.nixpkgs.follows` を付けない**。nixpkgs を override すると derivation hash がずれて必ず cache miss する。自前キャッシュを持たず `cache.nixos.org` に乗る input には closure 統一のため follows を付ける。新しい input を足すときは「自前キャッシュを配っているか」で判断する (cachix とは限らない。README にキャッシュ URL と公開鍵の案内が無いか確認する)。
+- **flake input の更新は必ず `just nix-update`** を使う。素の `nix flake update` は `llm-agents/nixpkgs` が numtide CI のビルド rev からずれて cache miss する (`--override-input` での再 pin を just が自動化している)。
+- substituter は `nix/flake.nix` の `nixConfig`、`nix/nixos/configuration.nix` の `nix.settings`、activate スクリプトの `--option` の **3 箇所に同じ集合を登録**する。1 つでも欠けると初回に cache miss する (各箇所の役割分担は activate スクリプトのコメント参照)。
+- **activate スクリプトの rebuild を nh に置き換えない**。`nh os switch` はユーザー権限ビルドのため、root(trusted-user) から `--option extra-substituters` を渡す無人ブートストラップ設計と非互換。
