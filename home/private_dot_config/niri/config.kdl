@@ -32,7 +32,7 @@ prefer-no-csd
 // ---- レイアウト ----
 layout {
     // 空 {} だと既定プリセットに戻るので proportion を明示する。
-    default-column-width { proportion 0.96; }
+    default-column-width { proportion 0.66667; }
     // 直前の列と並べて画面に収まらない幅の窓 (0.96 等) は中央、収まる窓 (0.5 等) は端寄せ。
     center-focused-column "on-overflow"
 
@@ -41,13 +41,13 @@ layout {
         width 3
     }
 
-    // Alt+R (switch-preset-column-width) が循環する幅。先頭に 0.96 を置き、
-    // 押し続ければデフォルト幅に戻れるようにする。
+    // Alt+R (switch-preset-column-width) が循環する幅。先頭にデフォルト幅の
+    // 0.66667 を置き、押し続ければデフォルト幅に戻れるようにする。
     preset-column-widths {
-        proportion 0.96
         proportion 0.66667
         proportion 0.5
         proportion 0.33333
+        proportion 0.96
     }
 }
 
