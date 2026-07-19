@@ -85,6 +85,13 @@
     openFirewall = true;
   };
 
+  # 録画は Noctalia の screen_recorder プラグインが gpu-screen-recorder に
+  # shell out する。systemPackages 直置きではなくモジュールを使うのは、
+  # gsr-kms-server に CAP_SYS_ADMIN の security wrapper を付与するため
+  # (portal を使わないモニタ直接キャプチャに必要)。エンコードは VA-API
+  # (iHD / Intel iGPU) の HW エンコードに乗る。
+  programs.gpu-screen-recorder.enable = true;
+
   # バー/ランチャー/通知/ロック/壁紙/OSD は Noctalia デスクトップシェルが担う
   # (nix/home/nixos.nix の programs.noctalia)。以前の waybar/fuzzel/mako/
   # swaylock/swayidle/swaybg の UI 部品は Noctalia に置き換えた。wl-clipboard は
@@ -100,16 +107,12 @@
     # lazygit 等が shell out するコピーコマンドの実体。
     wl-clipboard
 
-    # スクリーンショット/録画のバックエンド (いずれも Noctalia が shell out する)。
+    # スクリーンショットのバックエンド (Noctalia が shell out する)。
     # Noctalia v5 のネイティブ screenshot コマンド
     # (noctalia msg screenshot-region / screenshot-fullscreen) は
-    # grim (キャプチャ) + slurp (範囲選択) を必要とする。録画は screen_recorder
-    # プラグインが wl-screenrec を使う。wl-screenrec は wlroots screencopy +
-    # VA-API HW エンコード対応で、このマシンの Intel iGPU (i915) だと CPU 負荷を
-    # 抑えて短尺クリップを撮れる。
+    # grim (キャプチャ) + slurp (範囲選択) を必要とする。
     grim
     slurp
-    wl-screenrec
 
     # 輝度キー (niri の XF86MonBrightness* バインドが spawn する)。
     # logind の SetBrightness D-Bus API 経由なので udev ルールや video グループは不要。
