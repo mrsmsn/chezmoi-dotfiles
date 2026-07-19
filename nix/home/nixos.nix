@@ -1,4 +1,4 @@
-{ lib, noctalia, vicinae, ... }:
+{ lib, osConfig, noctalia, vicinae, ... }:
 
 # NixOS 実機専用の home-manager 設定 (flake の nixosConfigurations だけが import
 # する)。WSL/android/generic-linux の homeConfigurations には読まれないので、
@@ -28,6 +28,13 @@
     # niri で layer-shell オーバーレイ表示させる (Raycast 風のフローティング)。
     systemd.environment.USE_LAYER_SHELL = 1;
   };
+
+  # vicinae は起動時に .desktop をスキャンした後は inotify 頼みだが、NixOS の
+  # 世代切り替え (シンボリックリンク差し替え) はイベントを発火しないため、
+  # server を再起動しないと新規アプリがランチャーに出ない。system.path
+  # (systemPackages の集合) を unit に埋め込み、アプリ集合が変わる rebuild で
+  # sd-switch に自動再起動させる。
+  systemd.user.services.vicinae.Unit.X-Restart-Triggers = [ "${osConfig.system.path}" ];
 
   # デフォルトブラウザを Chromium に宣言的に固定する (GUI 操作等で書き換わった
   # mimeapps.list を home-manager 管理に置き換える)。claude-cli は Claude Code の
