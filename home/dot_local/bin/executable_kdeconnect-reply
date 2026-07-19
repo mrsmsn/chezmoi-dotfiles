@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# 最新の返信可能な KDE Connect 通知に純正の返信ダイアログを開く。
+# Noctalia の通知 UI の Reply は inline-reply を KDE Connect に届けられないので、
+# DBus の reply() を直接呼ぶ (ダイアログの見た目は niri の window-rule 側で調整)。
+set -euo pipefail
+
+SERVICE=org.kde.kdeconnect.daemon
+IFACE=org.kde.kdeconnect.device.notifications.notification
+
+target=""
+target_num=-1
+while IFS= read -r path; do
+  reply_id=$(busctl --user get-property "$SERVICE" "$path" "$IFACE" replyId 2>/dev/null |
+    sed -n 's/^s "\(..*\)"$/\1/p')
+  [[ -z "$reply_id" ]] && continue
+  num=${path##*/}
+  if ((num > target_num)); then
+    target=$path
+    target_num=$num
+  fi
+done < <(busctl --user tree --list "$SERVICE" 2>/dev/null | grep -E '/notifications/[0-9]+$')
+
+if [[ -z "$target" ]]; then
+  busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+    org.freedesktop.Notifications Notify \
+    'susssasa{sv}i' kdeconnect-reply 0 kdeconnect "KDE Connect" \
+    "返信可能な通知がありません" 0 0 5000 >/dev/null
+  exit 1
+fi
+
+exec busctl --user call "$SERVICE" "$target" "$IFACE" reply

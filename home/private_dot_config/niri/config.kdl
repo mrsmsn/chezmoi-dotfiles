@@ -58,6 +58,17 @@ window-rule {
     clip-to-geometry true
 }
 
+// KDE Connect の返信ダイアログ (Super+R / kdeconnect-reply)。通知ポップアップの
+// 延長として使うので、ポップアップより一回り大きいサイズで右上にフロートさせる。
+window-rule {
+    match app-id=r#"^org\.kde\.kdeconnect\.daemon$"#
+    open-floating true
+    open-focused true
+    default-column-width { fixed 520; }
+    default-window-height { fixed 320; }
+    default-floating-position x=16 y=16 relative-to="top-right"
+}
+
 // スクリーンショットの保存先。
 screenshot-path "~/Pictures/Screenshots/screenshot-%Y-%m-%d-%H-%M-%S.png"
 
@@ -81,6 +92,8 @@ binds {
     Super+S     hotkey-overlay-title="Control Center"     { spawn-sh "noctalia msg panel-toggle control-center"; }
     Super+I     hotkey-overlay-title="Noctalia Settings"  { spawn-sh "noctalia msg settings-toggle"; }
     Super+L     hotkey-overlay-title="Lock"               { spawn-sh "noctalia msg session lock"; }
+    // Noctalia の Reply ボタンは KDE Connect に届かないため専用キーで純正ダイアログを開く。
+    Super+R     hotkey-overlay-title="KDE Connect Reply"  { spawn-sh "~/.local/bin/kdeconnect-reply"; }
 
     // ウィンドウ操作
     Alt+W { close-window; }
