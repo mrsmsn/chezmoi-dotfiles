@@ -91,6 +91,7 @@
   # UI ではなく CLI クリップボードの実体なので下で別途残す。
   environment.systemPackages = with pkgs; [
     chromium
+    discord
 
     # ターミナル (macOS は Homebrew cask、NixOS では pkgs から入れる)。
     ghostty
