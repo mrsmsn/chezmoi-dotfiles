@@ -99,6 +99,11 @@
   environment.systemPackages = with pkgs; [
     chromium
     discord
+    # Xwayland (niri v25.08+ が PATH から見つけて on-demand 起動し、spawn する
+    # プロセスに DISPLAY を配る)。X11 前提のアプリ対策で、無いと Discord の
+    # ネイティブモジュール (グローバルショートカット等) が NULL display のまま
+    # libX11 を呼んで SIGSEGV し、スプラッシュから先に進めない。
+    xwayland-satellite
 
     # ターミナル (macOS は Homebrew cask、NixOS では pkgs から入れる)。
     ghostty
