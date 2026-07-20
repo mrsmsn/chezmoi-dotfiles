@@ -12,6 +12,9 @@ input {
         xkb {
             layout "us"
         }
+        // macOS の KeyRepeat=1 (間隔 15ms) / InitialKeyRepeat=15 (遅延 225ms) に揃える
+        repeat-delay 225
+        repeat-rate 67
     }
     touchpad {
         tap
