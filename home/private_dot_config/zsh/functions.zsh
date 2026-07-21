@@ -1,9 +1,9 @@
-# fzf を前面フロート表示する。herdr 内は overlay プラグインペイン、
-# tmux 内は popup、それ以外は素の fzf。
+# fzf を前面表示する。tmux 内は popup、それ以外 (herdr 内含む) は素の fzf。
+# herdr 0.7.1 のプラグインペインは placement 指定に関わらずタブ全域に
+# 描画される (ペインローカルな float は不可) ため、ペイン内で完結する
+# 素の fzf を採用している。
 function fzf-float() {
-    if [[ -n "$HERDR_PANE_ID" ]]; then
-        "${XDG_CONFIG_HOME:-$HOME/.config}/herdr/plugins/herdr-picker/fzf-popup.sh" "$@"
-    elif [[ -n "$TMUX" ]]; then
+    if [[ -n "$TMUX" ]]; then
         fzf-tmux -p -w80% "$@"
     else
         fzf "$@"

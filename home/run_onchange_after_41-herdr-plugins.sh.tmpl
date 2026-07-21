@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # herdr-translator-hash: {{ include "private_dot_config/herdr/plugins/herdr-translator/herdr-plugin.toml" | sha256sum }}
-# herdr-picker-hash: {{ include "private_dot_config/herdr/plugins/herdr-picker/herdr-plugin.toml" | sha256sum }}
 # herdr-config-hash: {{ include "private_dot_config/herdr/config.toml.tmpl" | sha256sum }}
 #
-# 自作プラグイン (herdr-translator / herdr-picker) を herdr に登録する。
+# 自作プラグイン (herdr-translator) を herdr に登録する。
 #
 # 先頭のハッシュは各マニフェストと config.toml の内容ハッシュ。どれかを編集
 # するとこのスクリプト自体のハッシュも変わり chezmoi が run_onchange を再実行
@@ -63,7 +62,6 @@ register_plugin() {
 }
 
 register_plugin "${config_dir}/plugins/herdr-translator"
-register_plugin "${config_dir}/plugins/herdr-picker"
 
 # 実行中サーバがあればキーバインド変更を反映 (未起動なら次回起動時に読まれる)
 herdr server reload-config >/dev/null 2>&1 || true
