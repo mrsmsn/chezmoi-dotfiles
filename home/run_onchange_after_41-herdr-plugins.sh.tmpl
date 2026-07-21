@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # herdr-translator-hash: {{ include "private_dot_config/herdr/plugins/herdr-translator/herdr-plugin.toml" | sha256sum }}
-# herdr-picker-hash: {{ include "private_dot_config/herdr/plugins/herdr-picker/herdr-plugin.toml" | sha256sum }}
+# herdr-picker-hash: {{ include "private_dot_config/herdr/plugins/herdr-picker/herdr-plugin.toml.tmpl" | sha256sum }}
 # herdr-config-hash: {{ include "private_dot_config/herdr/config.toml.tmpl" | sha256sum }}
 #
 # 自作プラグイン (herdr-translator / herdr-picker) を herdr に登録する。

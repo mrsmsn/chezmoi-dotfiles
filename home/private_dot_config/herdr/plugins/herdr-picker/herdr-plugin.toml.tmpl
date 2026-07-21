@@ -1,0 +1,16 @@
+id = "mrsmsn.picker"
+name = "herdr-picker"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Run fzf in a zoomed pane (fzf-tmux -p replacement for herdr)"
+platforms = ["macos", "linux"]
+
+# overlay は呼び出し元ペインの矩形内にしか描画されない (0.7.1)。
+# tmux の display-popup のように全ペインの上へ出すには zoomed (タブ全域)。
+# command は絶対パス必須: fzf-popup.sh が --cwd を渡すため、相対パスだと
+# herdr が cwd 基準で解決して spawn に失敗する。
+[[panes]]
+id = "fzf"
+title = "Picker"
+placement = "zoomed"
+command = ["{{ .chezmoi.homeDir }}/.config/herdr/plugins/herdr-picker/fzf-pane.sh"]
