@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# herdr-plugin-hash: {{ include "private_dot_config/herdr/plugins/herdr-translator/herdr-plugin.toml" | sha256sum }}
+# herdr-translator-hash: {{ include "private_dot_config/herdr/plugins/herdr-translator/herdr-plugin.toml" | sha256sum }}
+# herdr-picker-hash: {{ include "private_dot_config/herdr/plugins/herdr-picker/herdr-plugin.toml" | sha256sum }}
 # herdr-config-hash: {{ include "private_dot_config/herdr/config.toml.tmpl" | sha256sum }}
 #
-# 自作プラグイン herdr-translator を herdr に登録する。
+# 自作プラグイン (herdr-translator / herdr-picker) を herdr に登録する。
 #
-# 先頭のハッシュはマニフェストと config.toml の内容ハッシュ。どちらかを編集
+# 先頭のハッシュは各マニフェストと config.toml の内容ハッシュ。どれかを編集
 # するとこのスクリプト自体のハッシュも変わり chezmoi が run_onchange を再実行
 # → 再登録と reload-config が走る、という契約 (40-tmux-plugins と同じ流儀)。
 set -eu
@@ -15,39 +16,54 @@ if ! command -v herdr >/dev/null 2>&1; then
 fi
 
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/herdr"
-plugin_dir="${config_dir}/plugins/herdr-translator"
 plugins_json="${config_dir}/plugins.json"
 
-if herdr plugin link "$plugin_dir" >/dev/null 2>&1; then
-  echo "herdr-translator linked"
-elif grep -qs '"mrsmsn.translator"' "$plugins_json"; then
-  echo "herdr-translator already registered"
-elif command -v jq >/dev/null 2>&1; then
-  # link の RPC はサーバ未起動 (初回ブートストラップ) だと失敗するため、
-  # 登録ファイルを直接シードする。サーバは起動時に manifest_path から
-  # マニフェストを再読するので、エントリは所在と有効フラグだけでよい。
-  echo "herdr server not running; seeding ${plugins_json}"
-  manifest="${plugin_dir}/herdr-plugin.toml"
-  version="$(sed -n 's/^version = "\(.*\)"/\1/p' "$manifest")"
-  min_version="$(sed -n 's/^min_herdr_version = "\(.*\)"/\1/p' "$manifest")"
-  tmp="$(mktemp)"
-  jq -n --slurpfile existing <(cat "$plugins_json" 2>/dev/null || echo '[]') \
-    --arg root "$plugin_dir" --arg manifest "$manifest" \
-    --arg version "$version" --arg min_version "$min_version" \
-    '($existing[0] // []) + [{
-      plugin_id: "mrsmsn.translator",
-      name: "herdr-translator",
-      version: $version,
-      min_herdr_version: $min_version,
-      manifest_path: $manifest,
-      plugin_root: $root,
-      enabled: true,
-      source: {kind: "local"}
-    }]' > "$tmp"
-  mv "$tmp" "$plugins_json"
-else
-  echo "herdr plugin registration failed; run manually: herdr plugin link $plugin_dir"
-fi
+# manifest_field <manifest> <key> -> トップレベルの文字列値
+manifest_field() {
+  sed -n "s/^$2 = \"\(.*\)\"/\1/p" "$1" | head -n 1
+}
+
+register_plugin() {
+  local plugin_dir="$1"
+  local manifest="${plugin_dir}/herdr-plugin.toml"
+  local plugin_id
+  plugin_id="$(manifest_field "$manifest" id)"
+
+  if herdr plugin link "$plugin_dir" >/dev/null 2>&1; then
+    echo "${plugin_id} linked"
+  elif grep -qs "\"${plugin_id}\"" "$plugins_json"; then
+    echo "${plugin_id} already registered"
+  elif command -v jq >/dev/null 2>&1; then
+    # link の RPC はサーバ未起動 (初回ブートストラップ) だと失敗するため、
+    # 登録ファイルを直接シードする。サーバは起動時に manifest_path から
+    # マニフェストを再読するので、エントリは所在と有効フラグだけでよい。
+    echo "herdr server not running; seeding ${plugin_id} into ${plugins_json}"
+    local tmp
+    tmp="$(mktemp)"
+    jq -n --slurpfile existing <(cat "$plugins_json" 2>/dev/null || echo '[]') \
+      --arg id "$plugin_id" \
+      --arg name "$(manifest_field "$manifest" name)" \
+      --arg root "$plugin_dir" --arg manifest "$manifest" \
+      --arg version "$(manifest_field "$manifest" version)" \
+      --arg min_version "$(manifest_field "$manifest" min_herdr_version)" \
+      '($existing[0] // []) + [{
+        plugin_id: $id,
+        name: $name,
+        version: $version,
+        min_herdr_version: $min_version,
+        manifest_path: $manifest,
+        plugin_root: $root,
+        enabled: true,
+        source: {kind: "local"}
+      }]' > "$tmp"
+    mv "$tmp" "$plugins_json"
+  else
+    echo "herdr plugin registration failed; run manually: herdr plugin link $plugin_dir"
+  fi
+}
+
+register_plugin "${config_dir}/plugins/herdr-translator"
+register_plugin "${config_dir}/plugins/herdr-picker"
 
 # 実行中サーバがあればキーバインド変更を反映 (未起動なら次回起動時に読まれる)
 herdr server reload-config >/dev/null 2>&1 || true
