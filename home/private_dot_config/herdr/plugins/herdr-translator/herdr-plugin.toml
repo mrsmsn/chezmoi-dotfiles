@@ -11,10 +11,10 @@ title = "Translate"
 contexts = ["pane"]
 command = ["./translate.sh"]
 
-# overlay は呼び出し元ペインの矩形内にしか描画されない (0.7.1)。
-# tmux の display-popup のように全ペインの上へ出すには zoomed (タブ全域)。
 [[panes]]
 id = "popup"
 title = "Translation"
-placement = "zoomed"
+placement = "overlay"
+width = "70%"
+height = "60%"
 command = ["./render.sh"]

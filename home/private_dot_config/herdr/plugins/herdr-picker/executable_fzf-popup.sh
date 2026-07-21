@@ -23,10 +23,8 @@ else
   : > "$dir/args"
 fi
 
-# plugin pane open はマニフェストの placement を使わないため明示する。
-# zoomed = タブ全域 (tmux の display-popup のように全ペインの上に出す)
 if ! "${HERDR_BIN_PATH:-herdr}" plugin pane open \
-      --plugin mrsmsn.picker --entrypoint fzf --placement zoomed \
+      --plugin mrsmsn.picker --entrypoint fzf \
       --cwd "$PWD" --env "PICKER_DIR=$dir" >/dev/null 2>&1; then
   exec fzf "$@" < "$dir/in"
 fi

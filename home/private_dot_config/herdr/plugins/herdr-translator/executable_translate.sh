@@ -50,9 +50,8 @@ main() {
   mkdir -p -- "$dir"
   printf '%s' "$text" > "$dir/src.txt"
 
-  # plugin pane open はマニフェストの placement を使わないため明示する
   exec "${HERDR_BIN_PATH:-herdr}" plugin pane open \
-    --plugin mrsmsn.translator --entrypoint popup --placement zoomed
+    --plugin mrsmsn.translator --entrypoint popup
 }
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
