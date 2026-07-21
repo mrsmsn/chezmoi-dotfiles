@@ -38,6 +38,7 @@ in {
     git
     go
     herdr
+    hunk
     jpcal
     jq
     just

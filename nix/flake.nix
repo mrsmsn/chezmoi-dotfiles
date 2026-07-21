@@ -11,7 +11,7 @@
       "https://niri.cachix.org"      # niri: niri-stable (Rust)
       "https://vicinae.cachix.org"   # vicinae: Qt/C++ ランチャー
       "https://noctalia.cachix.org"  # noctalia: C++/meson シェル
-      "https://cache.numtide.com"    # llm-agents: apm / claude-code / herdr (Rust)
+      "https://cache.numtide.com"    # llm-agents: apm / claude-code / herdr (Rust) / hunk
     ];
     extra-trusted-public-keys = [
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
@@ -81,6 +81,7 @@
         apm         = llm-agents.packages.${final.system}.apm;
         claude-code = llm-agents.packages.${final.system}.claude-code;
         herdr       = llm-agents.packages.${final.system}.herdr;
+        hunk        = llm-agents.packages.${final.system}.hunk;
 
         # Temporary shim: the nixos-unstable channel is currently pinned to a
         # nixpkgs commit that limits podman to `lib.platforms.linux` (nixpkgs
