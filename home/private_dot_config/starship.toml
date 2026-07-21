@@ -1,13 +1,46 @@
-# 情報表示 (ディレクトリ/git/言語) は tmux のペインボーダー (tmux/pane-border.sh) に
-# 移譲したため、プロンプトは時刻のみ表示する。
+# herdr 移行に伴い、情報表示 (OS/ディレクトリ/git) を tmux のペインボーダー
+# (tmux/pane-border.sh) からプロンプトへ戻した。配色は同一の powerline パレット。
 format = """
-[░▒▓](#1d2230)\
+[░▒▓](#a3aed2)\
+$os\
+[](fg:#a3aed2 bg:#769ff0)\
+$directory\
+[](fg:#769ff0 bg:#394260)\
+$git_branch\
+$git_status\
+[](fg:#394260 bg:#1d2230)\
 $time\
-[ ](fg:#1d2230)\
+[ ](fg:#1d2230)\
 \n$character"""
+
+[os]
+disabled = false
+style = "bg:#a3aed2 fg:#090c0c"
+format = "[ $symbol ]($style)"
+
+[os.symbols]
+Macos = ""
+Windows = ""
+NixOS = ""
+Linux = ""
+
+[directory]
+style = "fg:#e3e5e5 bg:#769ff0"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = ""
+style = "bg:#394260"
+format = '[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)'
+
+[git_status]
+style = "bg:#394260"
+format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]($style)'
 
 [time]
 disabled = false
 time_format = "%R"
 style = "bg:#1d2230"
-format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'
+format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'
