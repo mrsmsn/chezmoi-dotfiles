@@ -43,6 +43,14 @@ type = "shell"
 command = "{{ .chezmoi.homeDir }}/.config/herdr/paste.sh"
 description = "paste clipboard"
 
+# herdr は CSI-u の ctrl+/ を '/' に化けさせるため、^_ (0x1f) に変換して
+# ペインへ送り直す (zsh の fzf-src バインド用)
+[[keys.command]]
+key = "ctrl+/"
+type = "shell"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/forward-ctrl-slash.sh"
+description = "forward ctrl+/ to pane as ^_"
+
 # 旧 tmux-translator: コピーモードで y した後に prefix+t で翻訳ポップアップ
 [[keys.command]]
 key = "prefix+t"
