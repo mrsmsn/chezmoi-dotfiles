@@ -48,7 +48,10 @@ jobs:
         working-directory: nix
         env:
           USER: runner
-        run: nix flake check --impure --no-build
+        # --no-build を付けない: hunk (bun2nix) の eval が IFD を要求するため、
+        # 付けると 'path is not valid' で落ちる。checks 出力は無いので
+        # 外しても IFD の実現以外にビルドは発生しない。
+        run: nix flake check --impure
 
   build-configs:
     # darwinConfigurations.default は macOS runner が要るので build しない。
