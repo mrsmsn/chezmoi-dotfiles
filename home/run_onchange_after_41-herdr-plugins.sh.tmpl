@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# herdr-plugin-hash: {{ include "private_dot_config/herdr/plugins/herdr-translator/herdr-plugin.toml" | sha256sum }}
+# herdr-config-hash: {{ include "private_dot_config/herdr/config.toml.tmpl" | sha256sum }}
+#
+# 自作プラグイン herdr-translator を herdr に登録する。
+#
+# 先頭のハッシュはマニフェストと config.toml の内容ハッシュ。どちらかを編集
+# するとこのスクリプト自体のハッシュも変わり chezmoi が run_onchange を再実行
+# → 再登録と reload-config が走る、という契約 (40-tmux-plugins と同じ流儀)。
+set -eu
+
+if ! command -v herdr >/dev/null 2>&1; then
+  echo "herdr not found; skip herdr plugin bootstrap"
+  exit 0
+fi
+
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/herdr"
+plugin_dir="${config_dir}/plugins/herdr-translator"
+plugins_json="${config_dir}/plugins.json"
+
+if herdr plugin link "$plugin_dir" >/dev/null 2>&1; then
+  echo "herdr-translator linked"
+elif grep -qs '"mrsmsn.translator"' "$plugins_json"; then
+  echo "herdr-translator already registered"
+elif command -v jq >/dev/null 2>&1; then
+  # link の RPC はサーバ未起動 (初回ブートストラップ) だと失敗するため、
+  # 登録ファイルを直接シードする。サーバは起動時に manifest_path から
+  # マニフェストを再読するので、エントリは所在と有効フラグだけでよい。
+  echo "herdr server not running; seeding ${plugins_json}"
+  manifest="${plugin_dir}/herdr-plugin.toml"
+  version="$(sed -n 's/^version = "\(.*\)"/\1/p' "$manifest")"
+  min_version="$(sed -n 's/^min_herdr_version = "\(.*\)"/\1/p' "$manifest")"
+  tmp="$(mktemp)"
+  jq -n --slurpfile existing <(cat "$plugins_json" 2>/dev/null || echo '[]') \
+    --arg root "$plugin_dir" --arg manifest "$manifest" \
+    --arg version "$version" --arg min_version "$min_version" \
+    '($existing[0] // []) + [{
+      plugin_id: "mrsmsn.translator",
+      name: "herdr-translator",
+      version: $version,
+      min_herdr_version: $min_version,
+      manifest_path: $manifest,
+      plugin_root: $root,
+      enabled: true,
+      source: {kind: "local"}
+    }]' > "$tmp"
+  mv "$tmp" "$plugins_json"
+else
+  echo "herdr plugin registration failed; run manually: herdr plugin link $plugin_dir"
+fi
+
+# 実行中サーバがあればキーバインド変更を反映 (未起動なら次回起動時に読まれる)
+herdr server reload-config >/dev/null 2>&1 || true

@@ -1,0 +1,51 @@
+{{- /* 旧 tmux ステータスバーのマシン別配色 (colour36=緑 / colour60=紫) を accent で引き継ぐ */ -}}
+{{- $accent := "#5f5f87" -}}
+{{- if eq .machine "mac-mini-m4" -}}{{- $accent = "#00af87" -}}{{- end -}}
+# 新規マシンで初回起動時の通知設定ウィザードを出さない
+onboarding = false
+
+[theme]
+# starship / 旧 pane-border.sh と同系の Tokyo Night パレット
+name = "tokyo-night"
+
+[ui]
+accent = "{{ $accent }}"
+# tmux の prefix c は名前を聞かずに即ウィンドウを作るので合わせる
+prompt_new_tab_name = false
+# 移行前から使っていた設定を維持: ペイン枠に検出エージェント名を表示する
+show_agent_labels_on_pane_borders = true
+
+# キーバインドは tmux 時代の操作感 (prefix C-f + vim 風) を踏襲する。
+# h/j/k/l ペイン移動・c 新タブなど herdr デフォルトと一致するものは設定しない。
+[keys]
+prefix = "ctrl+f"
+
+# tmux の prefix C-h / C-l (ウィンドウ切替)
+previous_tab = "prefix+ctrl+h"
+next_tab = "prefix+ctrl+l"
+
+# tmux の prefix & (kill-window)
+close_tab = "prefix+ampersand"
+
+# tmux の prefix - (上下分割) / prefix | (左右分割)
+split_horizontal = "prefix+minus"
+split_vertical = "prefix+|"
+
+# tmux の prefix v (コピーモード)。デフォルトの split_vertical=prefix+v は上で退避済み。
+copy_mode = "prefix+v"
+
+# tmux の prefix p (ペースト)。herdr 0.7.1 の [keys] にペーストアクションが
+# 無いため、クリップボードを send-text する自前スクリプトで代替する。
+# デフォルトの previous_tab=prefix+p は上で退避済み。
+[[keys.command]]
+key = "prefix+p"
+type = "shell"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/paste.sh"
+description = "paste clipboard"
+
+# 旧 tmux-translator: コピーモードで y した後に prefix+t で翻訳ポップアップ
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "mrsmsn.translator.translate"
+description = "translate selection/clipboard"
