@@ -184,9 +184,9 @@ jobs:
             exit 1
           fi
       - name: Smoke test that zsh sources .zshrc cleanly
-        # TMUX=fake で tmux_automatically_attach_session を non-TTY 環境でも
-        # 早期 return させる。
-        run: TMUX=fake zsh -i -c 'exit 0'
+        # HERDR_PANE_ID=fake で herdr_automatically_attach_session を non-TTY
+        # 環境でも早期 return させる (TMUX=fake は tmux 併存期間中の保険)。
+        run: TMUX=fake HERDR_PANE_ID=fake zsh -i -c 'exit 0'
       - name: Verify LazyVim bootstraps headlessly
         # `Lazy! sync` の `!` で同期実行を強制し、lazy.nvim clone + LazyVim 本体 +
         # 依存プラグイン群の展開を 1 ステップで完了させる。
