@@ -20,11 +20,9 @@ show_agent_labels_on_pane_borders = true
 [keys]
 prefix = "ctrl+f"
 
-# タブ切替は prefix 不要の ctrl+tab / ctrl+shift+tab (Ghostty 側は unbind して
-# パススルーさせる)。デフォルトの previous_tab=prefix+p は paste の
-# keys.command と衝突するため、明示上書きを消さないこと。
-previous_tab = "ctrl+shift+tab"
-next_tab = "ctrl+tab"
+# tmux の prefix C-h / C-l (ウィンドウ切替)
+previous_tab = "prefix+ctrl+h"
+next_tab = "prefix+ctrl+l"
 
 # tmux の prefix - (上下分割) / prefix | (左右分割)
 split_horizontal = "prefix+minus"
