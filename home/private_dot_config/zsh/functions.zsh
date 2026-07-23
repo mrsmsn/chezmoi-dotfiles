@@ -1,12 +1,24 @@
+# fzf を前面表示する。tmux 内は popup、それ以外 (herdr 内含む) は素の fzf。
+# herdr 0.7.1 のプラグインペインは placement 指定に関わらずタブ全域に
+# 描画される (ペインローカルな float は不可) ため、ペイン内で完結する
+# 素の fzf を採用している。
+function fzf-float() {
+    if [[ -n "$TMUX" ]]; then
+        fzf-tmux -p -w80% "$@"
+    else
+        fzf "$@"
+    fi
+}
+
 ### ghq.root を複数設定している場合に対応するため -p を使用。
 ### ${HOME}/src/ プレフィックスはプレビュー時にうるさいので sed で除去。
 function fzf-src() {
     local selected_dir=$(ghq list -p \
         | sed "s|^${HOME}/src/||" \
-        | fzf-tmux -p -w80% \
+        | fzf-float \
             --query "$LBUFFER" \
             --prompt="Repo >" \
-            --preview "lsd -1A --group-directories-first --color=always --icon=always {}")
+            --preview "lsd -1A --group-directories-first --color=always --icon=always $(ghq root)/{}")
     if [[ -n "$selected_dir" ]]; then
         BUFFER="cd $(ghq root)/${selected_dir}"
         zle accept-line
@@ -20,7 +32,7 @@ bindkey '^_' fzf-src
 function select-history() {
     BUFFER=$(history -n -r 1 \
         | awk '!a[$0]++' \
-        | fzf-tmux -p -w80% -e --no-sort +m \
+        | fzf-float -e --no-sort +m \
             --query "$LBUFFER" \
             --prompt="History > " \
         | sed 's/\\n/\n/g')
@@ -54,6 +66,6 @@ function gh-create-and-cd() {
 
 function fzf-kill() {
     local pids
-    pids=$(ps aux | fzf-tmux -p -w80% -e | awk '{print $2}')
+    pids=$(ps aux | fzf-float -e | awk '{print $2}')
     [[ -n "$pids" ]] && echo "$pids" | xargs kill
 }
