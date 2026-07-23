@@ -17,4 +17,7 @@ fi
 [ -n "$text" ] || exit 0
 
 pane="$("$bin" pane current | jq -r '.result.pane.pane_id')"
-exec "$bin" pane send-text "$pane" "$text"
+# bracketed paste で括る: 素の send-text だと改行がそのまま実行になる。
+# zsh (ZLE) はデフォルトで bracketed paste 有効なので、複数行でも
+# 編集バッファへの挿入に留まる。
+exec "$bin" pane send-text "$pane" $'\e[200~'"$text"$'\e[201~'
