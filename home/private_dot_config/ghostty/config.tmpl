@@ -8,6 +8,11 @@ mouse-hide-while-typing = true
 # (リモートで `missing or unsuitable terminal: xterm-ghostty` を防ぐ)
 shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
 
+# Ctrl+Tab / Ctrl+Shift+Tab は Ghostty のタブ切替から外し、
+# herdr のタブ切替 (next_tab/previous_tab) へパススルーさせる
+keybind = "ctrl+tab=unbind"
+keybind = "ctrl+shift+tab=unbind"
+
 {{ if eq .variant "darwin" -}}
 macos-titlebar-style = hidden
 
