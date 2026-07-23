@@ -1,0 +1,4 @@
+# menu_bar / transparent_background は hunk >= 0.17 (llm-agents 更新済み)。
+watch = true
+menu_bar = false
+transparent_background = true
