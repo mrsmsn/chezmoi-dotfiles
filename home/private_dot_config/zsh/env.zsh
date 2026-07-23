@@ -1,3 +1,6 @@
+# SSH ログインでは LANG が渡らず locale が C になり、less が UTF-8 をバイナリ表示するため明示する
+export LANG=en_US.UTF-8
+
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 export GPG_TTY=$(tty)
