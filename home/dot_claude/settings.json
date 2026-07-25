@@ -10,28 +10,6 @@
     ],
     "defaultMode": "auto"
   },
-  "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME\"/.claude/hooks/notify-waiting.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME\"/.claude/hooks/notify-complete.sh"
-          }
-        ]
-      }
-    ]
-  },
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true
   },
