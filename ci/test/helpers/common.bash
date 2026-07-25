@@ -1,4 +1,4 @@
-# `just bats` 経由なら repo は /repo にバインドされる。host から bats を直接
+# just (podman) 経由なら repo は /repo にバインドされる。host から bats を直接
 # 叩く逃げ道として BATS_TEST_DIRNAME から walk-up する fallback も置く。
 PROJECT_ROOT="${PROJECT_ROOT:-/repo}"
 if [ ! -f "${PROJECT_ROOT}/justfile" ]; then

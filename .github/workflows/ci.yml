@@ -114,7 +114,7 @@ jobs:
         # run_onchange_20-* は `{{ output "git" ... }}` を使うので単発 render が
         # 困難 (E2E は bootstrap-linux job)。run_onchange_30 は chezmoi data を
         # 消費するので別途 test config を渡す。実体は ci/template-shellcheck.sh
-        # に集約してあるので local (`just template-shellcheck`) と CI の乖離を防ぐ。
+        # に集約してあるので local と CI の乖離を防ぐ。
         run: ./ci/template-shellcheck.sh
 
   git-profile:
