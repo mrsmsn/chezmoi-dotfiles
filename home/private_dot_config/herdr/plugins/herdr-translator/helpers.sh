@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared helpers for herdr-translator (tmux-translator からの移植)。
+# Shared helpers for herdr-translator.
 # This file only defines functions; it has no side effects when sourced.
 
 # cache_dir -> prints the cache directory (honours $XDG_CACHE_HOME).

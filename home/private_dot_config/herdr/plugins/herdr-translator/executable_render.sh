@@ -9,7 +9,6 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=helpers.sh
 source "$SCRIPT_DIR/helpers.sh"
 
-# 旧 tmux-translator の @translate_* オプション相当 (tmux.conf と同値の固定値)
 readonly ENGINES="trans google"
 readonly SOURCE_LANG="auto"
 readonly TARGET_LANG="ja"

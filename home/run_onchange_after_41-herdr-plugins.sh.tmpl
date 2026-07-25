@@ -6,7 +6,7 @@
 #
 # 先頭のハッシュは各マニフェストと config.toml の内容ハッシュ。どれかを編集
 # するとこのスクリプト自体のハッシュも変わり chezmoi が run_onchange を再実行
-# → 再登録と reload-config が走る、という契約 (40-tmux-plugins と同じ流儀)。
+# → 再登録と reload-config が走る、という契約。
 set -eu
 
 if ! command -v herdr >/dev/null 2>&1; then

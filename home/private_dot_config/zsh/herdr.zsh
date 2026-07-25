@@ -1,14 +1,13 @@
 # 以下の is_* ヘルパは herdr_automatically_attach_session 専用
 function is_exists()                       { type "$1" >/dev/null 2>&1; }
 function is_herdr_running()                { [[ -n "$HERDR_PANE_ID" ]]; }
-function is_tmux_running()                 { [[ -n "$TMUX" ]]; }
 function is_screen_running()               { [[ -n "$STY" ]]; }
 function shell_has_started_interactively() { [[ -n "$PS1" ]]; }
 function is_ssh_running()                  { [[ -n "$SSH_CONNECTION" ]]; }
 
 function herdr_automatically_attach_session() {
-    # herdr ペイン内 (ネスト防止)、および残置中の tmux / screen 内では起動しない
-    if is_herdr_running || is_tmux_running || is_screen_running; then
+    # herdr ペイン内 (ネスト防止) および screen 内では起動しない
+    if is_herdr_running || is_screen_running; then
         return 0
     fi
 
@@ -21,7 +20,7 @@ function herdr_automatically_attach_session() {
         return 1
     fi
 
-    # 稼働中の session があればアタッチを促す (tmux.zsh の y/N/num を y/N/name で踏襲)
+    # 稼働中の session があればアタッチを促す
     local running_sessions
     running_sessions="$(herdr session list 2>/dev/null | awk 'NR > 1 && $2 == "running"')"
     if [[ -n "$running_sessions" ]]; then
