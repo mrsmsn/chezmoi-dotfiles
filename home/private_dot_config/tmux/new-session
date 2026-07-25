@@ -1,5 +1,0 @@
-split-window -v -c "#{pane_current_path}"
-
-select-pane -t 0
-resize-pane -D 15
-select-pane -t 1
