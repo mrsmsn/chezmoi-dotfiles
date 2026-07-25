@@ -49,6 +49,12 @@ function gh-create-and-cd() {
     local repo_url
     repo_url=$(gh repo create "$repo_name" "${opts[@]}") || return 1
 
+    # squash merge 運用のため、マージ済み head ブランチは自動削除する
+    local repo_full=${repo_url#https://github.com/}
+    gh api -X PATCH "repos/${repo_full:-$repo_name}" \
+        -f delete_branch_on_merge=true >/dev/null \
+        || echo "warning: could not enable delete_branch_on_merge" >&2
+
     ghq get "${repo_url:-$repo_name}" || return 1
 
     local repo_path
