@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # herdr-translator popup stage.
-# herdr のプラグインペイン (placement=overlay) 内で実行される。翻訳をバック
+# herdr のプラグインペイン (placement=popup) 内で実行される。翻訳をバック
 # グラウンドで走らせている間スピナーを表示し、結果を pager で表示する。
 # 翻訳対象は translate.sh が cache_dir に書いた src.txt から読む。
 set -euo pipefail
