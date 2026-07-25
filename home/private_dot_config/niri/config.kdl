@@ -32,6 +32,14 @@ input {
 // サーバーサイド装飾を好む (ウィンドウ側の余計なタイトルバーを避ける)。
 prefer-no-csd
 
+// lid close 中は内蔵ディスプレイを消す。niri 標準の自動 off は外部モニタ接続時
+// しか効かない (tty.rs の disable_laptop_panels 判定) ため、単独運用の caffeine
+// 稼働 (suspend 抑止中) だとパネルが点きっぱなしになるのを明示的に補う。
+switch-events {
+    lid-close { spawn "niri" "msg" "output" "eDP-1" "off"; }
+    lid-open { spawn "niri" "msg" "output" "eDP-1" "on"; }
+}
+
 // ---- レイアウト ----
 layout {
     // 空 {} だと既定プリセットに戻るので proportion を明示する。
