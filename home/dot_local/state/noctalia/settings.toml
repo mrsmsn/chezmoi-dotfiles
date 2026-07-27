@@ -1,6 +1,7 @@
 config_version = 2
 
 [bar.main]
+concave_edge_corners = false
 end = [
     "media",
     "noctalia/screen_recorder:recorder",
@@ -15,7 +16,6 @@ end = [
     "session"
 ]
 font_weight = 400
-scale = 1.1499999999999999
 thickness = 36
 widget_spacing = 8
 
