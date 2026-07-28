@@ -2,3 +2,5 @@ result
 result-*
 .direnv/
 tmp/
+# マシン固有の zsh 設定 (誤って chezmoi add してもコミットさせない)
+home/private_dot_config/zsh/local.zsh

@@ -5,3 +5,7 @@ elif [[ -x /usr/local/bin/brew ]]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 {{- end }}
+
+# マシン固有の設定 (chezmoi 管理外)。nix-darwin の /etc/zshrc が ~/.zshrc より
+# 先に compinit を呼ぶため、fpath をいじる類はここ (それより前) で読む
+[[ -r "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
