@@ -36,6 +36,11 @@ auto_hide = true
 [hot_corners.top_right]
 action = "control_center"
 
+[lockscreen]
+blurred_desktop = true
+blur_intensity = 0.5
+tint_intensity = 0.2
+
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
@@ -98,7 +103,7 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-1", 
 
         [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
         background_opacity = 0.0
-        center_text = false
+        center_text = true
         clock_style = "digital"
         color = "on_surface"
         font_family = ""
