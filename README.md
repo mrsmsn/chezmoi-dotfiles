@@ -129,6 +129,8 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 
 apply 後、`<ghq.root>` と (work ON 時) `<work.gitdir_prefix>` で `direnv allow` を 1 回ずつ叩いて有効化する。
 
+`run_onchange_35-link-ghq-src.sh.tmpl` が `<ghq.root>/<host>/<owner>/<repo>` から chezmoi source tree (`~/.local/share/chezmoi`) への symlink を張る。source dir は ghq root の外に固定されていて `ghq list` の走査対象外だが、ghq は root 配下の symlink を repo として辿るのでこの dotfiles 自身も `ghq list` に出る。リンク名は source tree の origin URL から組むので、後から `ghq get` しても同じパスに落ちて実体が二重にならない。逆にリンク先が既に実ディレクトリ (= clone 済み) の場合は何もしない。
+
 git の `[includeIf "gitdir:..."]` は **対象パス配下の git repo の中** にいる時だけ発火する仕様。`cd <work.gitdir_prefix>` しただけの空ディレクトリで `git config -l` を叩いても personal の値のままに見えるが、これは git の挙動どおりで、その下に repo を `git clone` (or `ghq get`) したあとで repo に入って確認すれば work 値になる。
 
 ## Neovim (LazyVim)

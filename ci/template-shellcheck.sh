@@ -37,6 +37,7 @@ EOF
 
 data_templates=(
     home/run_onchange_30-write-envrcs.sh.tmpl
+    home/run_onchange_35-link-ghq-src.sh.tmpl
 )
 
 for tmpl in "${data_templates[@]}"; do

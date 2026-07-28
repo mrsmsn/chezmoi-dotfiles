@@ -6,13 +6,16 @@ image := "chezmoi-dotfiles-ci"
 worktree_mount := `if test -f .git; then common=$(git rev-parse --git-common-dir); (cd "$common" && printf -- '-v %s:%s:Z' "$(pwd)" "$(pwd)"); fi`
 
 # Stop hook が走らせる高速サブセット。chezmoi apply / nix を使わないものだけ。
-ci-fast: lint template-variants nix-tree-hash local-ci-hook install-unit envrcs
+ci-fast: lint template-variants nix-tree-hash local-ci-hook install-unit envrcs ghq-link
 
 build:
     podman build -t {{image}} -f Containerfile .
 
 envrcs: build
     podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/envrcs.bats
+
+ghq-link: build
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/ghq_link.bats
 
 install-unit: build
     podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/install_unit.bats

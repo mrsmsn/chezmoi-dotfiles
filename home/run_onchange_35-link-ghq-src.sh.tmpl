@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# ghq root 配下に chezmoi source tree への symlink を張る。
+#
+# source dir (~/.local/share/chezmoi) は chezmoi が固定する場所で動かせず、
+# `ghq list` は ghq root 配下しか走査しないので dotfiles 自身が list に出ない。
+# ghq (1.10 で確認) は root 配下の symlink を repo として辿るため、実体を移さず
+# リンクだけで list / cd の対象に載せられる。
+#
+# リンク名は remote URL から ghq のパス規約 (<root>/<host>/<owner>/<repo>) で
+# 組む。後から `ghq get` しても同じパスに落ちるので実体の二重取得にならない。
+#
+# 出力先が user の ghq.root を含むため source tree (= public repo) に静的な
+# symlink_ ファイルとして置けない。run_onchange_30 と同じく apply 時に組み立てる。
+# trigger-on: {{ .ghq.root }}|{{ .chezmoi.sourceDir }}
+set -euo pipefail
+
+{{ if .ghq.root -}}
+SOURCE_DIR={{ .chezmoi.sourceDir | quote }}
+GHQ_ROOT={{ .ghq.root | replace "~" .chezmoi.homeDir | quote }}
+
+# `.chezmoiroot = home` により sourceDir は repo ルートではなく その下の home/。
+# ghq が repo と認識するのは .git を持つトップレベルなので、そちらを張る。
+# git 管理下でない source tree (tarball 展開など) では何もできないので抜ける。
+if ! REPO_ROOT="$(git -C "${SOURCE_DIR}" rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "==> skip ghq link: ${SOURCE_DIR} is not in a git work tree"
+    exit 0
+fi
+
+# origin を持たない clone ではリンク名 (= ghq のパス規約) を決められない。
+# ghq list に出ないだけの話なので apply 全体は止めない。
+if ! REMOTE_URL="$(git -C "${REPO_ROOT}" remote get-url origin 2>/dev/null)"; then
+    echo "==> skip ghq link: no origin remote in ${REPO_ROOT}"
+    exit 0
+fi
+
+# https://host/owner/repo(.git) と git@host:owner/repo(.git) の両方を
+# host/owner/repo へ正規化する。
+REPO_PATH="$(printf '%s' "${REMOTE_URL}" \
+    | sed -e 's#^[a-zA-Z+]*://##' -e 's#^[^@/]*@##' -e 's#:#/#' -e 's#\.git$##')"
+LINK="${GHQ_ROOT}/${REPO_PATH}"
+
+# `ghq get` で実体を clone 済みのケース。ln -sfn は既存ディレクトリの *中* に
+# リンクを作ってしまい、二重管理を静かに生むので触らず抜ける。
+if [ -e "${LINK}" ] && [ ! -L "${LINK}" ]; then
+    echo "==> skip ghq link: ${LINK} exists and is not a symlink"
+    exit 0
+fi
+
+mkdir -p "$(dirname "${LINK}")"
+ln -sfn "${REPO_ROOT}" "${LINK}"
+
+echo "==> linked ${LINK} -> ${REPO_ROOT}"
+{{- end }}
