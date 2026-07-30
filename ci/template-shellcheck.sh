@@ -3,6 +3,7 @@
 # run_onchange_20-* は `{{ output "git" ... }}` と `{{ .chezmoi.sourceDir }}` を
 # 使うため単発 render が難しい (E2E は bootstrap-linux job で cover)。
 # run_onchange_30-* は chezmoi data に依存するので別途 test config で render する。
+# SC1091: stdin 渡しでは -x で source 先を follow できないため除外。
 set -euo pipefail
 
 variant_templates=(
@@ -18,7 +19,7 @@ for variant in darwin linux wsl android nixos; do
             echo "(empty after rendering — skip)"
             continue
         fi
-        echo "${rendered}" | shellcheck -s bash -
+        echo "${rendered}" | shellcheck -s bash -e SC1091 -
     done
 done
 
@@ -43,7 +44,7 @@ data_templates=(
 for tmpl in "${data_templates[@]}"; do
     echo "=== ${tmpl} (work ON test config) ==="
     rendered=$(chezmoi --config "${test_config}" execute-template < "${tmpl}")
-    echo "${rendered}" | shellcheck -s bash -
+    echo "${rendered}" | shellcheck -s bash -e SC1091 -
 done
 
 rm -f "${test_config}"
