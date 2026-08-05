@@ -2,6 +2,11 @@
 
 macOS / Ubuntu / WSL / Android / NixOS 用 dotfiles。**chezmoi が `$HOME` 配下のファイル**、**Nix (flakes + home-manager / nix-darwin / NixOS モジュール) がパッケージとシステム設定**を管理する 2 層構成。構成・運用ルールの詳細は README.md。
 
+## Git workflow
+
+- 過去にPR運用していたが廃止。main一本男気で対応する。
+- main pushはユーザーが行う
+
 ## よく使うコマンド
 
 ローカル CI はすべて `just` 経由 (Podman + Ubuntu コンテナ。Containerfile を更新したら `just build` で再ビルド)。
