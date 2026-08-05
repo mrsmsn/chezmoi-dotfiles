@@ -12,18 +12,34 @@ elif [[ -e "${HOME}/.nix-profile/etc/profile.d/nix.sh" ]]; then
     . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
 fi
 
+# 重い input (niri/vicinae/noctalia/llm-agents) のバイナリキャッシュを効かせる。
+# flake の nixConfig でも供給できるが、それは実行ユーザーの trusted-settings.json
+# (対話プロンプトでの受諾記録) というマシンローカル状態に依存し、無人実行では
+# プロンプトが出ず黙って無視される。root(trusted-user) から --option で直接
+# 渡せばどちらにも依存せず決定的に適用される。※ この集合は nix/flake.nix の
+# nixConfig、nix/nixos/configuration.nix と nix/darwin/configuration.nix の
+# nix.settings と同期させること。
+EXTRA_SUBS="https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org https://cache.numtide.com"
+EXTRA_KEYS="niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+
 case "{{ .variant }}" in
     darwin)
-        # nix-darwin activation は root で走るので sudo。HOME と USER を pass-through
-        # しないと ~/.config/nix/nix.conf と flake.nix の `getEnv "USER"` が壊れる。
+        # nix-darwin activation は root で走るので sudo。USER を pass-through
+        # しないと flake.nix の `getEnv "USER"` が壊れる。HOME も渡すが、
+        # darwin-rebuild は内部で HOME=~root にリセットするため、ユーザー側の
+        # nix.conf / trusted-settings.json は評価に効かない (--option が必須な理由)。
         if command -v darwin-rebuild >/dev/null 2>&1; then
             sudo env HOME="$HOME" USER="$USER" \
                 "$(command -v darwin-rebuild)" \
-                switch --flake "${FLAKE}#default" --impure
+                switch --flake "${FLAKE}#default" --impure \
+                --option extra-substituters "${EXTRA_SUBS}" \
+                --option extra-trusted-public-keys "${EXTRA_KEYS}"
         else
             sudo env HOME="$HOME" USER="$USER" \
                 /nix/var/nix/profiles/default/bin/nix \
-                run nix-darwin -- switch --flake "${FLAKE}#default" --impure
+                run nix-darwin -- switch --flake "${FLAKE}#default" --impure \
+                --option extra-substituters "${EXTRA_SUBS}" \
+                --option extra-trusted-public-keys "${EXTRA_KEYS}"
         fi
         ;;
     nixos)
@@ -34,14 +50,6 @@ case "{{ .variant }}" in
             echo "ERROR: /etc/nixos/hardware-configuration.nix not found (run nixos-generate-config)" >&2
             exit 1
         }
-        # 新規 PC の初回ビルドで重い input (niri/vicinae/noctalia/llm-agents) の
-        # バイナリキャッシュを効かせる。flake の nixConfig でも供給できるが、それは初回 rebuild で
-        # 対話的な "allow configuration setting? (y/N)" を要求する。root(trusted)
-        # から --option で直接渡せばプロンプト無しで適用され、ブートストラップが
-        # 完全無人になる。※ この集合は nix/flake.nix の nixConfig と
-        # nix/nixos/configuration.nix の nix.settings と同期させること。
-        EXTRA_SUBS="https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org https://cache.numtide.com"
-        EXTRA_KEYS="niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         # darwin と同様 HOME/USER を pass-through (flake の getEnv "USER" 対策)。
         # sudo の secure_path 対策で command -v で解決したフルパスを渡す。
         sudo env HOME="$HOME" USER="$USER" \

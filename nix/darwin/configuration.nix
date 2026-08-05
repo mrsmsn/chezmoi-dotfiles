@@ -28,6 +28,24 @@ in
   # 書くが `darwin-rebuild switch` のたびにこのモジュールが上書きする。
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
+
+    # 重い input をソースビルドしないための substituter 登録 (nixos 側と同じ集合)。
+    # これは activate 後の恒常 /etc/nix/nix.conf に効く (以降の rebuild や ad-hoc
+    # nix 操作用)。初回 rebuild では activate スクリプトの --option が同じ集合を担う。
+    # darwin-rebuild は HOME=~root にリセットするため flake nixConfig の受諾状態
+    # (trusted-settings.json) には頼れない。ここに焼き込むことで決定的にする。
+    extra-substituters = [
+      "https://niri.cachix.org"
+      "https://vicinae.cachix.org"
+      "https://noctalia.cachix.org"
+      "https://cache.numtide.com"
+    ];
+    extra-trusted-public-keys = [
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
   };
 
   system.stateVersion = 4;
