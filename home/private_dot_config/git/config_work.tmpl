@@ -1,5 +1,8 @@
 {{- /* work プロファイル OFF (.work.gitdir_prefix 空) のマシンでは
        home/.chezmoiignore がこのファイル自体を ignore する。 */ -}}
+[ghq]
+    root = ~/src
+
 [user]
     name = {{ .work.user_name | quote }}
     email = {{ .work.user_email | quote }}
