@@ -5,6 +5,9 @@
     name = {{ .git.user_name | quote }}
     email = {{ .git.user_email | quote }}
 
+[fetch]
+    prune = true
+
 {{- if .git.ssh_key }}
 [core]
     sshCommand = "ssh -i ~/.ssh/{{ .git.ssh_key }} -o IdentitiesOnly=yes"
@@ -28,3 +31,7 @@
 [includeIf "gitdir:{{ .ghq.root }}/github.com/{{ .work.gh_user }}/"]
     path = ~/.config/git/config_work
 {{- end }}
+
+# マシン固有・リポジトリに入れたくない設定の置き場 (chezmoi 管理外。無ければ無視される)。
+[include]
+    path = ~/.config/git/config_local
