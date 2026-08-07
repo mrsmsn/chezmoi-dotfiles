@@ -7,6 +7,7 @@ KPI やカバレッジ目標が与えられたら、達成するまで試行す�
 ## Git
 
 作業の区切りがついた段階で毎回コミットする。
+コードの変更量が多い場合や複数機能に跨る場合は、各 PR が最小限になるよう [stacked pull requests](https://docs.github.com/pull-requests/how-tos/stacked-pull-requests) を積極的に利用する。
 
 ## コメント・ドキュメント
 
