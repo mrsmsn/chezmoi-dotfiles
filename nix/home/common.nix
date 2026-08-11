@@ -20,6 +20,14 @@ in {
     flake = "${homeDir}/.local/share/chezmoi/nix";
   };
 
+  # nix-direnv で use flake の評価をキャッシュする (素の use_flake は direnv 発火の
+  # たびに flake を再評価して遅い)。stdlib は指定しない — direnvrc は chezmoi 管理
+  # (use_gh_user ヘルパー) のままにし、nix-direnv は lib/ 側から自動ロードさせる。
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   home.packages = with pkgs; [
     apm
     awscli2
@@ -28,7 +36,6 @@ in {
     claude-code
     delta
     devbox
-    direnv
     duckdb
     fastfetch
     fd
