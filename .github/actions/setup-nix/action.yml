@@ -1,0 +1,22 @@
+name: Setup Nix
+# install-nix-action + バイナリキャッシュ登録。substituter の集合は
+# nix/flake.nix の nixConfig と同期させる (CLAUDE.md の同期ルール参照)。
+# CI では flake nixConfig が「untrusted flake configuration setting」として
+# 無視されるため、ここで /etc/nix/nix.conf (daemon 設定) に書いて初めて
+# 実マシンと同じキャッシュ経路になる。欠けると重い input (niri / vicinae /
+# noctalia / llm-agents) をソースビルドし、上流 FOD hash 破損も直撃する。
+description: Install Nix with the same binary caches as real machines
+inputs:
+  github-token:
+    description: GitHub token for access-tokens (rate limit 対策)
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: cachix/install-nix-action@v31
+      with:
+        extra_nix_config: |
+          experimental-features = nix-command flakes
+          access-tokens = github.com=${{ inputs.github-token }}
+          extra-substituters = https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org https://cache.numtide.com
+          extra-trusted-public-keys = niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=

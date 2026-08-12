@@ -61,8 +61,15 @@ main() {
 
     if ! command -v nix >/dev/null 2>&1; then
         echo "==> Installing Nix (NixOS official installer)"
+        # バイナリキャッシュ (nix/flake.nix の nixConfig と同じ集合。CLAUDE.md の
+        # 同期ルール参照) を installer 経由で /etc/nix/nix.conf に焼き込む。
+        # daemon 起動前に daemon 設定へ入れる唯一の経路で、これが無いと初回
+        # bootstrap (CI 含む) は flake nixConfig が未受諾のまま重い input を
+        # ソースビルドする。既存マシンは他の登録箇所でカバー済みのため不変。
         curl --proto '=https' --tlsv1.2 -sSf -L https://artifacts.nixos.org/nix-installer \
-            | sh -s -- install --no-confirm --enable-flakes
+            | sh -s -- install --no-confirm --enable-flakes \
+                --extra-conf "extra-substituters = https://niri.cachix.org https://vicinae.cachix.org https://noctalia.cachix.org https://cache.numtide.com" \
+                --extra-conf "extra-trusted-public-keys = niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     fi
 
     if [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
