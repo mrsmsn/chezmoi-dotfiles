@@ -39,6 +39,14 @@ local-ci-hook: build
 # する。nix は親 lock を作るとき子 flake の lock を引き継がず input spec を最新
 # 解決するため、放置すると numtide CI がビルドした closure と derivation hash が
 # ずれ、cache.numtide.com を miss して herdr (Rust) がローカルソースビルドに化ける。
+#
+# さらに root nixpkgs を niri-flake 自身の lock が pin する rev に再 pin する。
+# niri は overlay 方式 (root nixpkgs で callPackage) なので、root nixpkgs が
+# niri-flake の pin から先行すると (1) niri.cachix.org のキャッシュと derivation
+# hash がずれて niri (Rust) がソースビルドに化け、(2) niri-flake が未追従の
+# nixpkgs 破壊的変更 (例: 2026-08 の libdisplay-info_0_2 alias 削除) で eval が
+# 落ちる。両者が一致している間だけ cache hit + eval 成功が成立する。
 nix-update *INPUTS:
     nix flake update {{INPUTS}} --flake ./nix
     rev="$(nix flake metadata --json "github:numtide/llm-agents.nix/$(jq -r '.nodes[.nodes.root.inputs["llm-agents"]].locked.rev' nix/flake.lock)" | jq -r '.locks.nodes[.locks.nodes.root.inputs.nixpkgs].locked.rev')" && nix flake lock ./nix --override-input llm-agents/nixpkgs "github:NixOS/nixpkgs/${rev}"
+    rev="$(nix flake metadata --json "github:sodiboo/niri-flake/$(jq -r '.nodes[.nodes.root.inputs.niri].locked.rev' nix/flake.lock)" | jq -r '.locks.nodes[.locks.nodes.root.inputs.nixpkgs].locked.rev')" && nix flake lock ./nix --override-input nixpkgs "github:NixOS/nixpkgs/${rev}"
