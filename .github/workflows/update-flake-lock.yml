@@ -22,21 +22,25 @@ jobs:
       HAS_PAT: ${{ secrets.FLAKE_UPDATE_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v31
+      - uses: ./.github/actions/setup-nix
         with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - name: Update nix/flake.lock and open PR
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # 素の `nix flake update` (DeterminateSystems/update-flake-lock) ではなく
+      # just nix-update を使う: llm-agents/nixpkgs と root nixpkgs の再 pin が
+      # 走らないと、numtide / niri の各バイナリキャッシュと derivation hash が
+      # ずれて cache miss + eval 破壊を bot PR が持ち込むため (justfile 参照)。
+      - name: Run just nix-update
+        run: nix shell nixpkgs#just nixpkgs#jq --command just nix-update
+      - name: Open PR
         id: update
-        uses: DeterminateSystems/update-flake-lock@v28
+        uses: peter-evans/create-pull-request@v7
         with:
-          path-to-flake-dir: nix
-          branch: update-flake-lock
-          pr-title: "chore: update nix/flake.lock"
-          pr-labels: dependencies
-          commit-msg: "chore: update nix/flake.lock"
           token: ${{ secrets.FLAKE_UPDATE_TOKEN || github.token }}
+          branch: update-flake-lock
+          title: "chore: update nix/flake.lock"
+          commit-message: "chore: update nix/flake.lock"
+          labels: dependencies
+          add-paths: nix/flake.lock
       - name: Trigger CI on the update branch
         if: env.HAS_PAT != 'true' && steps.update.outputs.pull-request-number != ''
         env:
