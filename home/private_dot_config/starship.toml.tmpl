@@ -1,7 +1,9 @@
-{{- /* OS アイコン: darwin= (Apple), wsl= (Windows), linux= (Tux) */ -}}
+{{- /* OS アイコン: darwin= (Apple), wsl= (Windows), nixos= (NixOS), linux= (Ubuntu), その他= (Tux) */ -}}
 {{- $os_icon := "" -}}
 {{- if eq .variant "darwin" -}}{{- $os_icon = "" -}}
 {{- else if eq .variant "wsl" -}}{{- $os_icon = "" -}}
+{{- else if eq .variant "nixos" -}}{{- $os_icon = "" -}}
+{{- else if eq .variant "linux" -}}{{- $os_icon = "" -}}
 {{- end }}
 ## プロンプト間の空行は zsh 側の precmd で入れる (init.zsh 参照)。
 ## add_newline だと起動直後の最初のプロンプトにも空行が付いてしまうため。
