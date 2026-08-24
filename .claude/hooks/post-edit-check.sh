@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PostToolUse hook: 編集ファイルだけに per-file の bash/zsh syntax + shellcheck
 # を即時走らせて、違反を additionalContext で同一ループ内に返す (フル検証は
-# Stop hook 側の `just ci-fast`)。
+# 手動の `just ci-fast`)。
 
 set -u
 set -o pipefail

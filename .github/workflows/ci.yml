@@ -142,7 +142,6 @@ jobs:
         run: |
           ./ci/run-bats.sh \
             ci/test/install_unit.bats \
-            ci/test/local_ci_hook.bats \
             ci/test/nix_tree_hash.bats \
             ci/test/install_e2e.bats \
             ci/test/envrcs.bats \
