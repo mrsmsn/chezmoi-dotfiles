@@ -5,6 +5,7 @@ let
 in
 {
   imports = [
+    ../tailscale.nix
     ./homebrew.nix
     ./fonts.nix
   ];

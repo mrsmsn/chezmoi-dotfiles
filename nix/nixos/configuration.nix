@@ -8,6 +8,7 @@ let
 in
 {
   imports = [
+    ../tailscale.nix
     ./desktop.nix
     ./fonts.nix
     ./kanata.nix
@@ -75,7 +76,6 @@ in
     LC_TIME           = "ja_JP.UTF-8";
   };
 
-  services.tailscale.enable = true;
   services.printing.enable = true;
 
   # ログインシェルは NixOS のシステム設定 (users.users.<name>.shell) が決める。
