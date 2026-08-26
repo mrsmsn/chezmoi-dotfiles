@@ -5,46 +5,31 @@
 {{- else if eq .variant "nixos" -}}{{- $os_icon = "" -}}
 {{- else if eq .variant "linux" -}}{{- $os_icon = "" -}}
 {{- end -}}
-{{- /* マシン別配色: mac-mini-m4 は herdr タブの accent (#00af87) と同系の緑 + 白文字、他は青 */ -}}
-{{- $c1 := "#a3aed2" -}}
-{{- $c2 := "#769ff0" -}}
-{{- $c3 := "#394260" -}}
-{{- $c4 := "#212736" -}}
-{{- $c5 := "#1d2230" -}}
-{{- $fg_accent := "#769ff0" -}}
-{{- $fg_time := "#a0a9cb" -}}
-{{- if eq .machine "mac-mini-m4" -}}
-{{-   $c1 = "#7fd1b9" -}}
-{{-   $c2 = "#00af87" -}}
-{{-   $c3 = "#2f5348" -}}
-{{-   $c4 = "#1f3b33" -}}
-{{-   $c5 = "#1a332c" -}}
-{{-   $fg_accent = "#e3e5e5" -}}
-{{-   $fg_time = "#e3e5e5" -}}
-{{- end }}
+{{- /* 配色は home/.chezmoidata/colors.toml で一元管理 (hex 直書き禁止) */ -}}
+{{- $c := index .colors.palettes .machine | default .colors.palettes.default }}
 ## プロンプト間の空行は zsh 側の precmd で入れる (init.zsh 参照)。
 ## add_newline だと起動直後の最初のプロンプトにも空行が付いてしまうため。
 add_newline = false
 format = """
-[░▒▓]({{ $c1 }})\
-[ {{ $os_icon }} ](bg:{{ $c1 }} fg:#090c0c)\
-[](bg:{{ $c2 }} fg:{{ $c1 }})\
+[░▒▓]({{ $c.accent_subtle }})\
+[ {{ $os_icon }} ](bg:{{ $c.accent_subtle }} fg:{{ .colors.common.on_subtle }})\
+[](bg:{{ $c.accent }} fg:{{ $c.accent_subtle }})\
 $directory\
-[](fg:{{ $c2 }} bg:{{ $c3 }})\
+[](fg:{{ $c.accent }} bg:{{ $c.surface1 }})\
 $git_branch\
 $git_status\
-[](fg:{{ $c3 }} bg:{{ $c4 }})\
+[](fg:{{ $c.surface1 }} bg:{{ $c.surface2 }})\
 $nodejs\
 $rust\
 $golang\
 $php\
-[](fg:{{ $c4 }} bg:{{ $c5 }})\
+[](fg:{{ $c.surface2 }} bg:{{ $c.surface3 }})\
 $time\
-[ ](fg:{{ $c5 }})\
+[ ](fg:{{ $c.surface3 }})\
 \n$character"""
 
 [directory]
-style = "fg:#e3e5e5 bg:{{ $c2 }}"
+style = "fg:{{ .colors.common.on_accent }} bg:{{ $c.accent }}"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
@@ -57,35 +42,35 @@ truncation_symbol = "…/"
 
 [git_branch]
 symbol = ""
-style = "bg:{{ $c3 }}"
-format = '[[ $symbol $branch ](fg:{{ $fg_accent }} bg:{{ $c3 }})]($style)'
+style = "bg:{{ $c.surface1 }}"
+format = '[[ $symbol $branch ](fg:{{ $c.fg_accent }} bg:{{ $c.surface1 }})]($style)'
 
 [git_status]
-style = "bg:{{ $c3 }}"
-format = '[[($all_status$ahead_behind )](fg:{{ $fg_accent }} bg:{{ $c3 }})]($style)'
+style = "bg:{{ $c.surface1 }}"
+format = '[[($all_status$ahead_behind )](fg:{{ $c.fg_accent }} bg:{{ $c.surface1 }})]($style)'
 
 [nodejs]
 symbol = ""
-style = "bg:{{ $c4 }}"
-format = '[[ $symbol ($version) ](fg:{{ $fg_accent }} bg:{{ $c4 }})]($style)'
+style = "bg:{{ $c.surface2 }}"
+format = '[[ $symbol ($version) ](fg:{{ $c.fg_accent }} bg:{{ $c.surface2 }})]($style)'
 
 [rust]
 symbol = ""
-style = "bg:{{ $c4 }}"
-format = '[[ $symbol ($version) ](fg:{{ $fg_accent }} bg:{{ $c4 }})]($style)'
+style = "bg:{{ $c.surface2 }}"
+format = '[[ $symbol ($version) ](fg:{{ $c.fg_accent }} bg:{{ $c.surface2 }})]($style)'
 
 [golang]
 symbol = ""
-style = "bg:{{ $c4 }}"
-format = '[[ $symbol ($version) ](fg:{{ $fg_accent }} bg:{{ $c4 }})]($style)'
+style = "bg:{{ $c.surface2 }}"
+format = '[[ $symbol ($version) ](fg:{{ $c.fg_accent }} bg:{{ $c.surface2 }})]($style)'
 
 [php]
 symbol = ""
-style = "bg:{{ $c4 }}"
-format = '[[ $symbol ($version) ](fg:{{ $fg_accent }} bg:{{ $c4 }})]($style)'
+style = "bg:{{ $c.surface2 }}"
+format = '[[ $symbol ($version) ](fg:{{ $c.fg_accent }} bg:{{ $c.surface2 }})]($style)'
 
 [time]
 disabled = false
 time_format = "%R" # Hour:Minute Format
-style = "bg:{{ $c5 }}"
-format = '[[  $time ](fg:{{ $fg_time }} bg:{{ $c5 }})]($style)'
+style = "bg:{{ $c.surface3 }}"
+format = '[[  $time ](fg:{{ $c.fg_time }} bg:{{ $c.surface3 }})]($style)'

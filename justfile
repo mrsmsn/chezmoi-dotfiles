@@ -6,7 +6,7 @@ image := "chezmoi-dotfiles-ci"
 worktree_mount := `if test -f .git; then common=$(git rev-parse --git-common-dir); (cd "$common" && printf -- '-v %s:%s:Z' "$(pwd)" "$(pwd)"); fi`
 
 # 高速サブセット。chezmoi apply / nix を使わないものだけ。
-ci-fast: lint template-variants nix-tree-hash install-unit envrcs ghq-link
+ci-fast: lint template-variants color-palette nix-tree-hash install-unit envrcs ghq-link
 
 build:
     podman build -t {{image}} -f Containerfile .
@@ -25,6 +25,9 @@ lint: build
 
 template-variants: build
     podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/template_variants.bats
+
+color-palette: build
+    podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/color_palette.bats
 
 nix-tree-hash: build
     podman run --rm {{worktree_mount}} -v "$PWD":/repo:Z -w /repo {{image}} ./ci/run-bats.sh ci/test/nix_tree_hash.bats

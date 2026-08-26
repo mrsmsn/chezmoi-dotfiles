@@ -145,7 +145,8 @@ jobs:
             ci/test/nix_tree_hash.bats \
             ci/test/install_e2e.bats \
             ci/test/envrcs.bats \
-            ci/test/ghq_link.bats
+            ci/test/ghq_link.bats \
+            ci/test/color_palette.bats
 
   bootstrap-linux:
     name: End-to-end bootstrap on Linux

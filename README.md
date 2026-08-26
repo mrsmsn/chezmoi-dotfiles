@@ -104,6 +104,15 @@ chezmoi テンプレート内では `{{ .variant }}` で `darwin` / `linux` / `w
 
 判定順は `android > wsl > nixos > linux` (`.chezmoi.toml.tmpl` 内で上から順に評価)。そのため **NixOS を WSL 上で動かした場合は `wsl` 判定になり、`nixos` にはならない** (kernel.osrelease の `microsoft` 判定が先に当たるため)。
 
+`{{ .machine }}` はマシン個体の識別子で、darwin かつ `sysctl hw.model` が `Mac16,10` / `Mac16,11` のとき `mac-mini-m4`、それ以外は空文字。現在は配色切替 (下記) にのみ使う。
+
+### 配色 (starship / herdr)
+
+色は `home/.chezmoidata/colors.toml` **のみ**で編集する。starship / herdr の tmpl への hex 直書きは CI (`ci/test/color_palette.bats`、`just color-palette`) が fail させる。
+
+- `[colors.palettes.default]` が全マシン共通の既定 (青系)。マシン別にしたい場合は `.chezmoi.toml.tmpl` の machine 判定に追記し `[colors.palettes.<machine>]` を足す (無ければ default に落ちる)。現在は `mac-mini-m4` だけ緑系で、herdr タブと starship プロンプトの accent を揃えている。
+- 確認: `chezmoi cat ~/.config/starship.toml` / `just color-palette`。
+
 ## 個人/work のセットアップ
 
 初回 `chezmoi apply` で対話プロンプトが出る (回答は `~/.config/chezmoi/chezmoi.toml` に保存)。
@@ -148,6 +157,6 @@ Neovim 本体は `nix/home/common.nix` で全 OS 共通インストール、設�
 ## スコープ外
 
 - シークレット管理 (機微値は `~/.config/chezmoi/chezmoi.toml` で持つ)
-- ホスト別の machine 固有変数
+- ホスト別の machine 固有変数 (`.machine` による配色切替のみ例外)
 - Home Manager の `programs.*` による dotfile 生成 (dotfile は chezmoi 管轄)
 - Intel Mac / aarch64 Linux (Pixel Linux Terminal 以外。必要になったら `nix/flake.nix` へ追記)

@@ -1,0 +1,28 @@
+# starship / herdr の配色の単一ソース。tmpl への hex 直書きは
+# ci/test/color_palette.bats が禁止している。
+# マシン別パレットの追加: .chezmoi.toml.tmpl の machine 判定に追記し、
+# [colors.palettes.<machine>] を足す (無ければ default が使われる)。
+
+[colors.common]               # 機種非依存
+on_accent = "#e3e5e5"         # accent 背景上の文字 (starship directory)
+on_subtle = "#090c0c"         # accent_subtle 背景上の文字 (starship OS アイコン)
+
+[colors.palettes.default]     # machine = "" ほか専用パレットの無い全マシン (青系)
+accent        = "#769ff0"     # starship c2
+accent_subtle = "#a3aed2"     # starship c1 (左端キャップ)
+surface1      = "#394260"     # git segment bg
+surface2      = "#212736"     # lang segment bg
+surface3      = "#1d2230"     # time segment bg
+fg_accent     = "#769ff0"     # git/lang segment の文字
+fg_time       = "#a0a9cb"
+herdr_accent  = "#7fc8ff"     # herdr のみ歴史的に starship accent と別値 (現状維持)
+
+[colors.palettes.mac-mini-m4] # 緑系
+accent        = "#00af87"
+accent_subtle = "#7fd1b9"
+surface1      = "#2f5348"
+surface2      = "#1f3b33"
+surface3      = "#1a332c"
+fg_accent     = "#e3e5e5"     # 白文字
+fg_time       = "#e3e5e5"
+herdr_accent  = "#00af87"     # = accent (herdr タブと starship を揃える)
