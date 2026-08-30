@@ -8,6 +8,7 @@
     noctalia.homeModules.default
     vicinae.homeManagerModules.default
     ./noctalia-caffeine-lid.nix
+    ./mozc-direct-on-focus.nix
   ];
 
   # 世代保持 + GC は system 側の `nh clean all` (nix/nixos/configuration.nix) が

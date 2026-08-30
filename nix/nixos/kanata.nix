@@ -54,12 +54,12 @@
           ;; 左右 Alt を dual-role 化して macOS の英数/かな相当を作る:
           ;; 押しっぱなしは従来通り Alt(修飾キー)、単押しのときだけ IME 切替キー
           ;; を送出する。
-          ;;   左Alt 単押し -> Hangul_Hanja (fcitx5 の Deactivate = 英数/us 直接入力)
-          ;;   右Alt 単押し -> Hangul       (fcitx5 の Activate   = mozc/かな)
-          ;; あえて Henkan/Muhenkan ではなく Hangul 系キーシムを使う: Mozc は既定
-          ;; キーマップでこれらを束縛しない (Korean 用) ため Mozc に消費されず、
-          ;; fcitx5 の Activate/Deactivate が競合なく発火する。Henkan/Muhenkan だと
-          ;; Mozc がカナ種切替として先に食ってしまい fcitx5 の切替が効かない。
+          ;;   左Alt 単押し -> Hangul_Hanja (Mozc の IMEOff = Direct/英数)
+          ;;   右Alt 単押し -> Hangul       (Mozc の IMEOn  = かな)
+          ;; あえて Henkan/Muhenkan ではなく Hangul 系キーシムを使う: fcitx5-mozc が
+          ;; これらを Mozc の ON/OFF キーに変換し、他に束縛が無いので競合しない
+          ;; (fcitx5 側の扱いは home/.config/fcitx5/config 参照)。Henkan/Muhenkan だと
+          ;; Mozc がカナ種切替として先に食ってしまい ON/OFF にならない。
           ;; ショートカット (Alt+Tab 等) の即応性を保つため、こちらは
           ;; tap-hold-press (hold-preferred: 他キーの press で即 hold 確定)。
           lalt (tap-hold-press 175 200 hanj lalt)

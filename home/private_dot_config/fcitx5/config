@@ -3,16 +3,18 @@ EnumerateWithTriggerKeys=True
 EnumerateSkipFirst=False
 ModifierOnlyKeyTimeout=250
 
-# Hangul は下の ActivateKeys 専用にするので Trigger からは外す (衝突回避)。
+# Hangul は Mozc の IMEOn 用なので Trigger からは外す (衝突回避)。
 [Hotkey/TriggerKeys]
 0=Control+space
 1=Zenkaku_Hankaku
 
-# xremap が左Alt 単押しで Hangul_Hanja、右Alt 単押しで Hangul を送出する
-# (nix/nixos/configuration.nix の dual-role modmap)。Hangul 系は Mozc が束縛
-# しないので Mozc に食われず、fcitx5 の Activate/Deactivate が確実に発火する:
-#   Hangul       -> Activate   = mozc/かな (InitialMode=Hiragana は conf/mozc.conf)
-#   Hangul_Hanja -> Deactivate = 英数 (us 直接入力)
+# kanata が左Alt 単押しで Hangul_Hanja、右Alt 単押しで Hangul を送出する
+# (nix/nixos/kanata.nix)。IM グループは mozc 1 個だけなので fcitx5 自身の
+# Activate/Deactivate は成立せず (IM 2 個以上が条件)、これらのキーは fcitx5 を
+# 素通りして fcitx5-mozc が Mozc の ON/OFF キーに変換する:
+#   Hangul       -> Mozc IMEOn  = かな (InitialMode=Hiragana は conf/mozc.conf)
+#   Hangul_Hanja -> Mozc IMEOff = Direct (英数)
+# ActivateKeys/DeactivateKeys は IM を増やしたときにそのまま効くよう残す。
 [Hotkey/ActivateKeys]
 0=Hangul
 
