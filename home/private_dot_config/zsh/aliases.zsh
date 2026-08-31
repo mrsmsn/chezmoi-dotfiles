@@ -13,3 +13,6 @@ alias fk='fzf-kill'
 alias docker='podman'
 alias chrome='open -a google\ chrome'
 alias cmu='chezmoi update'
+
+alias ccc='claude -c'
+alias ccr='claude -r'
