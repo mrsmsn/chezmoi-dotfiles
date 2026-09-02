@@ -63,6 +63,7 @@ in {
     # 不可になる。nix 版を PATH に置き mason 版を使わせない。
     tree-sitter
     yazi
+    yq
     zoxide
   ];
 }
