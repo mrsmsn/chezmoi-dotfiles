@@ -1,5 +1,9 @@
 { pkgs, ... }:
 
+let
+  # flake.nix と同じ impure パターンで username を取得する (configuration.nix 参照)。
+  username = builtins.getEnv "USER";
+in
 {
   # X11。近年の nixos-unstable では GDM/GNOME の enable は
   # services.displayManager.* / services.desktopManager.* に移動している。
@@ -49,6 +53,25 @@
       fcitx5-mozc
       fcitx5-gtk
     ];
+  };
+
+  # 長時間サスペンドから復帰すると niri⇄fcitx5 の zwp_input_method_v2 セッションが
+  # stale 化し、fcitx5 は生存したままフォーカス通知 (activate) だけが届かなくなって
+  # 日本語入力が効かなくなる (ウィンドウ切替でも回復しない)。fcitx5 側が再バインド
+  # すれば即回復するため、resume 後に Controller1.Restart で in-place re-exec させる
+  # (プロセスの親子関係が変わらないので、niri の spawn-at-startup 配下のまま)。
+  # sleep target は user manager に propagate されないため system unit で hook し、
+  # root から --machine=<user>@.host でユーザーの session bus に入る。
+  # --auto-start=no と ExecStart の "-" prefix は、fcitx5 が居ないとき (セッション外
+  # での suspend) に D-Bus activation で孤児を起動したり unit を failed にしないため。
+  systemd.services.fcitx5-resume-restart = {
+    description = "Restart fcitx5 after resume to recover IME activation";
+    after = [ "suspend.target" ];
+    wantedBy = [ "suspend.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "-${pkgs.systemd}/bin/busctl --user --machine=${username}@.host --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 Restart";
+    };
   };
 
   # Chromium/Electron を Wayland ネイティブ (Ozone) で動かす。
