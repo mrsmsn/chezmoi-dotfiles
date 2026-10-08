@@ -19,6 +19,9 @@
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "model": "fable",
+  "env": {
+    "CLAUDE_CODE_EFFORT_LEVEL": "max"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
