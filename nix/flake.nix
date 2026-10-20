@@ -77,11 +77,12 @@
       username = builtins.getEnv "USER";
 
       customPackagesOverlay = final: prev: {
-        jpcal       = final.callPackage ./pkgs/jpcal.nix { };
-        apm         = llm-agents.packages.${final.system}.apm;
-        claude-code = llm-agents.packages.${final.system}.claude-code;
-        herdr       = llm-agents.packages.${final.system}.herdr;
-        hunk        = llm-agents.packages.${final.system}.hunk;
+        jpcal        = final.callPackage ./pkgs/jpcal.nix { };
+        apm          = llm-agents.packages.${final.system}.apm;
+        claude-code  = llm-agents.packages.${final.system}.claude-code;
+        cursor-agent = llm-agents.packages.${final.system}.cursor-agent;
+        herdr        = llm-agents.packages.${final.system}.herdr;
+        hunk         = llm-agents.packages.${final.system}.hunk;
 
         # Temporary shim: the nixos-unstable channel is currently pinned to a
         # nixpkgs commit that limits podman to `lib.platforms.linux` (nixpkgs
