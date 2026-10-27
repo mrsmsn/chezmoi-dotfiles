@@ -33,8 +33,9 @@ in {
     awscli2
     bat
     btop
-    cursor-agent
     claude-code
+    codex
+    cursor-agent
     delta
     devbox
     duckdb

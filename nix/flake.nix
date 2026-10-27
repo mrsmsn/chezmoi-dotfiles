@@ -11,7 +11,7 @@
       "https://niri.cachix.org"      # niri: niri-stable (Rust)
       "https://vicinae.cachix.org"   # vicinae: Qt/C++ ランチャー
       "https://noctalia.cachix.org"  # noctalia: C++/meson シェル
-      "https://cache.numtide.com"    # llm-agents: apm / claude-code / herdr (Rust) / hunk
+      "https://cache.numtide.com"    # llm-agents: apm / claude-code / codex / herdr (Rust) / hunk
     ];
     extra-trusted-public-keys = [
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
@@ -56,7 +56,7 @@
     # (cachix は nix/nixos/configuration.nix の nix.settings で substituter 登録)。
     vicinae.url = "github:vicinaehq/vicinae";
 
-    # apm / claude-code / herdr の供給元。numtide が全パッケージを CI で
+    # apm / claude-code / codex / herdr の供給元。numtide が全パッケージを CI で
     # ビルドして自前キャッシュ (cache.numtide.com) に push しているため、
     # niri/vicinae/noctalia と同じ理由で inputs.nixpkgs.follows は付けない:
     # follows するとハッシュがずれて herdr (Rust) が毎回ローカルフルビルドになる。
@@ -80,6 +80,7 @@
         jpcal        = final.callPackage ./pkgs/jpcal.nix { };
         apm          = llm-agents.packages.${final.system}.apm;
         claude-code  = llm-agents.packages.${final.system}.claude-code;
+        codex        = llm-agents.packages.${final.system}.codex;
         cursor-agent = llm-agents.packages.${final.system}.cursor-agent;
         herdr        = llm-agents.packages.${final.system}.herdr;
         hunk         = llm-agents.packages.${final.system}.hunk;
